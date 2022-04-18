@@ -2,13 +2,6 @@
     "name": "btn-user-platform",
     "version": "0.1.0",
     "private": true,
-    "dependencies": {
-        "@vkontakte/icons": "^1.150.2",
-        "@vkontakte/vkui": "^4.28.1",
-        "react": "^18.0.0",
-        "react-dom": "^18.0.0",
-        "react-scripts": "5.0.1"
-    },
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build",
@@ -19,6 +12,13 @@
         "extends": [
             "react-app"
         ]
+    },
+    "dependencies": {
+        "@vkontakte/icons": "^1.150.2",
+        "@vkontakte/vkui": "^4.28.1",
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0",
+        "react-scripts": "5.0.1"
     },
     "devDependencies": {
         "@types/node": "^17.0.25",
