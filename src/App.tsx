@@ -1,25 +1,39 @@
-import React, { ReactElement } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import {
+    useAdaptivity,
+    AppRoot,
+    SplitLayout,
+    SplitCol,
+    ViewWidth,
+    View,
+    Panel,
+    PanelHeader,
+    Header,
+    Group,
+    SimpleCell
+} from '@vkontakte/vkui'
 
-function App (): ReactElement {
+import '@vkontakte/vkui/dist/vkui.css'
+import { ReactElement } from 'react'
+
+const App = (): ReactElement => {
+    const { viewWidth } = useAdaptivity()
+
     return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                     Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-            </header>
-        </div>
+        <AppRoot>
+            <SplitLayout header={<PanelHeader separator={false} />}>
+                <SplitCol spaced={viewWidth && viewWidth > ViewWidth.MOBILE}>
+                    <View activePanel="main">
+                        <Panel id="main">
+                            <PanelHeader>VKUI</PanelHeader>
+                            <Group header={<Header mode="secondary">Items</Header>}>
+                                <SimpleCell>Hello</SimpleCell>
+                                <SimpleCell>World</SimpleCell>
+                            </Group>
+                        </Panel>
+                    </View>
+                </SplitCol>
+            </SplitLayout>
+        </AppRoot>
     )
 }
 
