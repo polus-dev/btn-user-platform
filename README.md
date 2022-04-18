@@ -20,9 +20,13 @@ example settings for VS Code(`.vscode/settings.json`):
         "javascript"
     ],
     "cSpell.words": [
+        "biton",
         "browserslist",
         "paren",
-        "parens"
+        "parens",
+        "TTFB",
+        "vkontakte",
+        "vkui"
     ]
 }
 ```
