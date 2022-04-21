@@ -18,15 +18,6 @@ example settings for VS Code(`.vscode/settings.json`):
     },
     "eslint.validate": [
         "javascript"
-    ],
-    "cSpell.words": [
-        "biton",
-        "browserslist",
-        "paren",
-        "parens",
-        "TTFB",
-        "vkontakte",
-        "vkui"
     ]
 }
 ```
