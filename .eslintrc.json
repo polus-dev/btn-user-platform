@@ -32,6 +32,7 @@
         }
     },
     "rules": {
+        "linebreak-style": ["error", "windows"],
         "no-console": "off",
         "no-shadow": "off",
         "no-bitwise": "off",

@@ -16,9 +16,11 @@
     "dependencies": {
         "@vkontakte/icons": "^1.150.2",
         "@vkontakte/vkui": "^4.28.1",
+        "@vkontakte/vk-bridge": "^2.5.3",
         "react": "^18.0.0",
         "react-dom": "^18.0.0",
-        "react-scripts": "5.0.1"
+        "react-scripts": "5.0.1",
+        "yarn": "^1.22.18"
     },
     "devDependencies": {
         "@types/node": "^17.0.25",
