@@ -1,33 +1,35 @@
 import { Icon12Verified, Icon28MessageOutline } from '@vkontakte/icons'
 import {
-    View,
     Panel,
     PanelHeader,
     Group,
     Avatar,
     SimpleCell,
-    IconButton
+    IconButton,
+    View
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
 import React, { useEffect } from 'react'
 import { FrontAddr } from '../types'
 
-const Wallet: React.FC = () => {
+interface IMyProps {
+    id: string,
+}
+
+const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
     const [ address, setAddress ] = React.useState<FrontAddr>(null)
 
     useEffect(() => {
         const load = async () => {
             setAddress('1')
         }
-
         load()
     }, [])
 
     return (
-
-        <View activePanel={'wallet'}>
-            <Panel id={'wallet'}>
+        <View activePanel={props.id} id={props.id}>
+            <Panel id={props.id}>
                 <PanelHeader right={<Avatar size={36} />}>Wallet</PanelHeader>
                 <Group>
                     <SimpleCell
@@ -38,7 +40,7 @@ const Wallet: React.FC = () => {
                                 <Icon28MessageOutline />
                             </IconButton>
                         }
-                        description="Команда ВКонтакте"
+                        description="address"
                     >
                         {address}
                     </SimpleCell>

@@ -1,4 +1,4 @@
-import { AdaptivityProvider, ConfigProvider } from '@vkontakte/vkui'
+import { AdaptivityProvider, ConfigProvider, WebviewType, Platform } from '@vkontakte/vkui'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { App } from './App'
@@ -12,7 +12,7 @@ const AdaptivityProviderFix:any = AdaptivityProvider
 
 root.render(
     <React.StrictMode>
-        <ConfigProviderFix appearance={'dark'}>
+        <ConfigProviderFix appearance={'dark'} webviewType={WebviewType.INTERNAL} platform={Platform.IOS}>
             <AdaptivityProviderFix >
                 <App />
             </AdaptivityProviderFix>
