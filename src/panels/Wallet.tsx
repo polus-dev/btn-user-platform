@@ -11,9 +11,10 @@ import {
 
 import '@vkontakte/vkui/dist/vkui.css'
 import React, { useEffect } from 'react'
+import { FrontAddr } from '../types'
 
 const Wallet: React.FC = () => {
-    const [ address, setAddress ] = React.useState<any>(null)
+    const [ address, setAddress ] = React.useState<FrontAddr>(null)
 
     useEffect(() => {
         const load = async () => {
