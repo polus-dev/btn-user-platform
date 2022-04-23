@@ -25,6 +25,8 @@ import {
 import '@vkontakte/vkui/dist/vkui.css'
 import React, { useEffect } from 'react'
 
+import Wallet from './panels/wallet'
+
 export const App: React.FC = () => {
     const platform = usePlatform()
     const { viewWidth } = useAdaptivity()
@@ -175,6 +177,8 @@ export const App: React.FC = () => {
                             </Group>
                         </Panel>
                     </View>
+
+                    <Wallet/>
                 </SplitCol>
             </SplitLayout>
         </AppRoot>
