@@ -29,14 +29,17 @@ import {
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
+import './style.css'
 import React, { useEffect } from 'react'
 
 import { WalletPanel } from './panels'
 
+// import { Providers } from 'ton3'
+
 export const App: React.FC = () => {
     const platform = usePlatform()
 
-    const modals = [ 'modal 1', 'modal 2' ]
+    const modals = [ 'modal 1', 'modal 2', 'recive' ]
 
     const [ modal, setModal ] = React.useState<any>(null)
     const [ popout, setPopout ] = React.useState<any>(null)
@@ -52,6 +55,10 @@ export const App: React.FC = () => {
 
     useEffect(() => {
         const load = async () => {
+            // const endpoint = 'https://testnet.toncenter.com/api/v2'
+            // const provider = new Providers.ProviderRESTV2(endpoint)
+
+            // const client = await provider.client()
         }
 
         load()
@@ -78,6 +85,15 @@ export const App: React.FC = () => {
                     <CellButton onClick={() => setModal(modals[0])}>Modal 1</CellButton>
                 </Group>
             </ModalPage>
+
+            <ModalPage
+                id={modals[2]}
+                onClose={() => setModal(null)}
+                header={<ModalPageHeader>Recive TON</ModalPageHeader>}
+            >
+                <Group>
+                </Group>
+            </ModalPage>
         </ModalRootFix>
     )
 
@@ -99,7 +115,7 @@ export const App: React.FC = () => {
                                     onClick={onStoryChange}
                                     data-story="wallet"
                                     style={
-                                        activeStory === 'services'
+                                        activeStory === 'wallet'
                                             ? {
                                                 backgroundColor: 'var(--button_secondary_background)',
                                                 borderRadius: 8
