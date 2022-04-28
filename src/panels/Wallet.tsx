@@ -9,7 +9,11 @@ import {
     Separator,
     Button,
     Title,
-    Headline
+    Headline,
+    Link,
+    Div,
+    CardGrid,
+    Card
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -58,62 +62,74 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
             <Panel id={props.id}>
                 <PanelHeader right={<Avatar size={36} />}>Wallet</PanelHeader>
                 <Group>
-                    { loadWallet === 1
-                        ? <div>
+                    <Div>
 
-                            <Headline weight="regular" style={{ marginBottom: 16, marginTop: 12, textAlign: 'center', opacity: '.6' }}>{address}</Headline>
+                        <Div style={{ paddingBottom: 32 }}>
+                            <Title weight="heavy" level="1">Wallet</Title>
+                            <small>List of tokens</small>
+                        </Div>
+                        { loadWallet === 1
+                            ? <div>
 
-                            <Separator/>
-                            <br/>
+                                <Headline weight="regular" style={{ marginBottom: 16, marginTop: 0, textAlign: 'center', opacity: '.6' }}>{address}</Headline>
 
-                            <Title level='1' style={{ textAlign: 'center' }}>{balance} TON</Title>
+                                <Separator/>
+                                <br/>
 
-                            <br/>
+                                <Title level='1' style={{ textAlign: 'center' }}>{balance} TON</Title>
+                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px', marginTop: '12px' }}>
+                                    <Button size='l' style={{ marginRight: '12px' }}>
+                                Receive
+                                    </Button>
+                                    <Button size='l' >
+                                Send
+                                    </Button>
+                                </div>
 
-                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
-                                <Button size='l' style={{ marginRight: '12px' }}>
-                        Receive
-                                </Button>
-                                <Button size='l' >
-                        Send
-                                </Button>
+                                <CardGrid size="l">
+                                    <Card>
+                                        <Div >
+                                            <SimpleCell
+                                                before={<Avatar size={48} src={''} />}
+                                                badge={<Icon20DiamondOutline />}
+                                            // after={
+                                            //     <IconButton>
+                                            //         <Icon28MessageOutline />
+                                            //     </IconButton>
+                                            // }
+                                            // description={address}
+                                            >
+                                                {balance} TON
+                                            </SimpleCell>
+
+                                            <SimpleCell
+                                                before={<Avatar size={48} src={''} />}
+                                                // badge={<Icon20DiamondOutline />}
+                                                // after={
+                                                //     <IconButton>
+                                                //         <Icon28MessageOutline />
+                                                //     </IconButton>
+                                                // }
+                                                description={'EQCljFs9UqV-FuI4u9DD1vPT9NYNGiRZHRHcbT_dfQMHsCQO'}
+                                            >
+                                    0 BTN
+                                            </SimpleCell>
+                                        </Div>
+                                    </Card>
+                                </CardGrid>
                             </div>
-                            <SimpleCell
-                                before={<Avatar size={48} src={''} />}
-                                badge={<Icon20DiamondOutline />}
-                                // after={
-                                //     <IconButton>
-                                //         <Icon28MessageOutline />
-                                //     </IconButton>
-                                // }
-                                // description={address}
-                            >
-                                {balance} TON
-                            </SimpleCell>
+                            : null
+                        }
 
-                            <SimpleCell
-                                before={<Avatar size={48} src={''} />}
-                                // badge={<Icon20DiamondOutline />}
-                                // after={
-                                //     <IconButton>
-                                //         <Icon28MessageOutline />
-                                //     </IconButton>
-                                // }
-                                description={'EQCljFs9UqV-FuI4u9DD1vPT9NYNGiRZHRHcbT_dfQMHsCQO'}
-                            >
-                        0 BTN
-                            </SimpleCell>
-                        </div>
-                        : null
-                    }
+                        { loadWallet === 2
+                            ? <p>Wallet is not installed. Install the wallet TON at the link <Link href="https://chrome.google.com/webstore/detail/ton-wallet/nphplpgoakhhjchkkhmiggakijnkhfnd">Установить</Link>
+                            </p> : null
+                        }
 
-                    { loadWallet === 2
-                        ? <p>Error wallet</p> : null
-                    }
-
-                    { loadWallet === 0
-                        ? <p>Load</p> : null
-                    }
+                        { loadWallet === 0
+                            ? <p>Load</p> : null
+                        }
+                    </Div>
                 </Group>
             </Panel>
         </View>
