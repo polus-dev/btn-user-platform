@@ -1,8 +1,5 @@
 import {
-    Icon28ClipOutline,
-    Icon28MessageOutline,
-    Icon28ServicesOutline,
-    Icon28UserCircleOutline,
+    Icon28SyncOutline,
     Icon28WalletOutline
 } from '@vkontakte/icons'
 import {
@@ -23,18 +20,17 @@ import {
     CellButton,
     Epic,
     Tabbar,
-    TabbarItem,
-    Counter,
-    Badge
+    TabbarItem
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
 import './style.css'
-import React, { useEffect } from 'react'
-
-import { WalletPanel } from './panels'
 
 // import { Providers } from 'ton3'
+
+import React, { useEffect } from 'react'
+
+import { WalletPanel, SwapPanel } from './panels'
 
 export const App: React.FC = () => {
     const platform = usePlatform()
@@ -59,6 +55,8 @@ export const App: React.FC = () => {
             // const provider = new Providers.ProviderRESTV2(endpoint)
 
             // const client = await provider.client()
+
+            // console.log(client)
         }
 
         load()
@@ -122,8 +120,19 @@ export const App: React.FC = () => {
                                             }
                                             : {}
                                     }
-
                                 >Wallet</Cell>
+                                <Cell
+                                    onClick={onStoryChange}
+                                    data-story="swap"
+                                    style={
+                                        activeStory === 'swap'
+                                            ? {
+                                                backgroundColor: 'var(--button_secondary_background)',
+                                                borderRadius: 8
+                                            }
+                                            : {}
+                                    }
+                                >Swap</Cell>
                                 <Separator />
                                 <Cell onClick={() => setModal(modals[0])}>modal 1</Cell>
                                 <Cell onClick={() => setModal(modals[1])}>modal 2</Cell>
@@ -161,47 +170,18 @@ export const App: React.FC = () => {
                                     </TabbarItem>
                                     <TabbarItem
                                         onClick={onStoryChange}
-                                        selected={activeStory === 'services'}
-                                        data-story="services"
-                                        text="Сервисы"
+                                        selected={activeStory === 'swap'}
+                                        data-story="swap"
+                                        text="Swap"
                                     >
-                                        <Icon28ServicesOutline />
-                                    </TabbarItem>
-                                    <TabbarItem
-                                        onClick={onStoryChange}
-                                        selected={activeStory === 'messages'}
-                                        data-story="messages"
-                                        indicator={
-                                            <Counter size="s" mode="prominent">
-                        12
-                                            </Counter>
-                                        }
-                                        text="Сообщения"
-                                    >
-                                        <Icon28MessageOutline />
-                                    </TabbarItem>
-                                    <TabbarItem
-                                        onClick={onStoryChange}
-                                        selected={activeStory === 'clips'}
-                                        data-story="clips"
-                                        text="Клипы"
-                                    >
-                                        <Icon28ClipOutline />
-                                    </TabbarItem>
-                                    <TabbarItem
-                                        onClick={onStoryChange}
-                                        selected={activeStory === 'profile'}
-                                        data-story="profile"
-                                        indicator={<Badge mode="prominent" />}
-                                        text="Профиль"
-                                    >
-                                        <Icon28UserCircleOutline />
+                                        <Icon28SyncOutline />
                                     </TabbarItem>
                                 </Tabbar>
                             )
                         }
                     >
                         <WalletPanel id={'wallet'} />
+                        <SwapPanel id={'swap'} />
                     </Epic>
                 </SplitCol>
             </SplitLayout>

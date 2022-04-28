@@ -21,6 +21,7 @@ interface IMyProps {
 }
 
 const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
+    const [ loadWallet, setLoadWallet ] = React.useState<number>(0)
     const [ address, setAddress ] = React.useState<FrontAddr>(null)
     const [ balance, setBalance ] = React.useState<any>(null)
 
@@ -34,11 +35,13 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
             const addressTon = await windowTon.ton.send('ton_requestAccounts')
             setAddress(addressTon[0])
             console.log(addressTon)
+            setLoadWallet(1)
 
             // const singTon = await windowTon.ton.send('ton_rawSign', [ { data: 'boc' } ])
             // console.log(singTon)
         } else {
             console.log('error')
+            setLoadWallet(2)
         }
     }
 
@@ -55,49 +58,62 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
             <Panel id={props.id}>
                 <PanelHeader right={<Avatar size={36} />}>Wallet</PanelHeader>
                 <Group>
+                    { loadWallet === 1
+                        ? <div>
 
-                    <Headline weight="regular" style={{ marginBottom: 16, marginTop: 12, textAlign: 'center', opacity: '.6' }}>{address}</Headline>
+                            <Headline weight="regular" style={{ marginBottom: 16, marginTop: 12, textAlign: 'center', opacity: '.6' }}>{address}</Headline>
 
-                    <Separator/>
-                    <br/>
+                            <Separator/>
+                            <br/>
 
-                    <Title level='1' style={{ textAlign: 'center' }}>{balance} TON</Title>
+                            <Title level='1' style={{ textAlign: 'center' }}>{balance} TON</Title>
 
-                    <br/>
+                            <br/>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
-                        <Button size='l' style={{ marginRight: '12px' }}>
-                        Resive
-                        </Button>
-                        <Button size='l' >
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+                                <Button size='l' style={{ marginRight: '12px' }}>
+                        Receive
+                                </Button>
+                                <Button size='l' >
                         Send
-                        </Button>
-                    </div>
-                    <SimpleCell
-                        before={<Avatar size={48} src={''} />}
-                        badge={<Icon20DiamondOutline />}
-                        // after={
-                        //     <IconButton>
-                        //         <Icon28MessageOutline />
-                        //     </IconButton>
-                        // }
-                        // description={address}
-                    >
-                        {balance} TON
-                    </SimpleCell>
+                                </Button>
+                            </div>
+                            <SimpleCell
+                                before={<Avatar size={48} src={''} />}
+                                badge={<Icon20DiamondOutline />}
+                                // after={
+                                //     <IconButton>
+                                //         <Icon28MessageOutline />
+                                //     </IconButton>
+                                // }
+                                // description={address}
+                            >
+                                {balance} TON
+                            </SimpleCell>
 
-                    <SimpleCell
-                        before={<Avatar size={48} src={''} />}
-                        // badge={<Icon20DiamondOutline />}
-                        // after={
-                        //     <IconButton>
-                        //         <Icon28MessageOutline />
-                        //     </IconButton>
-                        // }
-                        description={'EQCljFs9UqV-FuI4u9DD1vPT9NYNGiRZHRHcbT_dfQMHsCQO'}
-                    >
+                            <SimpleCell
+                                before={<Avatar size={48} src={''} />}
+                                // badge={<Icon20DiamondOutline />}
+                                // after={
+                                //     <IconButton>
+                                //         <Icon28MessageOutline />
+                                //     </IconButton>
+                                // }
+                                description={'EQCljFs9UqV-FuI4u9DD1vPT9NYNGiRZHRHcbT_dfQMHsCQO'}
+                            >
                         0 BTN
-                    </SimpleCell>
+                            </SimpleCell>
+                        </div>
+                        : null
+                    }
+
+                    { loadWallet === 2
+                        ? <p>Error wallet</p> : null
+                    }
+
+                    { loadWallet === 0
+                        ? <p>Load</p> : null
+                    }
                 </Group>
             </Panel>
         </View>
