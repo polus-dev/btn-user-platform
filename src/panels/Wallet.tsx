@@ -122,7 +122,7 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
                         }
 
                         { loadWallet === 2
-                            ? <p>Wallet is not installed. Install the wallet TON at the link <Link href="https://chrome.google.com/webstore/detail/ton-wallet/nphplpgoakhhjchkkhmiggakijnkhfnd">Установить</Link>
+                            ? <p>Wallet is not installed. Install the wallet TON at the link <Link href="https://chrome.google.com/webstore/detail/ton-wallet/nphplpgoakhhjchkkhmiggakijnkhfnd">Install</Link>
                             </p> : null
                         }
 

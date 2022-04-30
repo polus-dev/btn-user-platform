@@ -123,8 +123,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                         : null }
 
                     { loadWallet === 2
-                        ? <p>Wallet is not installed. Install the wallet TON at the link <Link href="https://chrome.google.com/webstore/detail/ton-wallet/nphplpgoakhhjchkkhmiggakijnkhfnd">Установить</Link>
-                        </p> : null
+                        ? <Div><p>Wallet is not installed. Install the wallet TON at the link <Link href="https://chrome.google.com/webstore/detail/ton-wallet/nphplpgoakhhjchkkhmiggakijnkhfnd">Install</Link>
+                        </p></Div> : null
                     }
 
                     { loadWallet === 0
