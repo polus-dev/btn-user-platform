@@ -17,6 +17,9 @@ import {
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
+import post from 'axios'
+import { Address } from 'ton3-core'
+
 import React, { useEffect } from 'react'
 import { FrontAddr } from '../types'
 
@@ -24,10 +27,40 @@ interface IMyProps {
     id: string,
 }
 
+interface APIOptions {
+    method: string,
+    params: object,
+    id: string,
+    jsonrpc?: string
+}
+
 const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
     const [ loadWallet, setLoadWallet ] = React.useState<number>(0)
     const [ address, setAddress ] = React.useState<FrontAddr>(null)
     const [ balance, setBalance ] = React.useState<any>(null)
+
+    async function API (method:string, data_send:object) {
+        const sender:APIOptions = {
+            method,
+            params: data_send,
+            id: '',
+            jsonrpc: '2.0'
+        }
+        // const senderJson = JSON.stringify(sender)
+        const data = await post({
+            url: 'https://testnet.toncenter.com/api/v2/jsonRPC',
+            data: sender,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+                // 'X-API-Key': 'd9229bee29645587be2d179cc14c7e64a4eca8cbad82c9179982089996a23ffd'
+            }
+        })
+        if (data.status !== 200) {
+            return { error: data }
+        }
+        return data
+    }
 
     async function login () {
         const windowTon:any = window
@@ -41,8 +74,23 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
             console.log(addressTon)
             setLoadWallet(1)
 
-            // const singTon = await windowTon.ton.send('ton_rawSign', [ { data: 'boc' } ])
-            // console.log(singTon)
+            const addressHex = new Address(addressTon[0]).toString('raw')
+            const addressHexNoChain = addressHex.split(':')[1]
+            console.log(addressHexNoChain)
+            const addressBtn:any = await API('runGetMethod', {
+                address: 'kQCYi-ey99MmZ0flHimzKticOemCzQT02NWVg5mnLWrPrElj',
+                method: 'get_jetton_data',
+                stack: [
+                    // [
+                    //     // 'tvm.Slice', Number(`0x${addressHexNoChain}`)
+                    // ]
+                ]
+            })
+
+            console.log(addressBtn)
+
+            const singTon = await windowTon.ton.send('ton_rawSign', [ { data: 'boc' } ])
+            console.log(singTon)
         } else {
             console.log('error')
             setLoadWallet(2)
@@ -64,12 +112,13 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
                 <Group>
                     <Div>
 
-                        <Div style={{ paddingBottom: 32 }}>
-                            <Title weight="heavy" level="1">Wallet</Title>
-                            <small>List of tokens</small>
-                        </Div>
                         { loadWallet === 1
                             ? <div>
+
+                                <Div style={{ paddingBottom: 32 }}>
+                                    <Title weight="heavy" level="1">Wallet</Title>
+                                    <small>List of tokens</small>
+                                </Div>
 
                                 <Headline weight="regular" style={{ marginBottom: 16, marginTop: 0, textAlign: 'center', opacity: '.6' }}>{address}</Headline>
 
@@ -122,7 +171,7 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
                         }
 
                         { loadWallet === 2
-                            ? <p>Wallet is not installed. Install the wallet TON at the link <Link href="https://chrome.google.com/webstore/detail/ton-wallet/nphplpgoakhhjchkkhmiggakijnkhfnd">Install</Link>
+                            ? <p>Wallet is not installed. Install the wallet TON at the link <Link target="_blank" href="https://chrome.google.com/webstore/detail/ton-wallet/nphplpgoakhhjchkkhmiggakijnkhfnd">Install</Link>
                             </p> : null
                         }
 

@@ -1,4 +1,4 @@
-import { Builder, Cell, Slice } from 'ton3'
+import { Builder, Cell, Slice } from 'ton3-core'
 import { ITokenTransfer } from './types'
 
 class TokenWallet {

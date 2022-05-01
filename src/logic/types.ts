@@ -1,4 +1,4 @@
-import { Address, Cell, Coins } from 'ton3'
+import { Address, Cell, Coins } from 'ton3-core'
 
 interface ITokenTransfer {
     queryId: bigint
