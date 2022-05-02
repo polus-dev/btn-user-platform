@@ -305,8 +305,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                             <Div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center' }}>
                                 <small>Price</small>
                                 {typeSwap
-                                    ? <small> {priceSwapTon} TON per 1 BTN</small>
-                                    : <small> {priceSwap} BTN per 1 TON</small>
+                                    ? <small> {priceSwap} TON per 1 BTN</small>
+                                    : <small> {priceSwapTon} BTN per 1 TON</small>
                                 }
                                 <Icon24RefreshOutline width={16} height={16} onClick={() => {
                                     login()
