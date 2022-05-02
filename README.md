@@ -17,7 +17,7 @@ example settings for VS Code(`.vscode/settings.json`):
         "source.fixAll.eslint": true
     },
     "eslint.validate": [
-        "javascript"
+        "javascript", "typescript"
     ]
 }
 ```
