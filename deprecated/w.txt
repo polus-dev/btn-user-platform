@@ -1,0 +1,2 @@
+"start_web": "cross-env webpack-dev-server --mode development",
+"build_web": "cross-env TS_NODE_PROJECT=\"tsconfig-for-webpack-config.json\" webpack --mode production"
