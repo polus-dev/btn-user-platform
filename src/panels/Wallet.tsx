@@ -32,6 +32,8 @@ interface IMyProps {
     setAddressJopa: Function
 }
 
+const ContrBTNAddress = 'EQBEqIYR5tfLsPax_60jbbIz8PISDaQ-oEj9u5J59sOX6VNY'
+
 const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
     const { tonrpc } = props
     const [ loadWallet, setLoadWallet ] = React.useState<number>(0)
@@ -54,7 +56,7 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
             const addressHexNoWC = new Address(addressTon[0]).toString('raw').split(':')[1]
 
             const jwallAddressResp = await tonrpc.request('runGetMethod', {
-                address: 'EQDmiJOfy-Ylhx4B5NXJHsY8-KdIoDdw1z9h3tW7E8iAP-FG',
+                address: ContrBTNAddress,
                 method: 'get_wallet_address_int',
                 stack: [ [ 'num', `0x${addressHexNoWC}` ] ]
             })
@@ -113,10 +115,9 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
 
     async function buyBtn () {
         const windowTon:any = window
-        const addressTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 1000000000, to: 'EQDmiJOfy-Ylhx4B5NXJHsY8-KdIoDdw1z9h3tW7E8iAP-FG' } ])
+        const addressTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 10000000000, to: ContrBTNAddress } ])
         console.log(addressTon)
     }
-    
 
     return (
         <View activePanel={props.id} id={props.id}>

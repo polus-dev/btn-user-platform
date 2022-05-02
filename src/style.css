@@ -1,3 +1,8 @@
+#root {
+    --accent: rgb(255, 179, 36);
+    --button_primary_background: rgb(255, 179, 36);
+}
+
 html,
 body {
     margin: 0!important;

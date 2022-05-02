@@ -23,7 +23,8 @@ import {
     TabbarItem,
     FormItem,
     Input,
-    Button
+    Button,
+    Div
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -91,6 +92,8 @@ export const App: React.FC = () => {
         if (windowTon.ton) {
             const singTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 100000000, to: addressJopa, dataType: 'boc', data: boc } ])
             console.log(singTon)
+            setAddressSend('')
+            setAmountSend('')
         } else {
             console.log('error')
         }
@@ -166,6 +169,7 @@ export const App: React.FC = () => {
                                 <Cell
                                     onClick={onStoryChange}
                                     data-story="wallet"
+                                    before={<Icon28WalletOutline/>}
                                     style={
                                         activeStory === 'wallet'
                                             ? {
@@ -178,6 +182,7 @@ export const App: React.FC = () => {
                                 <Cell
                                     onClick={onStoryChange}
                                     data-story="swap"
+                                    before={<Icon28SyncOutline/>}
                                     style={
                                         activeStory === 'swap'
                                             ? {
@@ -188,16 +193,10 @@ export const App: React.FC = () => {
                                     }
                                 >Swap</Cell>
                                 <Separator />
-                                <Cell onClick={() => setModal(modals[0])}>modal 1</Cell>
-                                <Cell onClick={() => setModal(modals[1])}>modal 2</Cell>
-                                <Cell
-                                    onClick={() => setPopout(
-                                        <Alert header="Alert!" onClose={() => setPopout(null)} />
-                                    )
-                                    }
-                                >
-                  alert
-                                </Cell>
+                                <Div>
+                                    <small style={{ opacity: 0.6 }}>Biton 2022</small>
+                                </Div>
+
                             </Group>
                         </Panel>
                     </SplitCol>
