@@ -67,6 +67,9 @@ export const App: React.FC = () => {
 
     const tonrpc = new ToncenterRPC('https://testnet.toncenter.com/api/v2/jsonRPC')
 
+    const ContrBTNAddress = 'EQBEqIYR5tfLsPax_60jbbIz8PISDaQ-oEj9u5J59sOX6VNY'
+    const ContrBTNSwapAddress = 'kQB-a_wvWIhekZCtKnApleKtjt4Rar29Kw6fIzdB5fgESDhW'
+
     useEffect(() => {
         const load = async () => {
             // const endpoint = 'https://testnet.toncenter.com/api/v2'
@@ -246,8 +249,19 @@ export const App: React.FC = () => {
                             setAddress={setAddress}
                             setModal={setModal}
                             setAddressJopa={setAddressJopa}
+                            ContrBTNAddress={ContrBTNAddress}
                         />
-                        <SwapPanel id={'swap'} />
+                        <SwapPanel
+                            id={'swap'}
+                            tonrpc={tonrpc}
+                            setAddress={setAddress}
+                            setModal={setModal}
+                            setAddressJopa={setAddressJopa}
+                            ContrBTNAddress={ContrBTNAddress}
+                            ContrBTNSwapAddress={ContrBTNSwapAddress}
+                            addressJopa={addressJopa}
+                            address={address}
+                        />
                     </Epic>
                 </SplitCol>
             </SplitLayout>
