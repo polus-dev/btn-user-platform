@@ -24,7 +24,8 @@ import {
     FormItem,
     Input,
     Button,
-    Div
+    Div,
+    Checkbox
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -34,10 +35,10 @@ import './style.css'
 
 import React, { useEffect } from 'react'
 
+import { Address, BOC, Coins } from 'ton3-core'
 import { WalletPanel, SwapPanel } from './panels'
 import { ToncenterRPC } from './logic/tonapi'
 import { TokenWallet } from './logic/contracts'
-import { Address, BOC, Coins } from 'ton3-core'
 
 export const App: React.FC = () => {
     const platform = usePlatform()
@@ -55,6 +56,7 @@ export const App: React.FC = () => {
 
     const [ addressSend, setAddressSend ] = React.useState<string>('')
     const [ amountSend, setAmountSend ] = React.useState<string>('')
+    const [ forwardSend, setForwardSend ] = React.useState<boolean>(false)
 
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
@@ -84,7 +86,7 @@ export const App: React.FC = () => {
             amount: new Coins(amountSend),
             destination: new Address(addressSend),
             responseDestination: new Address(address),
-            forwardTonAmount: new Coins(0)
+            forwardTonAmount: new Coins(forwardSend ? 0.05 : 0)
         })
 
         const boc = BOC.toBase64Standard(msg)
@@ -128,6 +130,11 @@ export const App: React.FC = () => {
                     >
                         <Input value={amountSend} onChange={(e) => { setAmountSend(e.target.value) }} placeholder="0.0" type="number" />
                     </FormItem>
+                    <Checkbox onClick={() => {
+                        setForwardSend(!forwardSend)
+                    }}>
+                    forwardTonAmount 0.05 TON
+                    </Checkbox>
                     <FormItem>
                         <Button size="l" stretched onClick={sendBocT} disabled={amountSend === '' || addressSend === ''}>
                   Send
