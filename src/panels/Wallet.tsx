@@ -17,50 +17,22 @@ import {
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
-import post from 'axios'
 import { Address } from 'ton3-core'
 
 import React, { useEffect } from 'react'
 import { FrontAddr } from '../types'
+import { ToncenterRPC } from '../logic/tonapi'
 
 interface IMyProps {
     id: string,
-}
-
-interface APIOptions {
-    method: string,
-    params: object,
-    id: string,
-    jsonrpc?: string
+    tonrpc: ToncenterRPC
 }
 
 const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
+    const { tonrpc } = props
     const [ loadWallet, setLoadWallet ] = React.useState<number>(0)
     const [ address, setAddress ] = React.useState<FrontAddr>(null)
     const [ balance, setBalance ] = React.useState<any>(null)
-
-    async function API (method:string, data_send:object) {
-        const sender:APIOptions = {
-            method,
-            params: data_send,
-            id: '',
-            jsonrpc: '2.0'
-        }
-        // const senderJson = JSON.stringify(sender)
-        const data = await post({
-            url: 'https://testnet.toncenter.com/api/v2/jsonRPC',
-            data: sender,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-                // 'X-API-Key': 'd9229bee29645587be2d179cc14c7e64a4eca8cbad82c9179982089996a23ffd'
-            }
-        })
-        if (data.status !== 200) {
-            return { error: data }
-        }
-        return data
-    }
 
     async function login () {
         const windowTon:any = window
@@ -71,26 +43,29 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
 
             const addressTon = await windowTon.ton.send('ton_requestAccounts')
             setAddress(addressTon[0])
-            console.log(addressTon)
             setLoadWallet(1)
 
-            const addressHex = new Address(addressTon[0]).toString('raw')
-            const addressHexNoChain = addressHex.split(':')[1]
-            console.log(addressHexNoChain)
-            const addressBtn:any = await API('runGetMethod', {
+            const addressHexNoWC = new Address(addressTon[0]).toString('raw').split(':')[1]
+
+            const jwallAddressResp = await tonrpc.request('runGetMethod', {
                 address: 'kQCYi-ey99MmZ0flHimzKticOemCzQT02NWVg5mnLWrPrElj',
-                method: 'get_jetton_data',
-                stack: [
-                    // [
-                    //     // 'tvm.Slice', Number(`0x${addressHexNoChain}`)
-                    // ]
-                ]
+                method: 'get_wallet_address_int',
+                stack: [ [ 'num', `0x${addressHexNoWC}` ] ]
             })
 
-            console.log(addressBtn)
+            let jwallAddress: Address
+            if (jwallAddressResp.status === 200 && jwallAddressResp.data.ok === true) {
+                jwallAddress = new Address(`0:${jwallAddressResp.data.result.stack[0][1].substring(2)}`)
+            } else {
+                console.error(jwallAddressResp)
+                return
+            }
 
-            const singTon = await windowTon.ton.send('ton_rawSign', [ { data: 'boc' } ])
-            console.log(singTon)
+            // const singTon = await windowTon.ton.send('ton_rawSign', [ { data: 'boc' } ])
+            console.log(
+                'user jetton wallet address:\n'
+                + `${jwallAddress.toString('base64', { bounceable: true })}`
+            )
         } else {
             console.log('error')
             setLoadWallet(2)
@@ -161,7 +136,7 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
                                                 // }
                                                 description={'EQCljFs9UqV-FuI4u9DD1vPT9NYNGiRZHRHcbT_dfQMHsCQO'}
                                             >
-                                    0 BTN
+                                                0 BTN
                                             </SimpleCell>
                                         </Div>
                                     </Card>
@@ -171,13 +146,17 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
                         }
 
                         { loadWallet === 2
-                            ? <p>Wallet is not installed. Install the wallet TON at the link <Link target="_blank" href="https://chrome.google.com/webstore/detail/ton-wallet/nphplpgoakhhjchkkhmiggakijnkhfnd">Install</Link>
+                            ? <p>
+                                Wallet is not installed. Install the wallet TON at the link
+                                <Link
+                                    target="_blank"
+                                    href="https://chrome.google.com/webstore/detail/ton-wallet/nphplpgoakhhjchkkhmiggakijnkhfnd">
+                                        Install
+                                </Link>
                             </p> : null
                         }
 
-                        { loadWallet === 0
-                            ? <p>Load</p> : null
-                        }
+                        { loadWallet === 0 ? <p>Load</p> : null }
                     </Div>
                 </Group>
             </Panel>

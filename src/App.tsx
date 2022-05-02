@@ -31,6 +31,7 @@ import './style.css'
 import React, { useEffect } from 'react'
 
 import { WalletPanel, SwapPanel } from './panels'
+import { ToncenterRPC } from './logic/tonapi'
 
 export const App: React.FC = () => {
     const platform = usePlatform()
@@ -48,6 +49,8 @@ export const App: React.FC = () => {
 
     const isDesktop = window.innerWidth >= 1000
     const hasHeader = platform !== VKCOM
+
+    const tonrpc = new ToncenterRPC('https://testnet.toncenter.com/api/v2/jsonRPC')
 
     useEffect(() => {
         const load = async () => {
@@ -180,7 +183,7 @@ export const App: React.FC = () => {
                             )
                         }
                     >
-                        <WalletPanel id={'wallet'} />
+                        <WalletPanel id={'wallet'} tonrpc={tonrpc} />
                         <SwapPanel id={'swap'} />
                     </Epic>
                 </SplitCol>
