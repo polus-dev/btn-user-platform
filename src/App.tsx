@@ -20,7 +20,10 @@ import {
     CellButton,
     Epic,
     Tabbar,
-    TabbarItem
+    TabbarItem,
+    FormItem,
+    Input,
+    Button
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -32,16 +35,25 @@ import React, { useEffect } from 'react'
 
 import { WalletPanel, SwapPanel } from './panels'
 import { ToncenterRPC } from './logic/tonapi'
+import { TokenWallet } from './logic/contracts'
+import { Address, BOC, Coins } from 'ton3-core'
 
 export const App: React.FC = () => {
     const platform = usePlatform()
 
-    const modals = [ 'modal 1', 'modal 2', 'recive' ]
+    const modals = [ 'modal 1', 'send', 'recive' ]
 
     const [ modal, setModal ] = React.useState<any>(null)
     const [ popout, setPopout ] = React.useState<any>(null)
 
     const [ activeStory, setActiveStory ] = React.useState<any>('wallet')
+
+    const [ address, setAddress ] = React.useState<string>('')
+
+    const [ addressJopa, setAddressJopa ] = React.useState<string>('')
+
+    const [ addressSend, setAddressSend ] = React.useState<string>('')
+    const [ amountSend, setAmountSend ] = React.useState<string>('')
 
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
@@ -65,6 +77,25 @@ export const App: React.FC = () => {
         load()
     }, [])
 
+    async function sendBocT () {
+        const msg = TokenWallet.transferMsg({
+            queryId: BigInt(Date.now()),
+            amount: new Coins(amountSend),
+            destination: new Address(addressSend),
+            responseDestination: new Address(address),
+            forwardTonAmount: new Coins(0)
+        })
+
+        const boc = BOC.toBase64Standard(msg)
+        const windowTon:any = window
+        if (windowTon.ton) {
+            const singTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 100000000, to: addressJopa, dataType: 'boc', data: boc } ])
+            console.log(singTon)
+        } else {
+            console.log('error')
+        }
+    }
+
     const ModalRootFix:any = ModalRoot
     const modalRoot = (
         <ModalRootFix activeModal={modal}>
@@ -80,19 +111,39 @@ export const App: React.FC = () => {
             <ModalPage
                 id={modals[1]}
                 onClose={() => setModal(null)}
-                header={<ModalPageHeader>Modal 2</ModalPageHeader>}
+                header={<ModalPageHeader>Send Biton</ModalPageHeader>}
             >
                 <Group>
-                    <CellButton onClick={() => setModal(modals[0])}>Modal 1</CellButton>
+                    <FormItem
+                        top="Recepient"
+                    >
+                        <Input value={addressSend} onChange={(e) => { setAddressSend(e.target.value) }} placeholder="Enter wallet address" />
+                    </FormItem>
+
+                    <FormItem
+                        top="Amount"
+                    >
+                        <Input value={amountSend} onChange={(e) => { setAmountSend(e.target.value) }} placeholder="0.0" type="number" />
+                    </FormItem>
+                    <FormItem>
+                        <Button size="l" stretched onClick={sendBocT} disabled={amountSend === '' || addressSend === ''}>
+                  Send
+                        </Button>
+                    </FormItem>
                 </Group>
             </ModalPage>
 
             <ModalPage
                 id={modals[2]}
                 onClose={() => setModal(null)}
-                header={<ModalPageHeader>Recive TON</ModalPageHeader>}
+                header={<ModalPageHeader>Recive</ModalPageHeader>}
             >
                 <Group>
+                    <FormItem
+                        top="Share this address to receive."
+                    >
+                        <Input value={address} onChange={() => {}}/>
+                    </FormItem>
                 </Group>
             </ModalPage>
         </ModalRootFix>
@@ -183,7 +234,13 @@ export const App: React.FC = () => {
                             )
                         }
                     >
-                        <WalletPanel id={'wallet'} tonrpc={tonrpc} />
+                        <WalletPanel
+                            id={'wallet'}
+                            tonrpc={tonrpc}
+                            setAddress={setAddress}
+                            setModal={setModal}
+                            setAddressJopa={setAddressJopa}
+                        />
                         <SwapPanel id={'swap'} />
                     </Epic>
                 </SplitCol>

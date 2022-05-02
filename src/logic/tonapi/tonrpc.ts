@@ -23,12 +23,20 @@ class ToncenterRPC {
     }
 
     public async request (method: string, params: object): Promise<AxiosResponse<any, any>> {
-        return post({
+        const data = await post({
             url: this._rpcURL,
             data: ToncenterRPC.genRpcBody(method, params),
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                'Content-Type': 'application/json',
+                'X-API-Key': 'eb7febb199841f9b20a7f6ca161be09918c71c753d210cb30a46996815d8ca4d'
+            }
         })
+        if (data.status === 200) {
+            return data
+        }
+        console.error(data)
+        return data
     }
 }
 

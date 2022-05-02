@@ -3,3 +3,7 @@ body {
     margin: 0!important;
     padding: 0!important;
 }
+
+.vkuiModalPage__in {
+    width: 516px!important;
+}
