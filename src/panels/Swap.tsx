@@ -1,4 +1,4 @@
-import { Icon24ChevronDown, Icon24RefreshOutline, Icon28RefreshOutline, Icon28SortOutline, Icon28SyncOutline } from '@vkontakte/icons'
+import { Icon24RefreshOutline, Icon28SortOutline, Icon28SyncOutline, Icon28WalletOutline } from '@vkontakte/icons'
 import {
     Panel,
     PanelHeader,
@@ -210,7 +210,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     return (
         <View activePanel={props.id} id={props.id}>
             <Panel id={props.id}>
-                <PanelHeader right={<Avatar size={36} />}>Swap</PanelHeader>
+                <PanelHeader right={<IconButton onClick={() => props.setModal('wallet')}>
+                    <Icon28WalletOutline/>
+                </IconButton>}>Swap</PanelHeader>
                 <Group>
                     {loadWallet === 1
                         ? <Div>
