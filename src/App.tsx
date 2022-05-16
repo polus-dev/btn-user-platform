@@ -4,6 +4,7 @@ import {
     Icon24ShareOutline,
     Icon28ArrowDownOutline,
     Icon28ArrowUpOutline,
+    Icon28DoorArrowRightOutline,
     Icon28RefreshOutline,
     Icon28SyncOutline,
     Icon28WalletOutline
@@ -40,7 +41,8 @@ import {
     Card,
     SimpleCell,
     Link,
-    PanelHeaderButton
+    PanelHeaderButton,
+    ScreenSpinner
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -67,7 +69,7 @@ export const App: React.FC = () => {
 
     const [ address, setAddress ] = React.useState<string>('')
 
-    const [ balance, setBalance ] = React.useState<any>(null)
+    const [ balance, setBalance ] = React.useState<any>(0)
 
     const [ balanceBTN, setBalanceBTN ] = React.useState<number>(0)
 
@@ -91,7 +93,14 @@ export const App: React.FC = () => {
     const ContrBTNAddress = 'EQBEqIYR5tfLsPax_60jbbIz8PISDaQ-oEj9u5J59sOX6VNY'
     const ContrBTNSwapAddress = 'kQB-a_wvWIhekZCtKnApleKtjt4Rar29Kw6fIzdB5fgESDhW'
 
+    async function unlogin () {
+        setBalance(0)
+        setBalanceBTN(0)
+        setModal(null)
+        setLoadWallet(0)
+    }
     async function login () {
+        setPopout(<ScreenSpinner />)
         const windowTon:any = window
         if (windowTon.ton) {
             const balanceTon = await windowTon.ton.send('ton_getBalance')
@@ -152,6 +161,7 @@ export const App: React.FC = () => {
             console.log('error')
             setLoadWallet(2)
         }
+        setPopout(null)
     }
 
     useEffect(() => {
@@ -162,7 +172,7 @@ export const App: React.FC = () => {
             // const client = await provider.client()
 
             // console.log(client)
-            login()
+            // login()
         }
 
         load()
@@ -259,7 +269,13 @@ export const App: React.FC = () => {
                     <PanelHeaderButton onClick={() => {
                         login()
                     }}><Icon28RefreshOutline /></PanelHeaderButton>
-                }>
+                }
+                right={
+                    <PanelHeaderButton onClick={() => {
+                        unlogin()
+                    }}><Icon28DoorArrowRightOutline /></PanelHeaderButton>
+                }
+                >
                     Wallet
                 </ModalPageHeader>}
 
@@ -282,7 +298,7 @@ export const App: React.FC = () => {
                             <Button size="l" mode="secondary" style={{ marginRight: '12px' }} before={<Icon28ArrowDownOutline />} onClick={() => {
                                 setModal('recive')
                             }}>
-                            Recive
+                            Receive
                             </Button>
                             <Button size="l" mode="secondary" before={<Icon28ArrowUpOutline/>} onClick={() => {
                                 setModal('send')
@@ -448,6 +464,10 @@ export const App: React.FC = () => {
                             ContrBTNSwapAddress={ContrBTNSwapAddress}
                             addressJopa={addressJopa}
                             address={address}
+                            login={login}
+                            loadWallet={loadWallet}
+                            balance={balance}
+                            balanceBTN={balanceBTN}
                         />
                     </Epic>
                 </SplitCol>
