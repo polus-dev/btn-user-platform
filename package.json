@@ -19,9 +19,14 @@
         "@vkontakte/vk-bridge": "^2.5.3",
         "@vkontakte/vkui": "^4.28.1",
         "axios": "^0.27.2",
+        "buffer": "^6.0.3",
+        "qrcode.react": "^3.0.2",
         "react": "^18.0.0",
         "react-dom": "^18.0.0",
         "react-scripts": "5.0.1",
+        "ton": "^9.6.3",
+        "ton-x": "^0.4.0",
+        "ton-x-fix": "^0.4.1",
         "ton3-core": "^0.0.11"
     },
     "devDependencies": {

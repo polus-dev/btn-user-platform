@@ -46,6 +46,9 @@ const config: Configuration = {
     plugins: [
         new HtmlWebpackPlugin({ template: path.join(__dirname, 'public', 'index.html') }),
         new SourceMapDevToolPlugin({ filename: '[file].map' }),
+        new ProvidePlugin({
+            Buffer: ['buffer', 'Buffer'],
+        }),
         new ProvidePlugin({ process: 'process/browser' })
     ]
 }

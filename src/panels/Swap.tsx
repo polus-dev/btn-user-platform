@@ -175,7 +175,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 {truncate(props.address, 9)}
                             </PanelHeaderButton>
                         </React.Fragment>
-                        : <PanelHeaderButton onClick={() => props.login()}>
+                        : <PanelHeaderButton onClick={() => props.setModal('login')}>
                             <Icon28DoorArrowLeftOutline/>
                         </PanelHeaderButton>
                 }>Swap</PanelHeader>
@@ -290,6 +290,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 // onChange={(value2) => this.setState({ value2 })}
                             />
                         </FormItem>
+                        <Cell after={'3 %'}>
+                        Price Impact
+                        </Cell>
                         <Div>
                             <Button size={'l'} stretched before={<Icon28SyncOutline/>} onClick={swapGo} disabled={priceSwap === '0' || props.loadWallet !== 1}>Exchange</Button>
                         </Div>
