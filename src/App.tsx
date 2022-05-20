@@ -425,6 +425,7 @@ export const App: React.FC = () => {
             <ModalPage
                 id={modals[2]}
                 onClose={() => setModal('wallet')}
+                dynamicContentHeight
                 header={<ModalPageHeader>Recive</ModalPageHeader>}
             >
                 <Group>
