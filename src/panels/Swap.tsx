@@ -39,7 +39,8 @@ interface IMyProps {
     login: Function,
     loadWallet: Number,
     balance: any,
-    balanceBTN: number
+    balanceBTN: number,
+    sendBocTHub: Function
 }
 
 function truncate (fullStr:any, strLen:any) {
@@ -88,10 +89,12 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     }
 
     async function sendTon () {
-        const windowTon:any = window
-        const addressTon = await windowTon.ton.send('ton_sendTransaction', [ { value: (Number(btnSwap) * (10 ** 9)), to: props.ContrBTNSwapAddress } ])
-        // btnSwap - временно
-        console.log(addressTon)
+        // const windowTon:any = window
+        // const addressTon = await windowTon.ton.send('ton_sendTransaction', [ { value: (Number(btnSwap) * (10 ** 9)), to: props.ContrBTNSwapAddress } ])
+        // // btnSwap - временно
+        // console.log(addressTon)
+
+        props.sendBocTHub(props.ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, '')
     }
 
     async function sendBiton () {
@@ -106,8 +109,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         const boc = BOC.toBase64Standard(msg)
         const windowTon:any = window
         if (windowTon.ton) {
-            const singTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 100000000, to: props.addressJopa, dataType: 'boc', data: boc } ])
-            console.log(singTon)
+            // const singTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 100000000, to: props.addressJopa, dataType: 'boc', data: boc } ])
+            props.sendBocTHub(props.addressJopa, '100000000', boc)
+
+            // console.log(singTon)
             setTonSwap('')
             setBtnSwap('')
         } else {
@@ -276,7 +281,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 : <small> {priceSwapTon} BTN per 1 TON</small>
                             }
                             <Icon24RefreshOutline width={16} height={16} onClick={() => {
-                                props.login()
+                                // props.login()
                                 getPriceSwap()
                             }} style={{ cursor: 'pointer' }} />
 

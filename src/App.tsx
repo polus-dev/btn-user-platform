@@ -314,18 +314,23 @@ export const App: React.FC = () => {
         }
     }
 
-    async function sendBocTHub () {
+    async function sendBocTHub (addressJopa1:any = addressJopa, valueTon:any = '100000000', boc1:any = null) {
         if (WalletHub !== null) {
             setPopout(<ScreenSpinner />)
-            const msg = TokenWallet.transferMsg({
-                queryId: BigInt(Date.now()),
-                amount: new Coins(amountSend),
-                destination: new Address(addressSend),
-                responseDestination: new Address(address),
-                forwardTonAmount: new Coins(forwardSend ? 0.05 : 0)
-            })
+            let boc:any = null
 
-            const boc = BOC.toBase64Standard(msg)
+            if (boc1 !== null) {
+                boc = boc1
+            } else {
+                const msg = TokenWallet.transferMsg({
+                    queryId: BigInt(Date.now()),
+                    amount: new Coins(amountSend),
+                    destination: new Address(addressSend),
+                    responseDestination: new Address(address),
+                    forwardTonAmount: new Coins(forwardSend ? 0.05 : 0)
+                })
+                boc = BOC.toBase64Standard(msg)
+            }
             // const windowTon:any = window
             console.log(boc)
 
@@ -334,8 +339,8 @@ export const App: React.FC = () => {
             const request: TonhubTransactionRequest = {
                 seed: sessionHub.seed, // Session Seed
                 appPublicKey: WalletHub.wallet.appPublicKey, // Wallet's app public key
-                to: addressJopa, // Destination
-                value: '100000000', // Amount in nano-tons
+                to: addressJopa1, // Destination
+                value: valueTon, // Amount in nano-tons
                 timeout: 5 * 60 * 1000, // 5 minut timeout
                 text: '', // Optional comment. If no payload specified - sends actual content, if payload is provided this text is used as UI-only hint
                 payload: boc // Optional serialized to base64 string payload cell
@@ -549,6 +554,8 @@ export const App: React.FC = () => {
             <ModalPage
                 id={modals[4]}
                 onClose={() => setModal(null)}
+                dynamicContentHeight
+                settlingHeight={100}
                 header={<ModalPageHeader left={
                     urlAuHub === null ? null
                         : <PanelHeaderButton onClick={() => {
@@ -560,7 +567,7 @@ export const App: React.FC = () => {
                     {urlAuHub === null
                         ? <CardGrid size="l">
                             <Card>
-                                <CellButton onClick={login} centered before={<Avatar src='https://ton.org/download/ton_symbol.svg' size={24} />}>
+                                <CellButton onClick={login} disabled centered before={<Avatar src='https://ton.org/download/ton_symbol.svg' size={24} />}>
                                 TON Wallet
                                 </CellButton>
                             </Card>
@@ -695,6 +702,7 @@ export const App: React.FC = () => {
                             loadWallet={loadWallet}
                             balance={balance}
                             balanceBTN={balanceBTN}
+                            sendBocTHub={sendBocTHub}
                         />
                     </Epic>
                 </SplitCol>
