@@ -94,7 +94,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         // // btnSwap - временно
         // console.log(addressTon)
 
-        props.sendBocTHub(props.ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, '')
+        props.sendBocTHub(props.ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, null)
     }
 
     async function sendBiton () {
@@ -107,6 +107,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         })
 
         const boc = BOC.toBase64Standard(msg)
+        console.log(boc)
         const windowTon:any = window
         if (windowTon.ton) {
             // const singTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 100000000, to: props.addressJopa, dataType: 'boc', data: boc } ])
@@ -165,6 +166,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         const load = async () => {
             // setAddress('1')
             // login()
+            getPriceSwap()
         }
         load()
     }, [])

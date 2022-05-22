@@ -111,6 +111,64 @@ export const App: React.FC = () => {
         setTypeWallet(0)
         setUrlAuHub(null)
     }
+
+    async function getBalanceTon (addressW:any = address) {
+        const BalanceTon = await tonrpc.request('getAddressBalance', { address: addressW })
+        // console.log(BalanceTon.data.result)
+
+        const balTon = (BalanceTon.data.result / 10 ** 9).toFixed(9)
+        setBalance(balTon)
+    }
+
+    async function getBalanceBiton (addressW:any = address) {
+        const addressHexNoWC = new Address(addressW).toString('raw').split(':')[1]
+
+        const jwallAddressResp = await tonrpc.request('runGetMethod', {
+            address: ContrBTNAddress,
+            method: 'get_wallet_address_int',
+            stack: [ [ 'num', `0x${addressHexNoWC}` ] ]
+        })
+
+        let jwallAddress: Address
+        if (jwallAddressResp.data.ok === true) {
+            jwallAddress = new Address(`0:${jwallAddressResp.data.result.stack[0][1].substring(2)}`)
+        } else {
+            console.error(jwallAddressResp)
+            return
+        }
+
+        const jwallAddressBounceable = jwallAddress.toString('base64', { bounceable: true })
+        setAddressJopa(jwallAddressBounceable)
+
+        // const singTon = await windowTon.ton.send('ton_rawSign', [ { data: 'boc' } ])
+        console.log(
+            'user jetton wallet address:\n'
+                + `${jwallAddressBounceable}`
+        )
+
+        const jwallCheckAddressResp = await tonrpc.request('getAddressInformation', { address: jwallAddressBounceable })
+
+        if (jwallCheckAddressResp.data.result.state !== 'uninitialized') {
+            const jwallBalanceResp = await tonrpc.request('runGetMethod', {
+                address: jwallAddressBounceable,
+                method: 'get_wallet_data',
+                stack: [ ]
+            })
+            if (jwallBalanceResp.data.ok === true) {
+                const balanceBtnRespInt = (
+                    Number(jwallBalanceResp.data.result.stack[0][1]) / 10 ** 9
+                ).toFixed(9)
+                console.log(balanceBtnRespInt)
+                setBalanceBTN(parseFloat(balanceBtnRespInt))
+            }
+
+            console.log(jwallBalanceResp)
+        } else {
+            console.error('address uninitialized')
+            setBalanceBTN(0)
+        }
+    }
+
     async function login () {
         setPopout(<ScreenSpinner />)
         const windowTon:any = window
@@ -211,58 +269,8 @@ export const App: React.FC = () => {
 
                 setModal(null)
 
-                const BalanceTon = await tonrpc.request('getAddressBalance', { address: session.wallet.address })
-                // console.log(BalanceTon.data.result)
-
-                const balTon = (BalanceTon.data.result / 10 ** 9).toFixed(9)
-                setBalance(balTon)
-
-                const addressHexNoWC = new Address(session.wallet.address).toString('raw').split(':')[1]
-
-                const jwallAddressResp = await tonrpc.request('runGetMethod', {
-                    address: ContrBTNAddress,
-                    method: 'get_wallet_address_int',
-                    stack: [ [ 'num', `0x${addressHexNoWC}` ] ]
-                })
-
-                let jwallAddress: Address
-                if (jwallAddressResp.data.ok === true) {
-                    jwallAddress = new Address(`0:${jwallAddressResp.data.result.stack[0][1].substring(2)}`)
-                } else {
-                    console.error(jwallAddressResp)
-                    return
-                }
-
-                const jwallAddressBounceable = jwallAddress.toString('base64', { bounceable: true })
-                setAddressJopa(jwallAddressBounceable)
-
-                // const singTon = await windowTon.ton.send('ton_rawSign', [ { data: 'boc' } ])
-                console.log(
-                    'user jetton wallet address:\n'
-                + `${jwallAddressBounceable}`
-                )
-
-                const jwallCheckAddressResp = await tonrpc.request('getAddressInformation', { address: jwallAddressBounceable })
-
-                if (jwallCheckAddressResp.data.result.state !== 'uninitialized') {
-                    const jwallBalanceResp = await tonrpc.request('runGetMethod', {
-                        address: jwallAddressBounceable,
-                        method: 'get_wallet_data',
-                        stack: [ ]
-                    })
-                    if (jwallBalanceResp.data.ok === true) {
-                        const balanceBtnRespInt = (
-                            Number(jwallBalanceResp.data.result.stack[0][1]) / 10 ** 9
-                        ).toFixed(9)
-                        console.log(balanceBtnRespInt)
-                        setBalanceBTN(parseFloat(balanceBtnRespInt))
-                    }
-
-                    console.log(jwallBalanceResp)
-                } else {
-                    console.error('address uninitialized')
-                    setBalanceBTN(0)
-                }
+                getBalanceTon(session.wallet.address)
+                getBalanceBiton(session.wallet.address)
 
                 setLoadWallet(1)
                 setPopout(null)
@@ -317,22 +325,8 @@ export const App: React.FC = () => {
     async function sendBocTHub (addressJopa1:any = addressJopa, valueTon:any = '100000000', boc1:any = null) {
         if (WalletHub !== null) {
             setPopout(<ScreenSpinner />)
-            let boc:any = null
-
-            if (boc1 !== null) {
-                boc = boc1
-            } else {
-                const msg = TokenWallet.transferMsg({
-                    queryId: BigInt(Date.now()),
-                    amount: new Coins(amountSend),
-                    destination: new Address(addressSend),
-                    responseDestination: new Address(address),
-                    forwardTonAmount: new Coins(forwardSend ? 0.05 : 0)
-                })
-                boc = BOC.toBase64Standard(msg)
-            }
             // const windowTon:any = window
-            console.log(boc)
+            console.log(boc1)
 
             console.log(WalletHub)
             // Request body
@@ -342,34 +336,60 @@ export const App: React.FC = () => {
                 to: addressJopa1, // Destination
                 value: valueTon, // Amount in nano-tons
                 timeout: 5 * 60 * 1000, // 5 minut timeout
-                text: '', // Optional comment. If no payload specified - sends actual content, if payload is provided this text is used as UI-only hint
-                payload: boc // Optional serialized to base64 string payload cell
+                text: '' // Optional comment. If no payload specified - sends actual content, if payload is provided this text is used as UI-only hint
+                // payload: boc1 // Optional serialized to base64 string payload cell
+            }
+            if (boc1 !== null) {
+                request.payload = boc1
             }
             const response: TonhubTransactionResponse = await connector.requestTransaction(request)
             if (response.type === 'rejected') {
             // Handle rejection
                 console.log(response)
                 setPopout(null)
-            } else if (response.type === 'expired') {
+                return { type: 'error', data: response }
+            } if (response.type === 'expired') {
             // Handle expiration
                 console.log(response)
                 setPopout(null)
-            } else if (response.type === 'invalid_session') {
+                return { type: 'error', data: response }
+            } if (response.type === 'invalid_session') {
             // Handle expired or invalid session
                 console.log(response)
                 setPopout(null)
-            } else if (response.type === 'success') {
+                return { type: 'error', data: response }
+            } if (response.type === 'success') {
             // Handle successful transaction
                 console.log(response.response)
                 const externalMessage = response.response // Signed external message that was sent to the network
                 setPopout(null)
-            } else {
-                setPopout(null)
-                throw new Error('Impossible')
+                return { type: 'ok', data: response }
             }
+            setPopout(null)
+            throw new Error('Impossible')
         } else {
             console.log('error')
         }
+    }
+
+    async function sendBtionHub () {
+        setPopout(<ScreenSpinner />)
+        const msg = TokenWallet.transferMsg({
+            queryId: BigInt(Date.now()),
+            amount: new Coins(amountSend),
+            destination: new Address(addressSend),
+            responseDestination: new Address(address),
+            forwardTonAmount: new Coins(forwardSend ? 0.05 : 0)
+        })
+        const boc = BOC.toBase64Standard(msg)
+        const result:any = await sendBocTHub(addressJopa, '100000000', boc)
+
+        if (result.type === 'error') {
+            console.error(result)
+        } else {
+            console.log(result)
+        }
+        setPopout(null)
     }
 
     async function buyBtn () {
@@ -418,7 +438,7 @@ export const App: React.FC = () => {
                             if (typeWallet === 0) {
                                 sendBocT()
                             } else {
-                                sendBocTHub()
+                                sendBtionHub()
                             }
                         }} disabled={amountSend === '' || addressSend === ''}>
                   Send
@@ -454,7 +474,8 @@ export const App: React.FC = () => {
                         if (typeWallet === 0) {
                             login()
                         } else {
-                            // loginHub()
+                            getBalanceTon()
+                            getBalanceBiton()
                         }
                     }}><Icon28RefreshOutline /></PanelHeaderButton>
                 }
@@ -658,7 +679,7 @@ export const App: React.FC = () => {
                     <Epic
                         activeStory={activeStory}
                         tabbar={
-                            !isDesktop && (
+                            !isDesktop && false && (
                                 <Tabbar>
                                     <TabbarItem
                                         onClick={onStoryChange}
