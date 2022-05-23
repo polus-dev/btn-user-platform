@@ -1,4 +1,5 @@
 import {
+    Icon16CancelCircle,
     Icon20DiamondOutline,
     Icon28ArrowDownOutline,
     Icon28ArrowLeftOutline,
@@ -38,7 +39,9 @@ import {
     SimpleCell,
     Link,
     PanelHeaderButton,
-    ScreenSpinner
+    ScreenSpinner,
+    Snackbar,
+    Title
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -49,7 +52,7 @@ import './style.css'
 import React, { useEffect } from 'react'
 
 import { TonhubConnector } from 'ton-x-fix'
-import { TonhubCreatedSession, TonhubSessionAwaited, TonhubTransactionRequest, TonhubTransactionResponse } from 'ton-x/dist/connector/TonhubConnector'
+import { TonhubCreatedSession, TonhubSessionAwaited, TonhubTransactionRequest, TonhubTransactionResponse } from 'ton-x-fix/dist/connector/TonhubConnector'
 
 import { QRCodeSVG } from 'qrcode.react'
 
@@ -63,10 +66,11 @@ const connector = new TonhubConnector({ testnet: true })
 export const App: React.FC = () => {
     const platform = usePlatform()
 
-    const modals = [ 'modal 1', 'send', 'recive', 'wallet', 'login' ]
+    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait' ]
 
     const [ modal, setModal ] = React.useState<any>(null)
     const [ popout, setPopout ] = React.useState<any>(null)
+    const [ snackbar, setSnackbar ] = React.useState<any>(null)
 
     const [ activeStory, setActiveStory ] = React.useState<any>('swap')
 
@@ -324,7 +328,8 @@ export const App: React.FC = () => {
 
     async function sendBocTHub (addressJopa1:any = addressJopa, valueTon:any = '100000000', boc1:any = null) {
         if (WalletHub !== null) {
-            setPopout(<ScreenSpinner />)
+            // setPopout(<ScreenSpinner />)
+            setModal('confirm')
             // const windowTon:any = window
             console.log(boc1)
 
@@ -363,6 +368,7 @@ export const App: React.FC = () => {
                 console.log(response.response)
                 const externalMessage = response.response // Signed external message that was sent to the network
                 setPopout(null)
+                setModal('wait')
                 return { type: 'ok', data: response }
             }
             setPopout(null)
@@ -373,7 +379,6 @@ export const App: React.FC = () => {
     }
 
     async function sendBtionHub () {
-        setPopout(<ScreenSpinner />)
         const msg = TokenWallet.transferMsg({
             queryId: BigInt(Date.now()),
             amount: new Coins(amountSend),
@@ -386,16 +391,45 @@ export const App: React.FC = () => {
 
         if (result.type === 'error') {
             console.error(result)
+            setSnackbar(<Snackbar
+                onClose={() => setSnackbar(null)}
+                before={
+                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
+                        <Icon16CancelCircle fill="#fff" width={14} height={14} />
+                    </Avatar>
+                }
+            >
+                Error - {result.data.type}
+            </Snackbar>)
         } else {
+            // setModal('confirm')
             console.log(result)
         }
-        setPopout(null)
     }
 
     async function buyBtn () {
-        const windowTon:any = window
-        const addressTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 10000000000, to: ContrBTNAddress } ])
-        console.log(addressTon)
+        // const windowTon:any = window
+        // const addressTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 10000000000, to: ContrBTNAddress } ])
+        // console.log(addressTon)
+
+        const result:any = await sendBocTHub(ContrBTNAddress, '10000000000', null)
+
+        if (result.type === 'error') {
+            console.error(result)
+            setSnackbar(<Snackbar
+                onClose={() => setSnackbar(null)}
+                before={
+                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
+                        <Icon16CancelCircle fill="#fff" width={14} height={14} />
+                    </Avatar>
+                }
+            >
+                Error - {result.data.type}
+            </Snackbar>)
+        } else {
+            setModal('confirm')
+            console.log(result)
+        }
     }
 
     const ModalRootFix:any = ModalRoot
@@ -404,10 +438,28 @@ export const App: React.FC = () => {
             <ModalPage
                 id={modals[0]}
                 onClose={() => setModal(null)}
-                header={<ModalPageHeader>Modal 1</ModalPageHeader>}
+                header={<ModalPageHeader>Сonfirm</ModalPageHeader>}
             >
                 <Group>
-                    <CellButton onClick={() => setModal(modals[1])}>Modal 2</CellButton>
+                    <Div>
+                        <Title weight="heavy" level="2">Confirm the operation in TonHub</Title>
+                        <br />
+                        <Button size='l' stretched href={'ton-test://connect'}>Confirm in TonHub</Button>
+                    </Div>
+                </Group>
+            </ModalPage>
+
+            <ModalPage
+                id={modals[5]}
+                onClose={() => setModal(null)}
+                header={<ModalPageHeader>Wait</ModalPageHeader>}
+            >
+                <Group>
+                    <Div>
+                        <Title weight="heavy" level="2">The transaction is being processed, wait</Title>
+                        <br />
+                        <Button size='l' stretched href={'ton-test://connect'}>View in TonHub</Button>
+                    </Div>
                 </Group>
             </ModalPage>
 
@@ -724,9 +776,11 @@ export const App: React.FC = () => {
                             balance={balance}
                             balanceBTN={balanceBTN}
                             sendBocTHub={sendBocTHub}
+                            setSnackbar={setSnackbar}
                         />
                     </Epic>
                 </SplitCol>
+                {snackbar}
             </SplitLayout>
         </AppRoot>
 

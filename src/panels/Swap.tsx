@@ -1,4 +1,4 @@
-import { Icon24RefreshOutline, Icon28DoorArrowLeftOutline, Icon28SortOutline, Icon28SyncOutline, Icon28WalletOutline } from '@vkontakte/icons'
+import { Icon16CancelCircle, Icon24RefreshOutline, Icon28DoorArrowLeftOutline, Icon28SortOutline, Icon28SyncOutline, Icon28WalletOutline } from '@vkontakte/icons'
 import {
     Panel,
     PanelHeader,
@@ -16,7 +16,8 @@ import {
     Link,
     IconButton,
     Slider,
-    PanelHeaderButton
+    PanelHeaderButton,
+    Snackbar
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -40,7 +41,8 @@ interface IMyProps {
     loadWallet: Number,
     balance: any,
     balanceBTN: number,
-    sendBocTHub: Function
+    sendBocTHub: Function,
+    setSnackbar: Function
 }
 
 function truncate (fullStr:any, strLen:any) {
@@ -94,7 +96,24 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         // // btnSwap - временно
         // console.log(addressTon)
 
-        props.sendBocTHub(props.ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, null)
+        const result:any = await props.sendBocTHub(props.ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, null)
+
+        if (result.type === 'error') {
+            console.error(result)
+            props.setSnackbar(<Snackbar
+                onClose={() => props.setSnackbar(null)}
+                before={
+                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
+                        <Icon16CancelCircle fill="#fff" width={14} height={14} />
+                    </Avatar>
+                }
+            >
+                Error - {result.data.type}
+            </Snackbar>)
+        } else {
+            // props.setModal('confirm')
+            console.log(result)
+        }
     }
 
     async function sendBiton () {
@@ -107,18 +126,38 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         })
 
         const boc = BOC.toBase64Standard(msg)
-        console.log(boc)
-        const windowTon:any = window
-        if (windowTon.ton) {
-            // const singTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 100000000, to: props.addressJopa, dataType: 'boc', data: boc } ])
-            props.sendBocTHub(props.addressJopa, '100000000', boc)
 
-            // console.log(singTon)
-            setTonSwap('')
-            setBtnSwap('')
+        const result:any = await props.sendBocTHub(props.addressJopa, '100000000', boc)
+
+        if (result.type === 'error') {
+            console.error(result)
+            props.setSnackbar(<Snackbar
+                onClose={() => props.setSnackbar(null)}
+                before={
+                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
+                        <Icon16CancelCircle fill="#fff" width={14} height={14} />
+                    </Avatar>
+                }
+            >
+                Error - {result.data.type}
+            </Snackbar>)
         } else {
-            console.log('error')
+            // props.setModal('confirm')
+            console.log(result)
         }
+
+        // console.log(boc)
+        // const windowTon:any = window
+        // if (windowTon.ton) {
+        //     // const singTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 100000000, to: props.addressJopa, dataType: 'boc', data: boc } ])
+        //     props.sendBocTHub(props.addressJopa, '100000000', boc)
+
+        //     // console.log(singTon)
+        //     setTonSwap('')
+        //     setBtnSwap('')
+        // } else {
+        //     console.log('error')
+        // }
     }
 
     async function swapGo () {
