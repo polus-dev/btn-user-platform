@@ -42,7 +42,11 @@ interface IMyProps {
     balance: any,
     balanceBTN: number,
     sendBocTHub: Function,
-    setSnackbar: Function
+    setSnackbar: Function,
+    setSwapConfirm: Function,
+    swapConfirm: any,
+    setBtnSwap: Function,
+    btnSwap: string
 }
 
 function truncate (fullStr:any, strLen:any) {
@@ -75,6 +79,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
 
     const [ typeSwap, setTypeSwap ] = React.useState<boolean>(false)
 
+
     async function getPriceSwap () {
         const jwallPriceResp = await tonrpc.request('runGetMethod', {
             address: props.ContrBTNSwapAddress,
@@ -90,83 +95,44 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         console.log(jwallPriceResp)
     }
 
-    async function sendTon () {
-        // const windowTon:any = window
-        // const addressTon = await windowTon.ton.send('ton_sendTransaction', [ { value: (Number(btnSwap) * (10 ** 9)), to: props.ContrBTNSwapAddress } ])
-        // // btnSwap - временно
-        // console.log(addressTon)
-
-        const result:any = await props.sendBocTHub(props.ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, null)
-
-        if (result.type === 'error') {
-            console.error(result)
-            props.setSnackbar(<Snackbar
-                onClose={() => props.setSnackbar(null)}
-                before={
-                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
-                        <Icon16CancelCircle fill="#fff" width={14} height={14} />
-                    </Avatar>
-                }
-            >
-                Error - {result.data.type}
-            </Snackbar>)
-        } else {
-            // props.setModal('confirm')
-            console.log(result)
-        }
-    }
-
-    async function sendBiton () {
-        const msg = TokenWallet.transferMsg({
-            queryId: BigInt(Date.now()),
-            amount: new Coins(btnSwap),
-            destination: new Address(props.ContrBTNSwapAddress),
-            responseDestination: new Address(props.address),
-            forwardTonAmount: new Coins(0.05)
+    async function connfirmSendTon () {
+        const priceData = await tonrpc.request('runGetMethod', {
+            address: props.ContrBTNSwapAddress,
+            method: typeSwap ? 'get_price_biton' : 'get_price_ton',
+            stack: [ [ 'num', `0x${(parseFloat(props.btnSwap) * (10 ** 9)).toString(16)}` ] ]
         })
+        if (priceData.data.ok === true) {
+            const amout1 = (Number(priceData.data.result.stack[0][1]) / 10 ** 9).toFixed(9)
+            const price1 = (Number(priceData.data.result.stack[1][1]) / 10 ** 9).toFixed(9)
+            const fee1 = (Number(priceData.data.result.stack[2][1]) / 10 ** 9).toFixed(9)
 
-        const boc = BOC.toBase64Standard(msg)
-
-        const result:any = await props.sendBocTHub(props.addressJopa, '100000000', boc)
-
-        if (result.type === 'error') {
-            console.error(result)
-            props.setSnackbar(<Snackbar
-                onClose={() => props.setSnackbar(null)}
-                before={
-                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
-                        <Icon16CancelCircle fill="#fff" width={14} height={14} />
-                    </Avatar>
-                }
-            >
-                Error - {result.data.type}
-            </Snackbar>)
-        } else {
-            // props.setModal('confirm')
-            console.log(result)
+            const imact = parseFloat(props.btnSwap)
+            const imact2 = parseFloat(priceSwap)
+            const imact3 = parseFloat(price1)
+            const imactRes = ((imact2 - imact3) / ((imact2 + imact3) / 2)) * 100
+            const obj1 = {
+                amount: amout1,
+                price: price1,
+                fee: fee1,
+                amountU: props.btnSwap,
+                type: typeSwap,
+                imact: imactRes.toFixed(4)
+            }
+            props.setSwapConfirm(obj1)
+            props.setModal('confirmSwap')
         }
-
-        // console.log(boc)
-        // const windowTon:any = window
-        // if (windowTon.ton) {
-        //     // const singTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 100000000, to: props.addressJopa, dataType: 'boc', data: boc } ])
-        //     props.sendBocTHub(props.addressJopa, '100000000', boc)
-
-        //     // console.log(singTon)
-        //     setTonSwap('')
-        //     setBtnSwap('')
-        // } else {
-        //     console.log('error')
-        // }
+        console.log('get_price_biton', priceData.data.result.stack)
     }
 
     async function swapGo () {
         if (typeSwap) {
             // ton to btn
-            sendTon()
+            // sendTon()
+            connfirmSendTon()
         } else {
             // btn to ton
-            sendBiton()
+            // sendBiton()
+            connfirmSendTon()
         }
     }
 
@@ -174,17 +140,17 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         const prN = parseFloat(price)
 
         if (price === '') {
-            setBtnSwap('')
+            props.setBtnSwap('')
             setTonSwap('')
         } else if (type) {
             // ton to btn
             const btnN = typeSwap ? parseFloat(priceSwapTon) * prN : parseFloat(priceSwap) * prN
             setTonSwap(parseFloat(btnN.toFixed(10)).toFixed(9))
-            setBtnSwap(price)
+            props.setBtnSwap(price)
         } else {
             // btn to ton
             const btnN = typeSwap ? parseFloat(priceSwap) * prN : parseFloat(priceSwapTon) * prN
-            setBtnSwap(parseFloat(btnN.toFixed(10)).toFixed(9))
+            props.setBtnSwap(parseFloat(btnN.toFixed(10)).toFixed(9))
             setTonSwap(price)
         }
     }
@@ -195,8 +161,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         } else {
             // btn to ton
         }
-        const btnSw = btnSwap
-        setBtnSwap(tonSwap)
+        const btnSw = props.btnSwap
+        props.setBtnSwap(tonSwap)
         setTonSwap(btnSw)
         setTypeSwap(!typeSwap)
     }
@@ -239,10 +205,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
 
                                     <div style={{ display: 'flex' }}>
                                         <FormItem top="From" style={{ width: '65%' }}>
-                                            <Input placeholder="0.0" value={btnSwap} onChange={(e) => { calculatePriceInput(e.target.value, true) }} type={'number'} />
+                                            <Input placeholder="0.0" value={props.btnSwap} onChange={(e) => { calculatePriceInput(e.target.value, true) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Balance: ${props.balance}`} style={{ width: '20%' }}>
+                                        <FormItem top={`Bl: ${props.balance}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://ton.org/_next/static/media/apple-touch-icon.d723311b.png" size={24} />}
@@ -255,10 +221,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 : <Card>
                                     <div style={{ display: 'flex' }}>
                                         <FormItem top="From" style={{ width: '65%' }}>
-                                            <Input placeholder="0.0" value={btnSwap} onChange={(e) => { calculatePriceInput(e.target.value, true) }} type={'number'} />
+                                            <Input placeholder="0.0" value={props.btnSwap} onChange={(e) => { calculatePriceInput(e.target.value, true) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Balance: ${props.balanceBTN}`} style={{ width: '20%' }}>
+                                        <FormItem top={`Bl: ${props.balanceBTN}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://biton.pw/static/biton/img/logo.png?1" size={24} />}
@@ -287,7 +253,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             <Input placeholder="0.0" value={tonSwap} onChange={(e) => { calculatePriceInput(e.target.value, false) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Balance: ${props.balanceBTN}`} style={{ width: '20%' }}>
+                                        <FormItem top={`Bl: ${props.balanceBTN}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://biton.pw/static/biton/img/logo.png?1" size={24} />}
@@ -303,7 +269,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             <Input placeholder="0.0" value={tonSwap} onChange={(e) => { calculatePriceInput(e.target.value, false) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Balance: ${props.balance}`} style={{ width: '20%' }}>
+                                        <FormItem top={`Bl: ${props.balance}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://ton.org/_next/static/media/apple-touch-icon.d723311b.png" size={24} />}
@@ -336,9 +302,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 // onChange={(value2) => this.setState({ value2 })}
                             />
                         </FormItem>
-                        <Cell after={'3 %'}>
+                        {/* <Cell after={'3 %'}>
                         Price Impact
-                        </Cell>
+                        </Cell> */}
                         <Div>
                             <Button size={'l'} stretched before={<Icon28SyncOutline/>} onClick={swapGo} disabled={priceSwap === '0' || props.loadWallet !== 1}>Exchange</Button>
                         </Div>

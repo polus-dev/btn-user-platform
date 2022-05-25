@@ -41,7 +41,8 @@ import {
     PanelHeaderButton,
     ScreenSpinner,
     Snackbar,
-    Title
+    Title,
+    InfoRow
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -66,7 +67,7 @@ const connector = new TonhubConnector({ testnet: true })
 export const App: React.FC = () => {
     const platform = usePlatform()
 
-    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait' ]
+    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap' ]
 
     const [ modal, setModal ] = React.useState<any>(null)
     const [ popout, setPopout ] = React.useState<any>(null)
@@ -94,6 +95,9 @@ export const App: React.FC = () => {
     const [ connectorHub, setConnectorHub ] = React.useState<any>(null)
 
     const [ urlAuHub, setUrlAuHub ] = React.useState<any>(null)
+
+    const [ swapConfirm, setSwapConfirm ] = React.useState<any>(null)
+    const [ btnSwap, setBtnSwap ] = React.useState<string>('')
 
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
@@ -432,6 +436,76 @@ export const App: React.FC = () => {
         }
     }
 
+    async function sendTonSwap () {
+        // const windowTon:any = window
+        // const addressTon = await windowTon.ton.send('ton_sendTransaction', [ { value: (Number(btnSwap) * (10 ** 9)), to: props.ContrBTNSwapAddress } ])
+        // // btnSwap - временно
+        // console.log(addressTon)
+
+        const result:any = await sendBocTHub(ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, null)
+
+        if (result.type === 'error') {
+            console.error(result)
+            setSnackbar(<Snackbar
+                onClose={() => setSnackbar(null)}
+                before={
+                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
+                        <Icon16CancelCircle fill="#fff" width={14} height={14} />
+                    </Avatar>
+                }
+            >
+                Error - {result.data.type}
+            </Snackbar>)
+        } else {
+            // props.setModal('confirm')
+            console.log(result)
+        }
+    }
+
+    async function sendBitonSwap () {
+        const msg = TokenWallet.transferMsg({
+            queryId: BigInt(Date.now()),
+            amount: new Coins(btnSwap),
+            destination: new Address(ContrBTNSwapAddress),
+            responseDestination: new Address(address),
+            forwardTonAmount: new Coins(0.05)
+        })
+
+        const boc = BOC.toBase64Standard(msg)
+
+        const result:any = await sendBocTHub(addressJopa, '100000000', boc)
+
+        if (result.type === 'error') {
+            console.error(result)
+            setSnackbar(<Snackbar
+                onClose={() => setSnackbar(null)}
+                before={
+                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
+                        <Icon16CancelCircle fill="#fff" width={14} height={14} />
+                    </Avatar>
+                }
+            >
+                Error - {result.data.type}
+            </Snackbar>)
+        } else {
+            // props.setModal('confirm')
+            console.log(result)
+        }
+
+        // console.log(boc)
+        // const windowTon:any = window
+        // if (windowTon.ton) {
+        //     // const singTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 100000000, to: props.addressJopa, dataType: 'boc', data: boc } ])
+        //     props.sendBocTHub(props.addressJopa, '100000000', boc)
+
+        //     // console.log(singTon)
+        //     setTonSwap('')
+        //     setBtnSwap('')
+        // } else {
+        //     console.log('error')
+        // }
+    }
+
     const ModalRootFix:any = ModalRoot
     const modalRoot = (
         <ModalRootFix activeModal={modal}>
@@ -459,6 +533,41 @@ export const App: React.FC = () => {
                         <Title weight="heavy" level="2">The transaction is being processed, wait</Title>
                         <br />
                         <Button size='l' stretched href={'ton-test://connect'}>View in TonHub</Button>
+                    </Div>
+                </Group>
+            </ModalPage>
+
+            <ModalPage
+                id={modals[6]}
+                onClose={() => setModal(null)}
+                header={<ModalPageHeader>Confirm</ModalPageHeader>}
+            >
+                <Group>
+                    <Div>
+                        <Title weight="heavy" level="2">Info for swap</Title>
+                        <br />
+                        {swapConfirm !== null
+                            ? <div>
+                                <SimpleCell multiline>
+                                    <InfoRow header={`Give amount ${swapConfirm.type === true ? 'Ton' : 'Biton'}`}>{swapConfirm.amountU}</InfoRow>
+                                </SimpleCell>
+                                <SimpleCell multiline>
+                                    <InfoRow header={`Accept amount ${swapConfirm.type === false ? 'Ton' : 'Biton'}`}>{swapConfirm.amount}</InfoRow>
+                                </SimpleCell>
+                                <SimpleCell multiline>
+                                    <InfoRow header={'Market price'}>{swapConfirm.price}</InfoRow>
+                                </SimpleCell>
+                                <SimpleCell multiline>
+                                    <InfoRow header={'Fee'}>{swapConfirm.fee}</InfoRow>
+                                </SimpleCell>
+                                <SimpleCell multiline>
+                                    <InfoRow header={'Price Impact'}>{swapConfirm.imact} %</InfoRow>
+                                </SimpleCell>
+                                <br />
+                                <Button size='l' stretched onClick={swapConfirm.type === true ? sendTonSwap : sendBitonSwap}>Accept</Button>
+                            </div>
+                            : null }
+
                     </Div>
                 </Group>
             </ModalPage>
@@ -777,6 +886,10 @@ export const App: React.FC = () => {
                             balanceBTN={balanceBTN}
                             sendBocTHub={sendBocTHub}
                             setSnackbar={setSnackbar}
+                            setSwapConfirm={setSwapConfirm}
+                            swapConfirm={swapConfirm}
+                            setBtnSwap={setBtnSwap}
+                            btnSwap={btnSwap}
                         />
                     </Epic>
                 </SplitCol>
