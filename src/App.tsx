@@ -4,6 +4,7 @@ import {
     Icon28ArrowDownOutline,
     Icon28ArrowLeftOutline,
     Icon28ArrowUpOutline,
+    Icon28ArticleOutline,
     Icon28DoorArrowRightOutline,
     Icon28RefreshOutline,
     Icon28SyncOutline,
@@ -57,8 +58,8 @@ import { TonhubCreatedSession, TonhubSessionAwaited, TonhubTransactionRequest, T
 
 import { QRCodeSVG } from 'qrcode.react'
 
-import { Address, BOC, Coins } from 'ton3-core'
-import { WalletPanel, SwapPanel } from './panels'
+import { Address, BOC, Builder, Coins } from 'ton3-core'
+import { WalletPanel, SwapPanel, ExplorerPanel } from './panels'
 import { ToncenterRPC } from './logic/tonapi'
 import { TokenWallet } from './logic/contracts'
 
@@ -99,6 +100,8 @@ export const App: React.FC = () => {
     const [ swapConfirm, setSwapConfirm ] = React.useState<any>(null)
     const [ btnSwap, setBtnSwap ] = React.useState<string>('')
 
+    const [ torSwap, setTorSwap ] = React.useState<string>('5')
+
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
     }
@@ -120,15 +123,25 @@ export const App: React.FC = () => {
         setUrlAuHub(null)
     }
 
-    async function getBalanceTon (addressW:any = address) {
+    async function getBalanceTon (addressW:any = address, type:boolean = true) {
         const BalanceTon = await tonrpc.request('getAddressBalance', { address: addressW })
         // console.log(BalanceTon.data.result)
 
         const balTon = (BalanceTon.data.result / 10 ** 9).toFixed(9)
-        setBalance(balTon)
+        if (type) {
+            setBalance(balTon)
+        }
+        return balTon
     }
 
-    async function getBalanceBiton (addressW:any = address) {
+    async function getTransAddress (addressW:any = address, type:boolean = true) {
+        const Trans = await tonrpc.request('getTransactions', { address: addressW, limit: 50 })
+        console.log(Trans.data.result)
+
+        return Trans.data.result
+    }
+
+    async function getBalanceBiton (addressW:any = address, type:boolean = true) {
         const addressHexNoWC = new Address(addressW).toString('raw').split(':')[1]
 
         const jwallAddressResp = await tonrpc.request('runGetMethod', {
@@ -146,7 +159,9 @@ export const App: React.FC = () => {
         }
 
         const jwallAddressBounceable = jwallAddress.toString('base64', { bounceable: true })
-        setAddressJopa(jwallAddressBounceable)
+        if (type) {
+            setAddressJopa(jwallAddressBounceable)
+        }
 
         // const singTon = await windowTon.ton.send('ton_rawSign', [ { data: 'boc' } ])
         console.log(
@@ -155,6 +170,11 @@ export const App: React.FC = () => {
         )
 
         const jwallCheckAddressResp = await tonrpc.request('getAddressInformation', { address: jwallAddressBounceable })
+
+        let returnBalanceOb:any = {
+            address: jwallAddressBounceable,
+            balance: 0
+        }
 
         if (jwallCheckAddressResp.data.result.state !== 'uninitialized') {
             const jwallBalanceResp = await tonrpc.request('runGetMethod', {
@@ -167,14 +187,25 @@ export const App: React.FC = () => {
                     Number(jwallBalanceResp.data.result.stack[0][1]) / 10 ** 9
                 ).toFixed(9)
                 console.log(balanceBtnRespInt)
-                setBalanceBTN(parseFloat(balanceBtnRespInt))
+                if (type) {
+                    setBalanceBTN(parseFloat(balanceBtnRespInt))
+                }
+                returnBalanceOb.balance = balanceBtnRespInt
+            } else {
+                console.error('data not ok')
+                if (type) {
+                    setBalanceBTN(0)
+                }
             }
 
             console.log(jwallBalanceResp)
         } else {
             console.error('address uninitialized')
-            setBalanceBTN(0)
+            if (type) {
+                setBalanceBTN(0)
+            }
         }
+        return returnBalanceOb
     }
 
     async function login () {
@@ -442,7 +473,11 @@ export const App: React.FC = () => {
         // // btnSwap - временно
         // console.log(addressTon)
 
-        const result:any = await sendBocTHub(ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, null)
+        const builderF = new Builder()
+            .storeUint(1002, 32).storeCoins(new Coins(btnSwap).mul(1.1)).cell()
+        const boc = BOC.toBase64Standard(builderF)
+
+        const result:any = await sendBocTHub(ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, boc)
 
         if (result.type === 'error') {
             console.error(result)
@@ -463,33 +498,37 @@ export const App: React.FC = () => {
     }
 
     async function sendBitonSwap () {
-        const msg = TokenWallet.transferMsg({
-            queryId: BigInt(Date.now()),
-            amount: new Coins(btnSwap),
-            destination: new Address(ContrBTNSwapAddress),
-            responseDestination: new Address(address),
-            forwardTonAmount: new Coins(0.05)
-        })
+        if (swapConfirm) {
+            const msg = TokenWallet.transferMsg({
+                queryId: BigInt(Date.now()),
+                amount: new Coins(btnSwap),
+                destination: new Address(ContrBTNSwapAddress),
+                responseDestination: new Address(address),
+                forwardTonAmount: new Coins(0.05),
+                forwardPayload: new Builder()
+                    .storeUint(1002, 32).storeCoins(new Coins(swapConfirm.price).mul(1.1)).cell()
+            })
 
-        const boc = BOC.toBase64Standard(msg)
+            const boc = BOC.toBase64Standard(msg)
 
-        const result:any = await sendBocTHub(addressJopa, '100000000', boc)
+            const result:any = await sendBocTHub(addressJopa, '100000000', boc)
 
-        if (result.type === 'error') {
-            console.error(result)
-            setSnackbar(<Snackbar
-                onClose={() => setSnackbar(null)}
-                before={
-                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
-                        <Icon16CancelCircle fill="#fff" width={14} height={14} />
-                    </Avatar>
-                }
-            >
-                Error - {result.data.type}
-            </Snackbar>)
-        } else {
-            // props.setModal('confirm')
-            console.log(result)
+            if (result.type === 'error') {
+                console.error(result)
+                setSnackbar(<Snackbar
+                    onClose={() => setSnackbar(null)}
+                    before={
+                        <Avatar size={24} style={{ background: 'var(--danger)' }}>
+                            <Icon16CancelCircle fill="#fff" width={14} height={14} />
+                        </Avatar>
+                    }
+                >
+                    Error - {result.data.type}
+                </Snackbar>)
+            } else {
+                // props.setModal('confirm')
+                console.log(result)
+            }
         }
 
         // console.log(boc)
@@ -561,10 +600,21 @@ export const App: React.FC = () => {
                                     <InfoRow header={'Fee'}>{swapConfirm.fee}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
-                                    <InfoRow header={'Price Impact'}>{swapConfirm.imact} %</InfoRow>
+                                    <InfoRow header={'Price Impact'} style={swapConfirm.imact > 10 ? { color: 'var(--destructive)' } : {}}>
+                                        {swapConfirm.imact} %
+                                    </InfoRow>
                                 </SimpleCell>
                                 <br />
-                                <Button size='l' stretched onClick={swapConfirm.type === true ? sendTonSwap : sendBitonSwap}>Accept</Button>
+                                <Button
+                                    size='l'
+                                    stretched
+                                    onClick={
+                                        swapConfirm.type === true ? sendTonSwap : sendBitonSwap
+                                    }
+                                    disabled={swapConfirm.imact > 10}
+                                >
+                                    Accept
+                                </Button>
                             </div>
                             : null }
 
@@ -601,7 +651,7 @@ export const App: React.FC = () => {
                             } else {
                                 sendBtionHub()
                             }
-                        }} disabled={amountSend === '' || addressSend === ''}>
+                        }} disabled={amountSend === '' || addressSend === '' || (addressSend.toLowerCase().substring(0, 2) !== 'kq' && addressSend.toLowerCase().substring(0, 2) !== 'eq')}>
                   Send
                         </Button>
                     </FormItem>
@@ -821,6 +871,19 @@ export const App: React.FC = () => {
                                             : {}
                                     }
                                 >Swap</Cell>
+                                <Cell
+                                    onClick={onStoryChange}
+                                    data-story="explorer"
+                                    before={<Icon28ArticleOutline/>}
+                                    style={
+                                        activeStory === 'explorer'
+                                            ? {
+                                                backgroundColor: 'var(--button_secondary_background)',
+                                                borderRadius: 8
+                                            }
+                                            : {}
+                                    }
+                                >Explorer</Cell>
                                 <Separator />
                                 <Div>
                                     <small style={{ opacity: 0.6 }}>Biton 2022</small>
@@ -870,6 +933,20 @@ export const App: React.FC = () => {
                             setAddressJopa={setAddressJopa}
                             ContrBTNAddress={ContrBTNAddress}
                         />
+                        <ExplorerPanel
+                            id={'explorer'}
+                            tonrpc={tonrpc}
+                            setAddress={setAddress}
+                            setModal={setModal}
+                            setAddressJopa={setAddressJopa}
+                            ContrBTNAddress={ContrBTNAddress}
+                            address={address}
+                            loadWallet={loadWallet}
+                            getBalanceBiton={getBalanceBiton}
+                            getBalanceTon={getBalanceTon}
+                            setPopout={setPopout}
+                            getTransAddress={getTransAddress}
+                        />
                         <SwapPanel
                             id={'swap'}
                             tonrpc={tonrpc}
@@ -890,6 +967,8 @@ export const App: React.FC = () => {
                             swapConfirm={swapConfirm}
                             setBtnSwap={setBtnSwap}
                             btnSwap={btnSwap}
+                            torSwap={torSwap}
+                            setTorSwap={setTorSwap}
                         />
                     </Epic>
                 </SplitCol>

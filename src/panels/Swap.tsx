@@ -46,7 +46,9 @@ interface IMyProps {
     setSwapConfirm: Function,
     swapConfirm: any,
     setBtnSwap: Function,
-    btnSwap: string
+    btnSwap: string,
+    setTorSwap: Function,
+    torSwap: string
 }
 
 function truncate (fullStr:any, strLen:any) {
@@ -78,7 +80,6 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     const [ btnSwap, setBtnSwap ] = React.useState<string>('')
 
     const [ typeSwap, setTypeSwap ] = React.useState<boolean>(false)
-
 
     async function getPriceSwap () {
         const jwallPriceResp = await tonrpc.request('runGetMethod', {
@@ -293,13 +294,13 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                             }} style={{ cursor: 'pointer' }} />
 
                         </Div>
-                        <FormItem top="Slippage Tolerance">
+                        <FormItem top="Slippage Tolerance" bottom={`${props.torSwap} %`}>
                             <Slider
-                                step={0}
-                                min={0}
-                                max={10}
-                                // value={Number(this.state.value2)}
-                                // onChange={(value2) => this.setState({ value2 })}
+                                step={1}
+                                min={1}
+                                max={20}
+                                value={Number(props.torSwap)}
+                                onChange={value2 => props.setTorSwap(value2)}
                             />
                         </FormItem>
                         {/* <Cell after={'3 %'}>
