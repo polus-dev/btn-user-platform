@@ -903,16 +903,8 @@ export const App: React.FC = () => {
                     <Epic
                         activeStory={activeStory}
                         tabbar={
-                            !isDesktop && false && (
+                            !isDesktop && (
                                 <Tabbar>
-                                    <TabbarItem
-                                        onClick={onStoryChange}
-                                        selected={activeStory === 'wallet'}
-                                        data-story="wallet"
-                                        text="Wallet"
-                                    >
-                                        <Icon28WalletOutline />
-                                    </TabbarItem>
                                     <TabbarItem
                                         onClick={onStoryChange}
                                         selected={activeStory === 'swap'}
@@ -920,6 +912,26 @@ export const App: React.FC = () => {
                                         text="Swap"
                                     >
                                         <Icon28SyncOutline />
+                                    </TabbarItem>
+                                    <TabbarItem
+                                        onClick={onStoryChange}
+                                        selected={activeStory === 'explorer'}
+                                        data-story="explorer"
+                                        text="Explorer"
+                                    >
+                                        <Icon28ArticleOutline />
+                                    </TabbarItem>
+                                    <TabbarItem
+                                        onClick={() => {
+                                            if (loadWallet === 1) {
+                                                setModal('wallet')
+                                            } else {
+                                                setModal('login')
+                                            }
+                                        }}
+                                        text="Wallet"
+                                    >
+                                        <Icon28ArticleOutline />
                                     </TabbarItem>
                                 </Tabbar>
                             )
