@@ -112,7 +112,7 @@ const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
                 <Group>
                     <Div>
                         <Div style={{ paddingBottom: 16 }}>
-                            <Title weight="heavy" level="1">Explorer</Title>
+                            <Title weight="3" level="1">Explorer</Title>
                             <small>View Biton jetton</small>
                         </Div>
 
@@ -149,11 +149,11 @@ const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
                                                 alignItems: 'center',
                                                 marginTop: '12px',
                                                 marginBottom: '12px',
-                                                padding: '26px',
-                                                backgroundColor: '#fff',
-                                                borderRadius: '16px'
+                                                padding: '26px'
                                             }}>
-                                            <QRCodeSVG value={`ton://transfer/${dataWalletAddress.address}`} size={260} />
+                                            <Div style={{ background: '#fff', borderRadius: '32px', padding: '32px' }}>
+                                                <QRCodeSVG value={`ton://transfer/${dataWalletAddress.address}`} size={260} />
+                                            </Div>
                                         </div>
 
                                         <SimpleCell multiline>

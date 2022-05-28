@@ -1,5 +1,6 @@
 import {
     Icon16CancelCircle,
+    Icon16CheckDoubleOutline,
     Icon20DiamondOutline,
     Icon28ArrowDownOutline,
     Icon28ArrowLeftOutline,
@@ -43,7 +44,8 @@ import {
     ScreenSpinner,
     Snackbar,
     Title,
-    InfoRow
+    InfoRow,
+    Spinner
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -59,6 +61,7 @@ import { TonhubCreatedSession, TonhubSessionAwaited, TonhubTransactionRequest, T
 import { QRCodeSVG } from 'qrcode.react'
 
 import { Address, BOC, Builder, Coins } from 'ton3-core'
+import { useCookies } from 'react-cookie'
 import { WalletPanel, SwapPanel, ExplorerPanel } from './panels'
 import { ToncenterRPC } from './logic/tonapi'
 import { TokenWallet } from './logic/contracts'
@@ -68,7 +71,7 @@ const connector = new TonhubConnector({ testnet: true })
 export const App: React.FC = () => {
     const platform = usePlatform()
 
-    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap' ]
+    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity' ]
 
     const [ modal, setModal ] = React.useState<any>(null)
     const [ popout, setPopout ] = React.useState<any>(null)
@@ -76,31 +79,54 @@ export const App: React.FC = () => {
 
     const [ activeStory, setActiveStory ] = React.useState<any>('swap')
 
-    const [ address, setAddress ] = React.useState<string>('')
+    const [ address, setAddress ] = React.useState<string>('') // адрес кошелька юзера
 
-    const [ balance, setBalance ] = React.useState<any>(0)
+    const [ balance, setBalance ] = React.useState<any>(0) // баланс тонов юзера
 
-    const [ balanceBTN, setBalanceBTN ] = React.useState<number>(0)
+    const [ balanceBTN, setBalanceBTN ] = React.useState<number>(0) // баланс битонов юзера
 
     const [ addressJopa, setAddressJopa ] = React.useState<string>('')
 
-    const [ addressSend, setAddressSend ] = React.useState<string>('')
-    const [ amountSend, setAmountSend ] = React.useState<string>('')
-    const [ forwardSend, setForwardSend ] = React.useState<boolean>(false)
+    const [ addressSend, setAddressSend ] = React.useState<string>('') // адрес на который отправить битоны (инпут)
+    const [ amountSend, setAmountSend ] = React.useState<string>('') // сумма отправки битонов (инпут)
+    const [ forwardSend, setForwardSend ] = React.useState<boolean>(false) // нужен ли форвард
 
-    const [ loadWallet, setLoadWallet ] = React.useState<number>(0)
-    const [ typeWallet, setTypeWallet ] = React.useState<number>(0)
-    const [ WalletHub, setWalletHub ] = React.useState<any>(null)
-    const [ sessionHub, setSessionHub ] = React.useState<any>(null)
+    const [ loadWallet, setLoadWallet ] = React.useState<number>(0) // загрузка кошелька
+    const [ typeWallet, setTypeWallet ] = React.useState<number>(0) // тип кошелька 1 - тонхаб
+    const [ WalletHub, setWalletHub ] = React.useState<any>(null) // объект кошелька тонхаб
+    const [ sessionHub, setSessionHub ] = React.useState<any>(null) // объект сессии тонхаб
 
     const [ connectorHub, setConnectorHub ] = React.useState<any>(null)
 
-    const [ urlAuHub, setUrlAuHub ] = React.useState<any>(null)
+    const [ urlAuHub, setUrlAuHub ] = React.useState<any>(null) // юрл авторизации для тонхаб
 
-    const [ swapConfirm, setSwapConfirm ] = React.useState<any>(null)
-    const [ btnSwap, setBtnSwap ] = React.useState<string>('')
+    const [ swapConfirm, setSwapConfirm ] = React.useState<any>(null) // объект подтерждения свопа
+    const [ btnSwap, setBtnSwap ] = React.useState<string>('') // сумма монет из 1 поля
 
-    const [ torSwap, setTorSwap ] = React.useState<string>('5')
+    const [ torSwap, setTorSwap ] = React.useState<string>('5') // Slippage Tolerance
+
+    const [ cookies, setCookie, removeCookie ] = useCookies([ 'session', 'session_hub' ]) // куки
+
+    const listJettons:any = {
+        ton: {
+            name: 'TON',
+            symbl: 'TON',
+            img: 'https://ton.org/_next/static/media/apple-touch-icon.d723311b.png',
+            price: 1,
+            min: 0.1,
+            max: 1000
+        },
+        biton: {
+            name: 'BTN',
+            symbl: 'BITON',
+            img: 'https://biton.pw/static/biton/img/logo.png?1',
+            price: 0,
+            min: 0.1,
+            max: 1000
+        }
+    }
+    const [ fromJetton, setFromJetton ] = React.useState<object>(listJettons.ton)
+    const [ toJetton, setToJetton ] = React.useState<object>(listJettons.biton)
 
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
@@ -114,6 +140,7 @@ export const App: React.FC = () => {
     const ContrBTNAddress = 'kQDokczBRtbRnuWDrHiEalB3Uqnl6sTsuGwx1H3WmJqJgBxb'
     const ContrBTNSwapAddress = 'kQATGGjSxuOfKYs5-QYdWaF6Gh_31XYzDPHKdB0FrjfUFwmP'
 
+    // выход из кошелька тонхаб
     async function unlogin () {
         setBalance(0)
         setBalanceBTN(0)
@@ -121,6 +148,10 @@ export const App: React.FC = () => {
         setLoadWallet(0)
         setTypeWallet(0)
         setUrlAuHub(null)
+
+        removeCookie('session')
+
+        removeCookie('session_hub')
     }
 
     async function getBalanceTon (addressW:any = address, type:boolean = true) {
@@ -171,7 +202,7 @@ export const App: React.FC = () => {
 
         const jwallCheckAddressResp = await tonrpc.request('getAddressInformation', { address: jwallAddressBounceable })
 
-        let returnBalanceOb:any = {
+        const returnBalanceOb:any = {
             address: jwallAddressBounceable,
             balance: 0
         }
@@ -274,6 +305,26 @@ export const App: React.FC = () => {
         setPopout(null)
     }
 
+    // авторизация через куки тонхаб
+    async function loginCook () {
+        const sess = cookies.session
+        const sessNow = cookies.session_hub
+        if (sess && sessNow) {
+            setTypeWallet(1)
+            setWalletHub(sess)
+
+            setSessionHub(sessNow)
+
+            setAddress(sess.wallet.address)
+
+            getBalanceTon(sess.wallet.address)
+            getBalanceBiton(sess.wallet.address)
+
+            setLoadWallet(1)
+        }
+    }
+
+    // авторизация через кошелек тонхаб
     async function loginHub () {
         setPopout(<ScreenSpinner />)
         const session1: TonhubCreatedSession = await connector.createNewSession({
@@ -289,20 +340,26 @@ export const App: React.FC = () => {
         setPopout(null)
         setSessionHub(session1)
 
-        const session: TonhubSessionAwaited = await connector.awaitSessionReady(sessionId, 5 * 60 * 1000) // 5 min timeout
+        setCookie('session_hub', session1)
+
+        const session: TonhubSessionAwaited = await connector
+            .awaitSessionReady(sessionId, 5 * 60 * 1000) // 5 min timeout
 
         if (session.state === 'revoked' || session.state === 'expired') {
             // Handle revoked or expired session
             setUrlAuHub(null)
             setPopout(null)
         } else if (session.state === 'ready') {
-            const correctConfig: boolean = TonhubConnector.verifyWalletConfig(sessionId, session.wallet)
+            const correctConfig: boolean = TonhubConnector
+                .verifyWalletConfig(sessionId, session.wallet)
 
             if (correctConfig) {
                 setTypeWallet(1)
                 setPopout(<ScreenSpinner />)
                 console.log(session)
                 setWalletHub(session)
+
+                setCookie('session', session)
 
                 setAddress(session.wallet.address)
 
@@ -335,6 +392,8 @@ export const App: React.FC = () => {
 
             // console.log(client)
             // login()
+
+            loginCook()
         }
 
         load()
@@ -361,14 +420,16 @@ export const App: React.FC = () => {
         }
     }
 
+    // основная функция отправка транс через тонхаб
     async function sendBocTHub (addressJopa1:any = addressJopa, valueTon:any = '100000000', boc1:any = null) {
-        if (WalletHub !== null) {
+        if (WalletHub !== null && sessionHub !== null) {
             // setPopout(<ScreenSpinner />)
             setModal('confirm')
             // const windowTon:any = window
             console.log(boc1)
 
-            console.log(WalletHub)
+            console.log('WalletHub', WalletHub)
+            console.log('sessionHub', sessionHub)
             // Request body
             const request: TonhubTransactionRequest = {
                 seed: sessionHub.seed, // Session Seed
@@ -386,33 +447,48 @@ export const App: React.FC = () => {
             if (response.type === 'rejected') {
             // Handle rejection
                 console.log(response)
-                setPopout(null)
                 return { type: 'error', data: response }
             } if (response.type === 'expired') {
             // Handle expiration
                 console.log(response)
-                setPopout(null)
                 return { type: 'error', data: response }
             } if (response.type === 'invalid_session') {
             // Handle expired or invalid session
                 console.log(response)
-                setPopout(null)
                 return { type: 'error', data: response }
             } if (response.type === 'success') {
             // Handle successful transaction
-                console.log(response.response)
-                const externalMessage = response.response // Signed external message that was sent to the network
-                setPopout(null)
+                console.log('response.response', response.response)
+                // const externalMessage = response.response // Signed exteto the network
                 setModal('wait')
+
+                setTimeout(() => {
+                    setModal(null)
+                    setSnackbar(<Snackbar
+                        onClose={() => setSnackbar(null)}
+                        before={
+                            <Avatar size={24} style={{ background: 'var(--vkui--color_background_positive)' }}>
+                                <Icon16CheckDoubleOutline fill="#fff" width={14} height={14} />
+                            </Avatar>
+                        }
+                    >
+                        Success
+                    </Snackbar>)
+                    getBalanceTon()
+                    getBalanceBiton()
+                }, 10 * 1000)
                 return { type: 'ok', data: response }
             }
-            setPopout(null)
-            throw new Error('Impossible')
+            console.log('response else', response)
+
+            // throw new Error('Impossible')
         } else {
             console.log('error')
+            return { type: 'error', data: null }
         }
     }
 
+    // отправка битонов через тонхаб
     async function sendBtionHub () {
         const msg = TokenWallet.transferMsg({
             queryId: BigInt(Date.now()),
@@ -429,7 +505,7 @@ export const App: React.FC = () => {
             setSnackbar(<Snackbar
                 onClose={() => setSnackbar(null)}
                 before={
-                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
+                    <Avatar size={24} style={{ background: 'var(--destructive)' }}>
                         <Icon16CancelCircle fill="#fff" width={14} height={14} />
                     </Avatar>
                 }
@@ -442,6 +518,7 @@ export const App: React.FC = () => {
         }
     }
 
+    // покупка битонов
     async function buyBtn () {
         // const windowTon:any = window
         // const addressTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 10000000000, to: ContrBTNAddress } ])
@@ -454,7 +531,7 @@ export const App: React.FC = () => {
             setSnackbar(<Snackbar
                 onClose={() => setSnackbar(null)}
                 before={
-                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
+                    <Avatar size={24} style={{ background: 'var(--destructive)' }}>
                         <Icon16CancelCircle fill="#fff" width={14} height={14} />
                     </Avatar>
                 }
@@ -462,11 +539,12 @@ export const App: React.FC = () => {
                 Error - {result.data.type}
             </Snackbar>)
         } else {
-            setModal('confirm')
+            // setModal('confirm')
             console.log(result)
         }
     }
 
+    // отправка тонов на своп для покупки битонов
     async function sendTonSwap () {
         // const windowTon:any = window
         // const addressTon = await windowTon.ton.send('ton_sendTransaction', [ { value: (Number(btnSwap) * (10 ** 9)), to: props.ContrBTNSwapAddress } ])
@@ -474,7 +552,9 @@ export const App: React.FC = () => {
         // console.log(addressTon)
 
         const builderF = new Builder()
-            .storeUint(1002, 32).storeCoins(new Coins(btnSwap).mul(1.1)).cell()
+            .storeUint(1002, 32)
+            .storeCoins(new Coins(swapConfirm.price).mul((Number(torSwap) / 100) + 1))
+            .cell()
         const boc = BOC.toBase64Standard(builderF)
 
         const result:any = await sendBocTHub(ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, boc)
@@ -484,7 +564,7 @@ export const App: React.FC = () => {
             setSnackbar(<Snackbar
                 onClose={() => setSnackbar(null)}
                 before={
-                    <Avatar size={24} style={{ background: 'var(--danger)' }}>
+                    <Avatar size={24} style={{ background: 'var(--destructive)' }}>
                         <Icon16CancelCircle fill="#fff" width={14} height={14} />
                     </Avatar>
                 }
@@ -497,6 +577,7 @@ export const App: React.FC = () => {
         }
     }
 
+    // отправка битонов для покупки тонов
     async function sendBitonSwap () {
         if (swapConfirm) {
             const msg = TokenWallet.transferMsg({
@@ -506,7 +587,9 @@ export const App: React.FC = () => {
                 responseDestination: new Address(address),
                 forwardTonAmount: new Coins(0.05),
                 forwardPayload: new Builder()
-                    .storeUint(1002, 32).storeCoins(new Coins(swapConfirm.price).mul(1.1)).cell()
+                    .storeUint(1002, 32)
+                    .storeCoins(new Coins(swapConfirm.price).mul((Number(torSwap) / 100) + 1))
+                    .cell()
             })
 
             const boc = BOC.toBase64Standard(msg)
@@ -518,7 +601,7 @@ export const App: React.FC = () => {
                 setSnackbar(<Snackbar
                     onClose={() => setSnackbar(null)}
                     before={
-                        <Avatar size={24} style={{ background: 'var(--danger)' }}>
+                        <Avatar size={24} style={{ background: 'var(--destructive)' }}>
                             <Icon16CancelCircle fill="#fff" width={14} height={14} />
                         </Avatar>
                     }
@@ -555,7 +638,11 @@ export const App: React.FC = () => {
             >
                 <Group>
                     <Div>
-                        <Title weight="heavy" level="2">Confirm the operation in TonHub</Title>
+                        <Title weight="3" level="2">Confirm the operation in TonHub</Title>
+                        <br />
+                        <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                            <Spinner size="large" style={{ margin: '20px 0' }} />
+                        </div>
                         <br />
                         <Button size='l' stretched href={'ton-test://connect'}>Confirm in TonHub</Button>
                     </Div>
@@ -569,7 +656,11 @@ export const App: React.FC = () => {
             >
                 <Group>
                     <Div>
-                        <Title weight="heavy" level="2">The transaction is being processed, wait</Title>
+                        <Title weight="3" level="2">The transaction is being processed, wait...</Title>
+                        <br />
+                        <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                            <Spinner size="large" style={{ margin: '20px 0' }} />
+                        </div>
                         <br />
                         <Button size='l' stretched href={'ton-test://connect'}>View in TonHub</Button>
                     </Div>
@@ -583,7 +674,7 @@ export const App: React.FC = () => {
             >
                 <Group>
                     <Div>
-                        <Title weight="heavy" level="2">Info for swap</Title>
+                        <Title weight="3" level="2">Info for swap</Title>
                         <br />
                         {swapConfirm !== null
                             ? <div>
@@ -662,12 +753,14 @@ export const App: React.FC = () => {
                 id={modals[2]}
                 onClose={() => setModal('wallet')}
                 dynamicContentHeight
-                settlingHeight={100}
+                settlingHeight={90}
                 header={<ModalPageHeader>Recive</ModalPageHeader>}
             >
                 <Group>
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '12px', marginBottom: '12px' }}>
-                        <QRCodeSVG value={`ton://transfer/${address}`} size={260} />
+                        <Div style={{ background: '#fff', borderRadius: '32px', padding: '32px' }}>
+                            <QRCodeSVG value={`ton://transfer/${address}`} size={260} />
+                        </Div>
                     </div>
                     <FormItem
                         top="Share this address to receive."
@@ -787,7 +880,7 @@ export const App: React.FC = () => {
                 id={modals[4]}
                 onClose={() => setModal(null)}
                 dynamicContentHeight
-                settlingHeight={100}
+                settlingHeight={90}
                 header={<ModalPageHeader left={
                     urlAuHub === null ? null
                         : <PanelHeaderButton onClick={() => {
@@ -818,14 +911,49 @@ export const App: React.FC = () => {
                                     </CellButton>
                                 </Card>
                             </CardGrid>
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '12px', marginBottom: '12px' }}>
-                                <QRCodeSVG value={urlAuHub} size={260} />
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '16px', marginBottom: '12px' }}>
+                                <Div style={{ background: '#fff', borderRadius: '32px', padding: '32px' }}>
+                                    <QRCodeSVG value={urlAuHub} size={260} />
+                                </Div>
                             </div>
-                            <div>
+                            <Div>
                                 <Button size='l' stretched href={urlAuHub}>Login with TonHub</Button>
-                            </div>
+                            </Div>
                         </div>
                     }
+                </Group>
+            </ModalPage>
+
+            <ModalPage
+                id={modals[7]}
+                onClose={() => setModal(null)}
+                header={<ModalPageHeader>Liquidity</ModalPageHeader>}
+            >
+                <Group>
+                    <Div>
+                        <div style={{ paddingBottom: 32 }}>
+                            <Title weight="3" level="1">Add</Title>
+                            <small>some text</small>
+                        </div>
+
+                        <CardGrid size="l">
+                            <Card>
+                                <div style={{ display: 'flex' }}>
+                                    <FormItem top="From" style={{ width: '65%' }}>
+                                        <Input placeholder="0.0" value={btnSwap} onChange={(e) => { setBtnSwap(e.target.value) }} type={'number'} />
+                                    </FormItem>
+
+                                    <FormItem top={`Bl: ${balance}`} style={{ width: '20%' }}>
+                                        <Cell
+                                            disabled
+                                            after={<Avatar src="https://ton.org/_next/static/media/apple-touch-icon.d723311b.png" size={24} />}
+                                        >TON</Cell>
+                                    </FormItem>
+
+                                </div>
+                            </Card>
+                        </CardGrid>
+                    </Div>
                 </Group>
             </ModalPage>
         </ModalRootFix>
@@ -843,7 +971,7 @@ export const App: React.FC = () => {
                 {isDesktop && (
                     <SplitCol fixed width={280} maxWidth={280}>
                         <Panel>
-                            {hasHeader && <PanelHeader />}
+                            {hasHeader && <PanelHeader ><div className="logo-block"><img src="https://biton.pw/static/biton/img/logo.png?1" className="logo" />BITON</div></PanelHeader>}
                             <Group>
                                 {/* <Cell
                                     onClick={onStoryChange}

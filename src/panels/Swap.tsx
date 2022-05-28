@@ -1,4 +1,4 @@
-import { Icon16CancelCircle, Icon24RefreshOutline, Icon28DoorArrowLeftOutline, Icon28SortOutline, Icon28SyncOutline, Icon28WalletOutline } from '@vkontakte/icons'
+import { Icon16CancelCircle, Icon24RefreshOutline, Icon28AddCircleOutline, Icon28DoorArrowLeftOutline, Icon28SortOutline, Icon28SyncOutline, Icon28WalletOutline } from '@vkontakte/icons'
 import {
     Panel,
     PanelHeader,
@@ -108,9 +108,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
             const fee1 = (Number(priceData.data.result.stack[2][1]) / 10 ** 9).toFixed(9)
 
             const imact = parseFloat(props.btnSwap)
-            const imact2 = parseFloat(priceSwap)
+            const imact2 = typeSwap ? parseFloat(priceSwap) : parseFloat(priceSwapTon)
             const imact3 = parseFloat(price1)
-            const imactRes = ((imact2 - imact3) / ((imact2 + imact3) / 2)) * 100
+            console.log(imact3, imact2)
+            const imactRes = (imact3 / imact2 - 1) * 100
             const obj1 = {
                 amount: amout1,
                 price: price1,
@@ -196,7 +197,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                     <Div>
 
                         <Div style={{ paddingBottom: 32 }}>
-                            <Title weight="heavy" level="1">Exchange</Title>
+                            <Title weight="3" level="1">Exchange</Title>
                             <small>Trade tokens in an instant</small>
                         </Div>
 
@@ -285,8 +286,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                         <Div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center' }}>
                             <small>Price</small>
                             {typeSwap
-                                ? <small> {priceSwap} TON per 1 BTN</small>
-                                : <small> {priceSwapTon} BTN per 1 TON</small>
+                                ? <small> {priceSwapTon} BTN per 1 TON</small>
+                                : <small> {priceSwap} TON per 1 BTN</small>
                             }
                             <Icon24RefreshOutline width={16} height={16} onClick={() => {
                                 // props.login()
@@ -308,6 +309,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                         </Cell> */}
                         <Div>
                             <Button size={'l'} stretched before={<Icon28SyncOutline/>} onClick={swapGo} disabled={priceSwap === '0' || props.loadWallet !== 1}>Exchange</Button>
+                        </Div>
+                        <Div>
+                            <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => props.setModal('liquidity')} mode="secondary">Add liquidity</Button>
                         </Div>
 
                     </Div>

@@ -130,7 +130,7 @@ const Wallet: React.FC<IMyProps> = (props: IMyProps) => {
 
                                 <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
                                     <Div style={{ paddingBottom: 32 }}>
-                                        <Title weight="heavy" level="1">Wallet</Title>
+                                        <Title weight="3" level="1">Wallet</Title>
                                         <small>List of tokens</small>
                                     </Div>
 
