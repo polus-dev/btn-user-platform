@@ -103,6 +103,10 @@ export const App: React.FC = () => {
     const [ swapConfirm, setSwapConfirm ] = React.useState<any>(null) // объект подтерждения свопа
     const [ btnSwap, setBtnSwap ] = React.useState<string>('') // сумма монет из 1 поля
 
+    const [ inputLiq1, setInputLiq1 ] = React.useState<string>('') // сумма монет из 1 поля ликвидность
+    const [ inputLiq2, setInputLiq2 ] = React.useState<string>('') // сумма монет из 2 поля ликвидность
+    const [ liqprop, setLiqprop ] = React.useState<number>(0) // линейный курс для ликвида
+
     const [ torSwap, setTorSwap ] = React.useState<string>('5') // Slippage Tolerance
 
     const [ cookies, setCookie, removeCookie ] = useCookies([ 'session', 'session_hub' ]) // куки
@@ -237,6 +241,21 @@ export const App: React.FC = () => {
             }
         }
         return returnBalanceOb
+    }
+
+    // получение линейной цены свопа
+    async function getPriceLP () {
+        const jwallPriceResp = await tonrpc.request('runGetMethod', {
+            address: ContrBTNSwapAddress,
+            method: 'get_price',
+            stack: [ ]
+        })
+        if (jwallPriceResp.data.ok === true) {
+            setLiqprop(
+                parseFloat((Number(jwallPriceResp.data.result.stack[0][1]) / 10 ** 9).toFixed(9))
+            )
+        }
+        console.log(jwallPriceResp)
     }
 
     async function login () {
@@ -394,6 +413,7 @@ export const App: React.FC = () => {
             // login()
 
             loginCook()
+            getPriceLP()
         }
 
         load()
@@ -626,6 +646,49 @@ export const App: React.FC = () => {
         // } else {
         //     console.log('error')
         // }
+    }
+
+    async function calculatePriceInput (price:string) {
+        const prN = parseFloat(price)
+
+        if (price === '') {
+            setInputLiq2('')
+            setInputLiq1('')
+        } else {
+            // ton to btn
+            const btnN = liqprop * prN
+            setInputLiq2(parseFloat(btnN.toFixed(10)).toFixed(9))
+            setInputLiq1(price)
+        }
+    }
+
+    async function addLiq () {
+        const msg = TokenWallet.transferMsg({
+            queryId: BigInt(Date.now()),
+            amount: new Coins(inputLiq2),
+            destination: new Address(ContrBTNSwapAddress),
+            responseDestination: new Address(address),
+            forwardTonAmount: new Coins(0)
+        })
+        const boc = BOC.toBase64Standard(msg)
+        const result:any = await sendBocTHub(addressJopa, inputLiq1 + 0.5 * 10 ** 9, boc)
+
+        if (result.type === 'error') {
+            console.error(result)
+            setSnackbar(<Snackbar
+                onClose={() => setSnackbar(null)}
+                before={
+                    <Avatar size={24} style={{ background: 'var(--destructive)' }}>
+                        <Icon16CancelCircle fill="#fff" width={14} height={14} />
+                    </Avatar>
+                }
+            >
+                Error - {result.data.type}
+            </Snackbar>)
+        } else {
+            // setModal('confirm')
+            console.log(result)
+        }
     }
 
     const ModalRootFix:any = ModalRoot
@@ -939,8 +1002,8 @@ export const App: React.FC = () => {
                         <CardGrid size="l">
                             <Card>
                                 <div style={{ display: 'flex' }}>
-                                    <FormItem top="From" style={{ width: '65%' }}>
-                                        <Input placeholder="0.0" value={btnSwap} onChange={(e) => { setBtnSwap(e.target.value) }} type={'number'} />
+                                    <FormItem top="Add Ton" style={{ width: '65%' }}>
+                                        <Input placeholder="0.0" value={inputLiq1} onChange={(e) => { calculatePriceInput(e.target.value) }} type={'number'} />
                                     </FormItem>
 
                                     <FormItem top={`Bl: ${balance}`} style={{ width: '20%' }}>
@@ -952,7 +1015,26 @@ export const App: React.FC = () => {
 
                                 </div>
                             </Card>
+
+                            <Card>
+                                <div style={{ display: 'flex' }}>
+                                    <FormItem top="Add Biton" style={{ width: '65%' }}>
+                                        <Input placeholder="0.0" value={inputLiq2} onChange={(e) => { }} type={'number'} />
+                                    </FormItem>
+
+                                    <FormItem top={`Bl: ${balanceBTN}`} style={{ width: '20%' }}>
+                                        <Cell
+                                            disabled
+                                            after={<Avatar src="https://biton.pw/static/biton/img/logo.png?1" size={24} />}
+                                        >BTN</Cell>
+                                    </FormItem>
+
+                                </div>
+                            </Card>
                         </CardGrid>
+                        <br />
+
+                        <Button size='l' stretched onClick={addLiq}>Add</Button>
                     </Div>
                 </Group>
             </ModalPage>

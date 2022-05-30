@@ -308,7 +308,13 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                         Price Impact
                         </Cell> */}
                         <Div>
-                            <Button size={'l'} stretched before={<Icon28SyncOutline/>} onClick={swapGo} disabled={priceSwap === '0' || props.loadWallet !== 1}>Exchange</Button>
+                            <Button
+                                size={'l'}
+                                stretched
+                                before={<Icon28SyncOutline/>}
+                                onClick={swapGo}
+                                disabled={priceSwap === '0' || props.loadWallet !== 1 || priceSwap === '' || props.btnSwap === '' || props.btnSwap === '0'}
+                            >Exchange</Button>
                         </Div>
                         <Div>
                             <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => props.setModal('liquidity')} mode="secondary">Add liquidity</Button>
