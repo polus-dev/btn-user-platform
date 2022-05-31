@@ -107,6 +107,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
             const price1 = (Number(priceData.data.result.stack[1][1]) / 10 ** 9).toFixed(9)
             const fee1 = (Number(priceData.data.result.stack[2][1]) / 10 ** 9).toFixed(9)
 
+            console.log('test price', priceData.data.result)
+
             const imact = parseFloat(props.btnSwap)
             const imact2 = typeSwap ? parseFloat(priceSwap) : parseFloat(priceSwapTon)
             const imact3 = parseFloat(price1)

@@ -60,11 +60,12 @@ import { TonhubCreatedSession, TonhubSessionAwaited, TonhubTransactionRequest, T
 
 import { QRCodeSVG } from 'qrcode.react'
 
-import { Address, BOC, Builder, Coins } from 'ton3-core'
+import { Address, BOC, Builder, Coins, Slice, Contracts } from 'ton3-core'
 import { useCookies } from 'react-cookie'
 import { WalletPanel, SwapPanel, ExplorerPanel } from './panels'
 import { ToncenterRPC } from './logic/tonapi'
 import { TokenWallet } from './logic/contracts'
+import { Enot } from './enot'
 
 const connector = new TonhubConnector({ testnet: true })
 
@@ -132,6 +133,8 @@ export const App: React.FC = () => {
     const [ fromJetton, setFromJetton ] = React.useState<object>(listJettons.ton)
     const [ toJetton, setToJetton ] = React.useState<object>(listJettons.biton)
 
+    const [ adderessMintLp, setAdderessMintLp ] = React.useState<any>('')
+
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
     }
@@ -142,7 +145,51 @@ export const App: React.FC = () => {
     const tonrpc = new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
 
     const ContrBTNAddress = 'kQDokczBRtbRnuWDrHiEalB3Uqnl6sTsuGwx1H3WmJqJgBxb'
-    const ContrBTNSwapAddress = 'kQATGGjSxuOfKYs5-QYdWaF6Gh_31XYzDPHKdB0FrjfUFwmP'
+    const ContrBTNSwapAddress = 'kQDFotrKIBr1Tjr5Or-MITCVsl5hmqDa_3VyHcvpwKvWbBEq'
+
+    // получение данных о кошельке лп токенов юзера
+    async function getLpWalletUser (address2:Address, addressUser:string) {
+        const addressText = address2.toString('raw').split(':')[1]
+        console.log('addressMinterLP', address2.toString('base64', { bounceable: true }))
+        console.log('addressMinterLP', address2.toString('raw').split(':')[1])
+
+        // enotLox(address2.toString('base64', { bounceable: true }), address2)
+        console.log('AddressUser', addressUser)
+
+        const addressHex = new Address(addressUser).toString('raw').split(':')[1]
+        const addressUserO = new Address(addressUser)
+        const addressCell = new Builder().storeAddress(addressUserO).cell()
+
+        const jwallPriceResp = await tonrpc.request('runGetMethod', {
+            address: addressText,
+            method: 'get_wallet_address',
+            stack: [ [ 'tvm.Slice', BOC.toBase64Standard(addressCell) ] ]
+        })
+        // if (jwallPriceResp.data.ok === true) {
+        //     setAdderessMintLp(jwallPriceResp.data.result.stack[5][1])
+        // }
+        console.log('getLpWalletUser', jwallPriceResp.data)
+    }
+
+    // получение адреса минтера лп
+    async function getLpData (addressUser:string) {
+        const jwallPriceResp = await tonrpc.request('runGetMethod', {
+            address: ContrBTNSwapAddress,
+            method: 'get_lp_params',
+            stack: [ ]
+        })
+        console.log('getLpData', jwallPriceResp.data)
+        if (jwallPriceResp.data.ok === true) {
+            const addressMin = jwallPriceResp.data.result.stack[5][1].bytes
+            const addressOver = Slice.parse(BOC.fromStandard(addressMin)).loadAddress()
+            console.log(addressOver)
+            if (addressOver !== null) {
+                setAdderessMintLp(addressOver)
+
+                getLpWalletUser(addressOver, addressUser)
+            }
+        }
+    }
 
     // выход из кошелька тонхаб
     async function unlogin () {
@@ -232,6 +279,10 @@ export const App: React.FC = () => {
                     setBalanceBTN(0)
                 }
             }
+
+            // костыль переделать вызов функции в другом месте
+
+            getLpData(addressW)
 
             console.log(jwallBalanceResp)
         } else {
@@ -400,6 +451,27 @@ export const App: React.FC = () => {
             throw new Error('Impossible')
         }
         setPopout(null)
+    }
+
+    async function enotLox (adress:string, address2:Address) {
+        const jwallPriceResp = await tonrpc.request('getAddressInformation', { address: adress })
+        console.log('enot ====', jwallPriceResp.data)
+        const boc = jwallPriceResp.data.result.data
+        const stor = Slice.parse(BOC.fromStandard(boc))
+
+        stor.loadCoins()
+        const admAddress = stor.loadAddress()
+        stor.loadRef()
+        const jettonWalletCode = stor.loadRef()
+
+        const enot = new Enot(
+            jettonWalletCode,
+            {
+                owner: address2,
+                master: adderessMintLp,
+                jcode: jettonWalletCode
+            }
+        )
     }
 
     useEffect(() => {
