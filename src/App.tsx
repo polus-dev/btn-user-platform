@@ -738,12 +738,12 @@ export const App: React.FC = () => {
         const msg = TokenWallet.transferMsg({
             queryId: BigInt(Date.now()),
             amount: new Coins(inputLiq2),
-            destination: new Address(ContrBTNSwapAddress),
+            destination: new Address(addressJopa),
             responseDestination: new Address(address),
             forwardTonAmount: new Coins(0)
         })
         const boc = BOC.toBase64Standard(msg)
-        const result:any = await sendBocTHub(addressJopa, inputLiq1 + 0.5 * 10 ** 9, boc)
+        const result:any = await sendBocTHub(ContrBTNSwapAddress, inputLiq1 + 0.5 * 10 ** 9, boc)
 
         if (result.type === 'error') {
             console.error(result)
