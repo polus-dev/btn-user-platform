@@ -61,7 +61,7 @@ function truncate (fullStr:any, strLen:any) {
     const frontChars = Math.ceil(charsToShow / 2)
     const backChars = Math.floor(charsToShow / 2)
 
-    return fullStr.substr(0, frontChars)
+    return fullStr.substr(0, frontChars - 3)
            + separator
            + fullStr.substr(fullStr.length - backChars)
 }
@@ -188,7 +188,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                         ? <React.Fragment>
                             <PanelHeaderButton onClick={() => props.setModal('wallet')}>
                                 <Icon28WalletOutline/>
-                                {truncate(props.address, 9)}
+                                {truncate(props.address, 12)}
                             </PanelHeaderButton>
                         </React.Fragment>
                         : <PanelHeaderButton onClick={() => props.setModal('login')}>
@@ -212,7 +212,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             <Input placeholder="0.0" value={props.btnSwap} onChange={(e) => { calculatePriceInput(e.target.value, true) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Bl: ${props.balance}`} style={{ width: '20%' }}>
+                                        <FormItem top={`Balance: ${Number(props.balance).toFixed(2)}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://ton.org/_next/static/media/apple-touch-icon.d723311b.png" size={24} />}
@@ -228,7 +228,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             <Input placeholder="0.0" value={props.btnSwap} onChange={(e) => { calculatePriceInput(e.target.value, true) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Bl: ${props.balanceBTN}`} style={{ width: '20%' }}>
+                                        <FormItem top={`Balance: ${Number(props.balanceBTN).toFixed(2)}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://biton.pw/static/biton/img/logo.png?1" size={24} />}
@@ -257,7 +257,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             <Input placeholder="0.0" value={tonSwap} onChange={(e) => { calculatePriceInput(e.target.value, false) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Bl: ${props.balanceBTN}`} style={{ width: '20%' }}>
+                                        <FormItem top={`Balance: ${Number(props.balanceBTN).toFixed(2)}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://biton.pw/static/biton/img/logo.png?1" size={24} />}
@@ -273,7 +273,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             <Input placeholder="0.0" value={tonSwap} onChange={(e) => { calculatePriceInput(e.target.value, false) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Bl: ${props.balance}`} style={{ width: '20%' }}>
+                                        <FormItem top={`Balance: ${Number(props.balance).toFixed(2)}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://ton.org/_next/static/media/apple-touch-icon.d723311b.png" size={24} />}

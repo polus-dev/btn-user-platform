@@ -134,6 +134,7 @@ export const App: React.FC = () => {
     const [ toJetton, setToJetton ] = React.useState<object>(listJettons.biton)
 
     const [ adderessMintLp, setAdderessMintLp ] = React.useState<any>('')
+    const [ adderessUserLp, setAdderessUserLp ] = React.useState<any>('')
 
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
@@ -145,30 +146,46 @@ export const App: React.FC = () => {
     const tonrpc = new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
 
     const ContrBTNAddress = 'kQDokczBRtbRnuWDrHiEalB3Uqnl6sTsuGwx1H3WmJqJgBxb'
-    const ContrBTNSwapAddress = 'kQDFotrKIBr1Tjr5Or-MITCVsl5hmqDa_3VyHcvpwKvWbBEq'
+    const ContrBTNSwapAddress = 'kQAXGz4GcdLJYcNaLGJON_qQisWHdKwIHP93eGxfZDaHhAC3'
 
+    async function getBalanceLp (addressUser:string) {
+        const jwallPriceResp = await tonrpc.request('runGetMethod', {
+            address: addressUser,
+            method: 'get_wallet_data',
+            stack: [ ]
+        })
+
+        const balanceBtnRespInt = (
+            Number(jwallPriceResp.data.result.stack[0][1]) / 10 ** 9
+        ).toFixed(9)
+
+        console.log(balanceBtnRespInt)
+    }
     // получение данных о кошельке лп токенов юзера
     async function getLpWalletUser (address2:Address, addressUser:string) {
-        const addressText = address2.toString('raw').split(':')[1]
+        const addressMinterLp = address2.toString('raw').split(':')[1]
         console.log('addressMinterLP', address2.toString('base64', { bounceable: true }))
         console.log('addressMinterLP', address2.toString('raw').split(':')[1])
 
         // enotLox(address2.toString('base64', { bounceable: true }), address2)
         console.log('AddressUser', addressUser)
 
-        const addressHex = new Address(addressUser).toString('raw').split(':')[1]
-        const addressUserO = new Address(addressUser)
-        const addressCell = new Builder().storeAddress(addressUserO).cell()
+        const addressUserTon = new Address(addressUser).toString('raw').split(':')[1]
+        // const addressUserO = new Address(addressUser)
+        // const addressCell = new Builder().storeAddress(addressUserO).cell()
 
         const jwallPriceResp = await tonrpc.request('runGetMethod', {
-            address: addressText,
-            method: 'get_wallet_address',
-            stack: [ [ 'tvm.Slice', BOC.toBase64Standard(addressCell) ] ]
+            address: addressMinterLp,
+            method: 'get_wallet_address_int',
+            stack: [ [ 'num', `0x${addressUserTon}` ] ]
         })
-        // if (jwallPriceResp.data.ok === true) {
-        //     setAdderessMintLp(jwallPriceResp.data.result.stack[5][1])
-        // }
-        console.log('getLpWalletUser', jwallPriceResp.data)
+        if (jwallPriceResp.data.ok === true) {
+            console.log(jwallPriceResp.data.result)
+            const walletLp = new Address(`0:${jwallPriceResp.data.result.stack[0][1].slice(2)}`).toString('base64', { bounceable: false })
+            setAdderessUserLp(walletLp)
+            console.log('getLpWalletUser', walletLp)
+            getBalanceLp(walletLp)
+        }
     }
 
     // получение адреса минтера лп
@@ -587,7 +604,7 @@ export const App: React.FC = () => {
             amount: new Coins(amountSend),
             destination: new Address(addressSend),
             responseDestination: new Address(address),
-            forwardTonAmount: new Coins(forwardSend ? 0.05 : 0)
+            forwardTonAmount: new Coins(forwardSend ? 0.1 : 0)
         })
         const boc = BOC.toBase64Standard(msg)
         const result:any = await sendBocTHub(addressJopa, '100000000', boc)
@@ -606,6 +623,9 @@ export const App: React.FC = () => {
             </Snackbar>)
         } else {
             // setModal('confirm')
+            setAddressSend('')
+            setAmountSend('')
+            setForwardSend(false)
             console.log(result)
         }
     }
@@ -740,7 +760,10 @@ export const App: React.FC = () => {
             amount: new Coins(inputLiq2),
             destination: new Address(addressJopa),
             responseDestination: new Address(address),
-            forwardTonAmount: new Coins(0)
+            forwardTonAmount: new Coins(0),
+            forwardPayload: new Builder()
+                .storeUint(1002, 32)
+                .cell()
         })
         const boc = BOC.toBase64Standard(msg)
         const result:any = await sendBocTHub(ContrBTNSwapAddress, inputLiq1 + 0.5 * 10 ** 9, boc)
@@ -779,7 +802,9 @@ export const App: React.FC = () => {
                             <Spinner size="large" style={{ margin: '20px 0' }} />
                         </div>
                         <br />
-                        <Button size='l' stretched href={'ton-test://connect'}>Confirm in TonHub</Button>
+                        {isDesktop ? null
+                            : <Button size='l' stretched href={'ton-test://connect'}>Confirm in TonHub</Button>
+                        }
                     </Div>
                 </Group>
             </ModalPage>
@@ -797,7 +822,9 @@ export const App: React.FC = () => {
                             <Spinner size="large" style={{ margin: '20px 0' }} />
                         </div>
                         <br />
-                        <Button size='l' stretched href={'ton-test://connect'}>View in TonHub</Button>
+                        {isDesktop ? null
+                            : <Button size='l' stretched href={'ton-test://connect'}>View in TonHub</Button>
+                        }
                     </Div>
                 </Group>
             </ModalPage>
@@ -814,20 +841,20 @@ export const App: React.FC = () => {
                         {swapConfirm !== null
                             ? <div>
                                 <SimpleCell multiline>
-                                    <InfoRow header={`Give amount ${swapConfirm.type === true ? 'Ton' : 'Biton'}`}>{swapConfirm.amountU}</InfoRow>
+                                    <InfoRow header={`Give amount ${swapConfirm.type === true ? 'Ton' : 'Biton'}`}>{Number(swapConfirm.amountU).toFixed(2)}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
-                                    <InfoRow header={`Accept amount ${swapConfirm.type === false ? 'Ton' : 'Biton'}`}>{swapConfirm.amount}</InfoRow>
+                                    <InfoRow header={`Accept amount ${swapConfirm.type === false ? 'Ton' : 'Biton'}`}>{Number(swapConfirm.amount).toFixed(2)}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
                                     <InfoRow header={'Market price'}>{swapConfirm.price}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
-                                    <InfoRow header={'Fee'}>{swapConfirm.fee}</InfoRow>
+                                    <InfoRow header={'Fee'}>{Number(swapConfirm.fee).toFixed(2)}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
                                     <InfoRow header={'Price Impact'} style={swapConfirm.imact > 10 ? { color: 'var(--destructive)' } : {}}>
-                                        {swapConfirm.imact} %
+                                        {Number(swapConfirm.imact).toFixed(2)} %
                                     </InfoRow>
                                 </SimpleCell>
                                 <br />
@@ -868,7 +895,7 @@ export const App: React.FC = () => {
                     <Checkbox onClick={() => {
                         setForwardSend(!forwardSend)
                     }}>
-                    forwardTonAmount 0.05 TON
+                    Notify receiver with 0.1 TON
                     </Checkbox>
                     <FormItem>
                         <Button size="l" stretched onClick={() => {
@@ -893,7 +920,7 @@ export const App: React.FC = () => {
             >
                 <Group>
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '12px', marginBottom: '12px' }}>
-                        <Div style={{ background: '#fff', borderRadius: '32px', padding: '32px' }}>
+                        <Div style={{ background: '#fff', borderRadius: '32px', padding: '32px' }} className="div_qr">
                             <QRCodeSVG value={`ton://transfer/${address}`} size={260} />
                         </Div>
                     </div>
@@ -967,7 +994,7 @@ export const App: React.FC = () => {
                                             before={<Avatar size={48} src={'https://ton.org/_next/static/media/apple-touch-icon.d723311b.png'} />}
                                             badge={<Icon20DiamondOutline />}
                                             after={
-                                                <b>{balance} TON</b>
+                                                <b>{Number(balance).toFixed(2)} TON</b>
                                             }
                                             disabled
                                         >
@@ -978,7 +1005,7 @@ export const App: React.FC = () => {
                                             before={<Avatar size={48} src={'https://biton.pw/static/biton/img/logo.png?1'} />}
                                             disabled
                                             after={
-                                                <b>{balanceBTN} BTN</b>
+                                                <b>{Number(balanceBTN).toFixed(2)} BTN</b>
                                             }
                                         >
                                             BITON
@@ -991,22 +1018,14 @@ export const App: React.FC = () => {
                             <div>
                                 <Button size='l' stretched onClick={buyBtn}>Buy BTN</Button>
                             </div>
+                            <br />
+
+                            <div>
+                                <Button size='l' stretched href="https://t.me/sandbox_faucet_bot" target='_blank'>Get TestNet Coins</Button>
+                            </div>
                         </Div>
                         : null
                     }
-
-                    { loadWallet === 2
-                        ? <p>
-                                Wallet is not installed. Install the wallet TON at the link
-                            <Link
-                                target="_blank"
-                                href="https://chrome.google.com/webstore/detail/ton-wallet/nphplpgoakhhjchkkhmiggakijnkhfnd">
-                                        Install
-                            </Link>
-                        </p> : null
-                    }
-
-                    { loadWallet === 0 ? <p>Load</p> : null }
 
                 </Group>
             </ModalPage>

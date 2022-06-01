@@ -51,7 +51,7 @@ function truncate (fullStr:any, strLen:any) {
     const frontChars = Math.ceil(charsToShow / 2)
     const backChars = Math.floor(charsToShow / 2)
 
-    return fullStr.substr(0, frontChars)
+    return fullStr.substr(0, frontChars - 3)
            + separator
            + fullStr.substr(fullStr.length - backChars)
 }
@@ -102,7 +102,7 @@ const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
                         ? <React.Fragment>
                             <PanelHeaderButton onClick={() => props.setModal('wallet')}>
                                 <Icon28WalletOutline/>
-                                {truncate(props.address, 9)}
+                                {truncate(props.address, 12)}
                             </PanelHeaderButton>
                         </React.Fragment>
                         : <PanelHeaderButton onClick={() => props.setModal('login')}>
