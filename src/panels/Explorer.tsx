@@ -21,6 +21,7 @@ import {
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
+import moment from 'moment'
 import { QRCodeSVG } from 'qrcode.react'
 
 import React, { useEffect } from 'react'
@@ -214,6 +215,8 @@ const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
                                             justifyContent: 'space-between'
                                         }}>
                                             <Div>
+                                                <Div>{moment(data.utime * 1000).format('ll, H:MM')}</Div>
+                                                {/* {data.utime} */}
                                                 <Header mode="tertiary" className={data.in_msg.source !== '' ? 'in_msg' : ''}>in msg</Header>
                                                 <SimpleCell multiline>
                                                     <InfoRow header={'Value'}>
@@ -249,6 +252,7 @@ const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
                                             </Div>
 
                                             <Div>
+                                                <Div style={{ marginTop: '22px' }}> </Div>
                                                 <Header mode="tertiary" className={data.out_msgs.length > 0 ? 'out_msg' : ''}>out msgs</Header>
                                                 {data.out_msgs.length > 0
                                                     ? data.out_msgs.map(

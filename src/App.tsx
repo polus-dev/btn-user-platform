@@ -978,7 +978,7 @@ export const App: React.FC = () => {
                 onClose={() => setModal('wallet')}
                 dynamicContentHeight
                 settlingHeight={90}
-                header={<ModalPageHeader>Recive</ModalPageHeader>}
+                header={<ModalPageHeader>Receive</ModalPageHeader>}
             >
                 <Group>
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '12px', marginBottom: '12px' }}>

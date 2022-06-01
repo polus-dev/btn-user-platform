@@ -16,13 +16,13 @@ body {
 .in_msg>* {
     background: var(--vkui--color_background_positive);
     border-radius: 12px;
-    padding: 2px 5px;
+    padding: 2px 12px;
 }
 
 .out_msg>* {
     background: var(--destructive);
     border-radius: 12px;
-    padding: 2px 5px;
+    padding: 2px 12px;
 }
 
 .in_msg span,
