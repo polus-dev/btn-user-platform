@@ -79,7 +79,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     const [ tonSwap, setTonSwap ] = React.useState<string>('')
     const [ btnSwap, setBtnSwap ] = React.useState<string>('')
 
-    const [ typeSwap, setTypeSwap ] = React.useState<boolean>(false)
+    const [ typeSwap, setTypeSwap ] = React.useState<boolean>(true)
 
     async function getPriceSwap () {
         const jwallPriceResp = await tonrpc.request('runGetMethod', {
@@ -142,6 +142,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
 
     async function calculatePriceInput (price:string, type:boolean) {
         const prN = parseFloat(price)
+        console.log('Price', price)
 
         if (price === '') {
             props.setBtnSwap('')
@@ -180,21 +181,29 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         load()
     }, [])
 
+    function inputNumberSet (value:string) {
+        if (value !== '') {
+            const numValue = Number(value)
+            const isN = Number.isNaN(numValue)
+            if (isN === false) {
+                if (numValue > 0) {
+                    if (numValue < 10000) {
+                        return value
+                    }
+                    return '10000'
+                }
+                return '0'
+            }
+            console.log('erro1')
+            return ''
+        }
+        return ''
+    }
+
     return (
         <View activePanel={props.id} id={props.id}>
             <Panel id={props.id}>
-                <PanelHeader right={
-                    props.loadWallet === 1
-                        ? <React.Fragment>
-                            <PanelHeaderButton onClick={() => props.setModal('wallet')}>
-                                <Icon28WalletOutline/>
-                                {truncate(props.address, 12)}
-                            </PanelHeaderButton>
-                        </React.Fragment>
-                        : <PanelHeaderButton onClick={() => props.setModal('login')}>
-                            <Icon28DoorArrowLeftOutline/>
-                        </PanelHeaderButton>
-                }>Swap</PanelHeader>
+                <PanelHeader >Swap</PanelHeader>
                 <Group>
                     <Div>
 
@@ -209,7 +218,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
 
                                     <div style={{ display: 'flex' }}>
                                         <FormItem top="From" style={{ width: '65%' }}>
-                                            <Input placeholder="0.0" value={props.btnSwap} onChange={(e) => { calculatePriceInput(e.target.value, true) }} type={'number'} />
+                                            <Input placeholder="0.0" value={props.btnSwap} onChange={(e) => { calculatePriceInput(inputNumberSet(e.target.value), true) }} type={'number'} />
                                         </FormItem>
 
                                         <FormItem top={`Balance: ${Number(props.balance).toFixed(2)}`} style={{ width: '20%' }}>
@@ -225,7 +234,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 : <Card>
                                     <div style={{ display: 'flex' }}>
                                         <FormItem top="From" style={{ width: '65%' }}>
-                                            <Input placeholder="0.0" value={props.btnSwap} onChange={(e) => { calculatePriceInput(e.target.value, true) }} type={'number'} />
+                                            <Input placeholder="0.0" value={props.btnSwap} onChange={(e) => { calculatePriceInput(inputNumberSet(e.target.value), true) }} type={'number'} />
                                         </FormItem>
 
                                         <FormItem top={`Balance: ${Number(props.balanceBTN).toFixed(2)}`} style={{ width: '20%' }}>
@@ -254,7 +263,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 ? <Card>
                                     <div style={{ display: 'flex' }}>
                                         <FormItem top="To" style={{ width: '65%' }}>
-                                            <Input placeholder="0.0" value={tonSwap} onChange={(e) => { calculatePriceInput(e.target.value, false) }} type={'number'} />
+                                            <Input placeholder="0.0" value={tonSwap} onChange={(e) => { calculatePriceInput(inputNumberSet(e.target.value), false) }} type={'number'} />
                                         </FormItem>
 
                                         <FormItem top={`Balance: ${Number(props.balanceBTN).toFixed(2)}`} style={{ width: '20%' }}>
@@ -270,7 +279,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
 
                                     <div style={{ display: 'flex' }}>
                                         <FormItem top="To" style={{ width: '65%' }}>
-                                            <Input placeholder="0.0" value={tonSwap} onChange={(e) => { calculatePriceInput(e.target.value, false) }} type={'number'} />
+                                            <Input placeholder="0.0" value={tonSwap} onChange={(e) => { calculatePriceInput(inputNumberSet(e.target.value), false) }} type={'number'} />
                                         </FormItem>
 
                                         <FormItem top={`Balance: ${Number(props.balance).toFixed(2)}`} style={{ width: '20%' }}>

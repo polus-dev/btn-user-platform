@@ -48,11 +48,11 @@ body {
     position: absolute;
     z-index: 10;
     left: 50%;
-    top: calc(50% - 48px);
+    top: calc(50% - 0px);
     transform: translate(-50%, -50%);
     width: 100px;
     height: 100px;
-    background-image: url(https://biton.pw/static/biton/img/logo.png?1);
+    /* background-image: url(https://biton.pw/static/biton/img/logo.png?1); */
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;

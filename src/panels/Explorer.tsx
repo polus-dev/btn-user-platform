@@ -97,18 +97,20 @@ const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
     return (
         <View activePanel={props.id} id={props.id}>
             <Panel id={props.id}>
-                <PanelHeader right={
-                    props.loadWallet === 1
-                        ? <React.Fragment>
-                            <PanelHeaderButton onClick={() => props.setModal('wallet')}>
-                                <Icon28WalletOutline/>
-                                {truncate(props.address, 12)}
-                            </PanelHeaderButton>
-                        </React.Fragment>
-                        : <PanelHeaderButton onClick={() => props.setModal('login')}>
-                            <Icon28DoorArrowLeftOutline/>
-                        </PanelHeaderButton>
-                }>Explorer</PanelHeader>
+                <PanelHeader
+                // right={
+                //     props.loadWallet === 1
+                //         ? <React.Fragment>
+                //             <PanelHeaderButton onClick={() => props.setModal('wallet')}>
+                //                 <Icon28WalletOutline/>
+                //                 {truncate(props.address, 12)}
+                //             </PanelHeaderButton>
+                //         </React.Fragment>
+                //         : <PanelHeaderButton onClick={() => props.setModal('login')}>
+                //             <Icon28DoorArrowLeftOutline/>
+                //         </PanelHeaderButton>
+                // }
+                >Explorer</PanelHeader>
                 <Group>
                     <Div>
                         <Div style={{ paddingBottom: 16 }}>

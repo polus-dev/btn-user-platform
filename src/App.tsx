@@ -6,6 +6,7 @@ import {
     Icon28ArrowLeftOutline,
     Icon28ArrowUpOutline,
     Icon28ArticleOutline,
+    Icon28DoorArrowLeftOutline,
     Icon28DoorArrowRightOutline,
     Icon28RefreshOutline,
     Icon28SyncOutline,
@@ -45,7 +46,8 @@ import {
     Snackbar,
     Title,
     InfoRow,
-    Spinner
+    Spinner,
+    IconButton
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -62,12 +64,28 @@ import { QRCodeSVG } from 'qrcode.react'
 
 import { Address, BOC, Builder, Coins, Slice, Contracts } from 'ton3-core'
 import { useCookies } from 'react-cookie'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { WalletPanel, SwapPanel, ExplorerPanel } from './panels'
 import { ToncenterRPC } from './logic/tonapi'
 import { TokenWallet } from './logic/contracts'
 import { Enot } from './enot'
 
 const connector = new TonhubConnector({ testnet: true })
+
+function truncate (fullStr:any, strLen:any) {
+    if (fullStr.length <= strLen) return fullStr
+
+    const separator = '...'
+
+    const sepLen = separator.length
+    const charsToShow = strLen - sepLen
+    const frontChars = Math.ceil(charsToShow / 2)
+    const backChars = Math.floor(charsToShow / 2)
+
+    return fullStr.substr(0, frontChars - 3)
+           + separator
+           + fullStr.substr(fullStr.length - backChars)
+}
 
 export const App: React.FC = () => {
     const platform = usePlatform()
@@ -163,13 +181,13 @@ export const App: React.FC = () => {
 
         setBalanceLp(Number(balanceBtnRespInt))
 
-        console.log(balanceBtnRespInt)
+        console.log('balanceBtnRespInt', balanceBtnRespInt)
     }
     // получение данных о кошельке лп токенов юзера
     async function getLpWalletUser (address2:Address, addressUser:string) {
         const addressMinterLp = address2.toString('base64', { bounceable: true })
         console.log('addressMinterLP', address2.toString('base64', { bounceable: true }))
-        console.log('addressMinterLP', address2.toString('raw').split(':')[1])
+        // console.log('addressMinterLP', address2.toString('raw').split(':')[1])
 
         // enotLox(address2.toString('base64', { bounceable: true }), address2)
         console.log('AddressUser', addressUser)
@@ -183,7 +201,7 @@ export const App: React.FC = () => {
             method: 'get_wallet_address_int',
             stack: [ [ 'num', `0x${addressUserTon}` ] ]
         }
-        console.log(data)
+        // console.log(data)
 
         const jwallPriceResp = await tonrpc.request('runGetMethod', data)
         if (jwallPriceResp.data.ok === true) {
@@ -206,7 +224,7 @@ export const App: React.FC = () => {
         if (jwallPriceResp.data.ok === true) {
             const addressMin = jwallPriceResp.data.result.stack[5][1].bytes
             const addressOver = Slice.parse(BOC.fromStandard(addressMin)).loadAddress()
-            console.log(addressOver)
+            // console.log(addressOver)
             if (addressOver !== null) {
                 setAdderessMintLp(addressOver)
 
@@ -542,10 +560,10 @@ export const App: React.FC = () => {
             // setPopout(<ScreenSpinner />)
             setModal('confirm')
             // const windowTon:any = window
-            console.log(boc1)
+            // console.log(boc1)
 
-            console.log('WalletHub', WalletHub)
-            console.log('sessionHub', sessionHub)
+            // console.log('WalletHub', WalletHub)
+            // console.log('sessionHub', sessionHub)
             // Request body
             const request: TonhubTransactionRequest = {
                 seed: sessionHub.seed, // Session Seed
@@ -672,11 +690,12 @@ export const App: React.FC = () => {
 
         const builderF = new Builder()
             .storeUint(1002, 32)
-            .storeCoins(new Coins(swapConfirm.price).mul((Number(torSwap) / 100) + 1))
+            .storeCoins(new Coins(swapConfirm.price).mul((Number(torSwap + 100) / 100) + 1))
             .cell()
+        console.log(new Coins(swapConfirm.price).mul((Number(torSwap) / 100) + 1).toNano())
         const boc = BOC.toBase64Standard(builderF)
 
-        const result:any = await sendBocTHub(ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, boc)
+        const result:any = await sendBocTHub(ContrBTNSwapAddress, `${Number(btnSwap) * (10 ** 9)}`, null)
 
         if (result.type === 'error') {
             console.error(result)
@@ -704,11 +723,11 @@ export const App: React.FC = () => {
                 amount: new Coins(btnSwap),
                 destination: new Address(ContrBTNSwapAddress),
                 responseDestination: new Address(address),
-                forwardTonAmount: new Coins(0.05),
-                forwardPayload: new Builder()
-                    .storeUint(1002, 32)
-                    .storeCoins(new Coins(swapConfirm.price).mul((Number(torSwap) / 100) + 1))
-                    .cell()
+                forwardTonAmount: new Coins(0.05)
+                // forwardPayload: new Builder()
+                //     .storeUint(1002, 32)
+                //     .storeCoins(new Coins(swapConfirm.price).mul((Number(torSwap + 100) / 100) + 1))
+                //     .cell()
             })
 
             const boc = BOC.toBase64Standard(msg)
@@ -972,6 +991,13 @@ export const App: React.FC = () => {
                     >
                         <Input value={address} onChange={() => {}}/>
                     </FormItem>
+
+                    <Div>
+                        <CopyToClipboard text={address}
+                            onCopy={() => {}}>
+                            <Button size="l" mode="secondary" stretched>Copy address</Button>
+                        </CopyToClipboard>
+                    </Div>
                 </Group>
             </ModalPage>
 
@@ -1074,7 +1100,7 @@ export const App: React.FC = () => {
                             <br />
 
                             <div>
-                                <Button size='l' stretched href="https://t.me/sandbox_faucet_bot" target='_blank'>Get TestNet Coins</Button>
+                                <Button size='l' stretched mode="secondary" href="https://t.me/sandbox_faucet_bot" target='_blank'>Get TestNet Coins</Button>
                             </div>
                         </Div>
                         : null
@@ -1119,7 +1145,7 @@ export const App: React.FC = () => {
                                 </Card>
                             </CardGrid>
                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '16px', marginBottom: '12px' }}>
-                                <Div style={{ background: '#fff', borderRadius: '32px', padding: '32px' }}>
+                                <Div style={{ background: '#fff', borderRadius: '32px', padding: '32px' }} className="div_qr">
                                     <QRCodeSVG value={urlAuHub} size={260} />
                                 </Div>
                             </div>
@@ -1215,6 +1241,22 @@ export const App: React.FC = () => {
                                             : {}
                                     }
                                 >Wallet</Cell> */}
+                                {loadWallet === 1
+                                    ? <Cell
+                                        onClick={() => setModal('wallet')}
+                                        data-story="swap"
+                                        before={<Icon28WalletOutline/>}
+                                        after={<IconButton onClick={() => {
+                                            unlogin()
+                                        }}><Icon28DoorArrowRightOutline /></IconButton>}
+                                    >{truncate(address, 12)}</Cell>
+                                    : <Cell
+                                        onClick={() => setModal('login')}
+                                        data-story="swap"
+                                        before={<Icon28DoorArrowLeftOutline/>}
+                                    >Login</Cell>
+                                }
+                                <Separator style={{ margin: '12px 0' }} />
                                 <Cell
                                     onClick={onStoryChange}
                                     data-story="swap"
