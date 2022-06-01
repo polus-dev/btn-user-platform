@@ -86,7 +86,7 @@ export const App: React.FC = () => {
 
     const [ balanceBTN, setBalanceBTN ] = React.useState<number>(0) // баланс битонов юзера
 
-    const [ addressJopa, setAddressJopa ] = React.useState<string>('')
+    const [ addressJopa, setAddressJopa ] = React.useState<string>('') // адрес жетон валета ???
 
     const [ addressSend, setAddressSend ] = React.useState<string>('') // адрес на который отправить битоны (инпут)
     const [ amountSend, setAmountSend ] = React.useState<string>('') // сумма отправки битонов (инпут)
@@ -136,6 +136,8 @@ export const App: React.FC = () => {
     const [ adderessMintLp, setAdderessMintLp ] = React.useState<any>('')
     const [ adderessUserLp, setAdderessUserLp ] = React.useState<any>('')
 
+    const [ balanceLp, setBalanceLp ] = React.useState<number>(0) // баланс лп юзера
+
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
     }
@@ -159,11 +161,13 @@ export const App: React.FC = () => {
             Number(jwallPriceResp.data.result.stack[0][1]) / 10 ** 9
         ).toFixed(9)
 
+        setBalanceLp(Number(balanceBtnRespInt))
+
         console.log(balanceBtnRespInt)
     }
     // получение данных о кошельке лп токенов юзера
     async function getLpWalletUser (address2:Address, addressUser:string) {
-        const addressMinterLp = address2.toString('raw').split(':')[1]
+        const addressMinterLp = address2.toString('base64', { bounceable: true })
         console.log('addressMinterLP', address2.toString('base64', { bounceable: true }))
         console.log('addressMinterLP', address2.toString('raw').split(':')[1])
 
@@ -174,11 +178,14 @@ export const App: React.FC = () => {
         // const addressUserO = new Address(addressUser)
         // const addressCell = new Builder().storeAddress(addressUserO).cell()
 
-        const jwallPriceResp = await tonrpc.request('runGetMethod', {
+        const data = {
             address: addressMinterLp,
             method: 'get_wallet_address_int',
             stack: [ [ 'num', `0x${addressUserTon}` ] ]
-        })
+        }
+        console.log(data)
+
+        const jwallPriceResp = await tonrpc.request('runGetMethod', data)
         if (jwallPriceResp.data.ok === true) {
             console.log(jwallPriceResp.data.result)
             const walletLp = new Address(`0:${jwallPriceResp.data.result.stack[0][1].slice(2)}`).toString('base64', { bounceable: false })
@@ -758,15 +765,19 @@ export const App: React.FC = () => {
         const msg = TokenWallet.transferMsg({
             queryId: BigInt(Date.now()),
             amount: new Coins(inputLiq2),
-            destination: new Address(addressJopa),
+            destination: new Address(ContrBTNSwapAddress),
             responseDestination: new Address(address),
-            forwardTonAmount: new Coins(0),
+            forwardTonAmount: new Coins(inputLiq1),
             forwardPayload: new Builder()
                 .storeUint(1002, 32)
                 .cell()
         })
         const boc = BOC.toBase64Standard(msg)
-        const result:any = await sendBocTHub(ContrBTNSwapAddress, inputLiq1 + 0.5 * 10 ** 9, boc)
+        const result:any = await sendBocTHub(
+            addressJopa,
+            new Coins(inputLiq1).add(0.2).toNano(),
+            boc
+        )
 
         if (result.type === 'error') {
             console.error(result)
@@ -782,6 +793,38 @@ export const App: React.FC = () => {
             </Snackbar>)
         } else {
             // setModal('confirm')
+            console.log(result)
+        }
+    }
+
+    async function removeLp () {
+        const msg = TokenWallet.transferMsg({
+            queryId: BigInt(Date.now()),
+            amount: new Coins(balanceLp),
+            destination: new Address(ContrBTNSwapAddress),
+            responseDestination: new Address(address),
+            forwardTonAmount: new Coins(0.1)
+        })
+        const boc = BOC.toBase64Standard(msg)
+        const result:any = await sendBocTHub(adderessUserLp, new Coins(0.15).toNano(), boc)
+
+        if (result.type === 'error') {
+            console.error(result)
+            setSnackbar(<Snackbar
+                onClose={() => setSnackbar(null)}
+                before={
+                    <Avatar size={24} style={{ background: 'var(--destructive)' }}>
+                        <Icon16CancelCircle fill="#fff" width={14} height={14} />
+                    </Avatar>
+                }
+            >
+                Error - {result.data.type}
+            </Snackbar>)
+        } else {
+            // setModal('confirm')
+            // setAddressSend('')
+            // setAmountSend('')
+            // setForwardSend(false)
             console.log(result)
         }
     }
@@ -1010,6 +1053,16 @@ export const App: React.FC = () => {
                                         >
                                             BITON
                                         </SimpleCell>
+
+                                        <SimpleCell
+                                            before={<Avatar size={48} src={'https://main-cdn.sbermegamarket.ru/hlr-system/108/420/123/311/291/050/100029815647b0.jpg'} />}
+                                            disabled
+                                            after={
+                                                <b>{Number(balanceLp).toFixed(2)} BTN-LP</b>
+                                            }
+                                        >
+                                            BITON LP
+                                        </SimpleCell>
                                     </Div>
                                 </Card>
                             </CardGrid>
@@ -1097,7 +1150,7 @@ export const App: React.FC = () => {
                                         <Input placeholder="0.0" value={inputLiq1} onChange={(e) => { calculatePriceInput(e.target.value) }} type={'number'} />
                                     </FormItem>
 
-                                    <FormItem top={`Bl: ${balance}`} style={{ width: '20%' }}>
+                                    <FormItem top={`Balance: ${Number(balance).toFixed(2)}`} style={{ width: '20%' }}>
                                         <Cell
                                             disabled
                                             after={<Avatar src="https://ton.org/_next/static/media/apple-touch-icon.d723311b.png" size={24} />}
@@ -1113,7 +1166,7 @@ export const App: React.FC = () => {
                                         <Input placeholder="0.0" value={inputLiq2} onChange={(e) => { }} type={'number'} />
                                     </FormItem>
 
-                                    <FormItem top={`Bl: ${balanceBTN}`} style={{ width: '20%' }}>
+                                    <FormItem top={`Balance: ${Number(balanceBTN).toFixed(2)}`} style={{ width: '20%' }}>
                                         <Cell
                                             disabled
                                             after={<Avatar src="https://biton.pw/static/biton/img/logo.png?1" size={24} />}
@@ -1126,6 +1179,9 @@ export const App: React.FC = () => {
                         <br />
 
                         <Button size='l' stretched onClick={addLiq}>Add</Button>
+                        <br />
+
+                        <Button size='l' stretched onClick={removeLp} appearance={'negative'} disabled={balanceLp === 0}>Remove all LP</Button>
                     </Div>
                 </Group>
             </ModalPage>

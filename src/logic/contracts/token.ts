@@ -28,12 +28,18 @@ class TokenWallet {
 
         transferMsg.storeCoins(forwardTonAmount)
 
-        if (forwardPayload.bits.length <= transferMsg.remainder) {
-            const sfwdp = Slice.parse(forwardPayload)
-            transferMsg.storeBit(0).storeSlice(sfwdp)
-        } else {
+        if (forwardPayload) {
             transferMsg.storeBit(1).storeRef(forwardPayload)
+            // console.error('0000')
+        } else {
+            transferMsg.storeBit(0)
         }
+        // if (forwardPayload.bits.length <= transferMsg.remainder) {
+        //     const sfwdp = Slice.parse(forwardPayload)
+        //     transferMsg.storeBit(0).storeSlice(sfwdp)
+        // } else {
+        //     transferMsg.storeBit(1).storeRef(forwardPayload)
+        // }
 
         return transferMsg.cell()
     }
