@@ -725,22 +725,22 @@ export const App: React.FC = () => {
     // отправка битонов для покупки тонов
     async function sendBitonSwap () {
         if (swapConfirm) {
-            const toleranceValue = calculateToleranceValue(
-                new Coins(swapConfirm.price),
-                Number(torSwap)
-            )
+            // const toleranceValue = calculateToleranceValue(
+            //     new Coins(swapConfirm.price),
+            //     Number(torSwap)
+            // )
 
-            const forwardPayload = new Builder()
-                .storeUint(1002, 32) // swap op code
-                .storeCoins(toleranceValue)
+            // const forwardPayload = new Builder()
+            //     .storeUint(1002, 32) // swap op code
+            //     .storeCoins(toleranceValue)
 
             const msg = TokenWallet.transferMsg({
                 queryId: BigInt(Date.now()),
                 amount: new Coins(btnSwap),
                 destination: new Address(ContrBTNSwapAddress),
                 responseDestination: new Address(address),
-                forwardTonAmount: new Coins(0.05),
-                forwardPayload: forwardPayload.cell()
+                forwardTonAmount: new Coins(0.05)
+                // forwardPayload: forwardPayload.cell()
             })
 
             const result: any = await sendBocTHub(
