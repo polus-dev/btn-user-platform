@@ -69,6 +69,7 @@ import { WalletPanel, SwapPanel, ExplorerPanel } from './panels'
 import { ToncenterRPC } from './logic/tonapi'
 import { TokenWallet } from './logic/contracts'
 import { Enot } from './enot'
+import { calculateToleranceValue } from './logic/utils'
 
 const connector = new TonhubConnector({ testnet: true })
 
@@ -555,7 +556,11 @@ export const App: React.FC = () => {
     }
 
     // основная функция отправка транс через тонхаб
-    async function sendBocTHub (addressJopa1:any = addressJopa, valueTon:any = '100000000', boc1:any = null) {
+    async function sendBocTHub (
+        addressJopa1: any = addressJopa,
+        valueTon: any = '100000000',
+        boc1: any = null
+    ): Promise<Object> {
         if (WalletHub !== null && sessionHub !== null) {
             // setPopout(<ScreenSpinner />)
             setModal('confirm')
@@ -620,6 +625,8 @@ export const App: React.FC = () => {
             console.log('error')
             return { type: 'error', data: null }
         }
+
+        return { type: 'error', data: null }
     }
 
     // отправка битонов через тонхаб
@@ -718,21 +725,29 @@ export const App: React.FC = () => {
     // отправка битонов для покупки тонов
     async function sendBitonSwap () {
         if (swapConfirm) {
+            const toleranceValue = calculateToleranceValue(
+                new Coins(swapConfirm.price),
+                Number(torSwap)
+            )
+
+            const forwardPayload = new Builder()
+                .storeUint(1002, 32) // swap op code
+                .storeCoins(toleranceValue)
+
             const msg = TokenWallet.transferMsg({
                 queryId: BigInt(Date.now()),
                 amount: new Coins(btnSwap),
                 destination: new Address(ContrBTNSwapAddress),
                 responseDestination: new Address(address),
-                forwardTonAmount: new Coins(0.05)
-                // forwardPayload: new Builder()
-                //     .storeUint(1002, 32)
-                //     .storeCoins(new Coins(swapConfirm.price).mul((Number(torSwap + 100) / 100) + 1))
-                //     .cell()
+                forwardTonAmount: new Coins(0.05),
+                forwardPayload: forwardPayload.cell()
             })
 
-            const boc = BOC.toBase64Standard(msg)
-
-            const result:any = await sendBocTHub(addressJopa, '100000000', boc)
+            const result: any = await sendBocTHub(
+                addressJopa,
+                new Coins(0.1).toNano(),
+                BOC.toBase64Standard(msg)
+            )
 
             if (result.type === 'error') {
                 console.error(result)
