@@ -36,9 +36,21 @@ const config: Configuration = {
                 test: /\.js$/,
                 enforce: 'pre',
                 use: [ 'source-map-loader' ]
+            },
+            {
+                test: /\.svg$/,
+                use: [
+                  {
+                    loader: 'svg-url-loader',
+                    options: {
+                      limit: 10000,
+                    },
+                  },
+                ],
             }
         ]
     },
+    ignoreWarnings: [/Failed to parse source map/],
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, 'build')

@@ -12,6 +12,7 @@ import {
     Icon28SyncOutline,
     Icon28WalletOutline
 } from '@vkontakte/icons'
+
 import {
     usePlatform,
     VKCOM,
@@ -40,7 +41,6 @@ import {
     CardGrid,
     Card,
     SimpleCell,
-    Link,
     PanelHeaderButton,
     ScreenSpinner,
     Snackbar,
@@ -53,23 +53,26 @@ import {
 import '@vkontakte/vkui/dist/vkui.css'
 import './style.css'
 
-// import { Providers } from 'ton3'
-
 import React, { useEffect } from 'react'
-
 import { TonhubConnector } from 'ton-x-fix'
-import { TonhubCreatedSession, TonhubSessionAwaited, TonhubTransactionRequest, TonhubTransactionResponse } from 'ton-x-fix/dist/connector/TonhubConnector'
+import {
+    TonhubCreatedSession,
+    TonhubSessionAwaited,
+    TonhubTransactionRequest,
+    TonhubTransactionResponse
+} from 'ton-x-fix/dist/connector/TonhubConnector'
 
 import { QRCodeSVG } from 'qrcode.react'
 
-import { Address, BOC, Builder, Coins, Slice, Contracts } from 'ton3-core'
+import { Address, BOC, Builder, Coins, Slice } from 'ton3-core'
 import { useCookies } from 'react-cookie'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { WalletPanel, SwapPanel, ExplorerPanel } from './panels'
 import { ToncenterRPC } from './logic/tonapi'
 import { TokenWallet } from './logic/contracts'
 import { Enot } from './enot'
-import { calculateToleranceValue } from './logic/utils'
+
+import BitonLPTokenSVG from './static/btn-lp.svg'
 
 const connector = new TonhubConnector({ testnet: true })
 
@@ -1096,7 +1099,7 @@ export const App: React.FC = () => {
                                         </SimpleCell>
 
                                         <SimpleCell
-                                            before={<Avatar size={48} src={'https://main-cdn.sbermegamarket.ru/hlr-system/108/420/123/311/291/050/100029815647b0.jpg'} />}
+                                            before={<Avatar size={48} src={BitonLPTokenSVG} />}
                                             disabled
                                             after={
                                                 <b>{Number(balanceLp).toFixed(2)} BTN-LP</b>
