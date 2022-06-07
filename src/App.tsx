@@ -72,7 +72,8 @@ import { ToncenterRPC } from './logic/tonapi'
 import { TokenWallet } from './logic/contracts'
 import { Enot } from './enot'
 
-import BitonLPTokenSVG from './static/btn-lp.svg'
+// import BitonLPTokenSVG from './static/btn-lp.svg'
+import BitonLPTokenPNG from './static/btn-lp.png'
 
 const connector = new TonhubConnector({ testnet: true })
 
@@ -1099,7 +1100,7 @@ export const App: React.FC = () => {
                                         </SimpleCell>
 
                                         <SimpleCell
-                                            before={<Avatar size={48} src={BitonLPTokenSVG} />}
+                                            before={<Avatar size={48} src={BitonLPTokenPNG} />}
                                             disabled
                                             after={
                                                 <b>{Number(balanceLp).toFixed(2)} BTN-LP</b>
