@@ -38,15 +38,15 @@ const config: Configuration = {
                 use: [ 'source-map-loader' ]
             },
             {
-                test: /\.svg$/,
+                test: /\.(jpe?g|gif|png|svg)$/i,
                 use: [
-                  {
-                    loader: 'svg-url-loader',
-                    options: {
-                      limit: 10000,
-                    },
-                  },
-                ],
+                {
+                  loader: 'url-loader',
+                  options: {
+                    limit: 10000
+                  }
+                }
+              ]
             }
         ]
     },
