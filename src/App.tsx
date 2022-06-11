@@ -47,7 +47,9 @@ import {
     Title,
     InfoRow,
     Spinner,
-    IconButton
+    IconButton,
+    ButtonGroup,
+    CustomSelect
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -95,7 +97,7 @@ function truncate (fullStr:any, strLen:any) {
 export const App: React.FC = () => {
     const platform = usePlatform()
 
-    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity' ]
+    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit' ]
 
     const [ modal, setModal ] = React.useState<any>(null)
     const [ popout, setPopout ] = React.useState<any>(null)
@@ -120,8 +122,6 @@ export const App: React.FC = () => {
     const [ WalletHub, setWalletHub ] = React.useState<any>(null) // объект кошелька тонхаб
     const [ sessionHub, setSessionHub ] = React.useState<any>(null) // объект сессии тонхаб
 
-    const [ connectorHub, setConnectorHub ] = React.useState<any>(null)
-
     const [ urlAuHub, setUrlAuHub ] = React.useState<any>(null) // юрл авторизации для тонхаб
 
     const [ swapConfirm, setSwapConfirm ] = React.useState<any>(null) // объект подтерждения свопа
@@ -135,16 +135,17 @@ export const App: React.FC = () => {
 
     const [ cookies, setCookie, removeCookie ] = useCookies([ 'session', 'session_hub' ]) // куки
 
-    const listJettons:any = {
-        ton: {
+    const listJettons:any = [
+        {
+            id: 1,
             name: 'TON',
             symbl: 'TON',
             img: 'https://ton.org/_next/static/media/apple-touch-icon.d723311b.png',
             price: 1,
             min: 0.1,
             max: 1000
-        },
-        biton: {
+        }, {
+            id: 2,
             name: 'BTN',
             symbl: 'BITON',
             img: 'https://biton.pw/static/biton/img/logo.png?1',
@@ -152,7 +153,7 @@ export const App: React.FC = () => {
             min: 0.1,
             max: 1000
         }
-    }
+    ]
     const [ fromJetton, setFromJetton ] = React.useState<object>(listJettons.ton)
     const [ toJetton, setToJetton ] = React.useState<object>(listJettons.biton)
 
@@ -160,6 +161,8 @@ export const App: React.FC = () => {
     const [ adderessUserLp, setAdderessUserLp ] = React.useState<any>('')
 
     const [ balanceLp, setBalanceLp ] = React.useState<number>(0) // баланс лп юзера
+
+    const [ selectType, setSelectType ] = React.useState(undefined) // выбор жетона для перевода
 
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
@@ -891,6 +894,27 @@ export const App: React.FC = () => {
             </ModalPage>
 
             <ModalPage
+                id={modals[8]}
+                onClose={() => setModal(null)}
+                header={<ModalPageHeader>Exit</ModalPageHeader>}
+            >
+                <Group>
+                    <Div>
+                        <Title weight="3" level="2">Do you really want to logout?</Title>
+                        <br />
+                        <ButtonGroup mode="horizontal" gap="m" stretched>
+                            <Button size="l" mode="secondary" stretched onClick={() => setModal(null)}>
+                            Cancel
+                            </Button>
+                            <Button size="l" appearance="negative" stretched onClick={() => unlogin()}>
+                            Logout
+                            </Button>
+                        </ButtonGroup>
+                    </Div>
+                </Group>
+            </ModalPage>
+
+            <ModalPage
                 id={modals[5]}
                 onClose={() => setModal(null)}
                 header={<ModalPageHeader>Wait</ModalPageHeader>}
@@ -959,9 +983,23 @@ export const App: React.FC = () => {
             <ModalPage
                 id={modals[1]}
                 onClose={() => setModal('wallet')}
-                header={<ModalPageHeader>Send Biton</ModalPageHeader>}
+                header={<ModalPageHeader>Send</ModalPageHeader>}
             >
                 <Group>
+                    <FormItem style={{ flexGrow: 1, flexShrink: 1 }} top="Jetton">
+                        <CustomSelect
+                            placeholder="BTN"
+                            options={listJettons.map((jetton:any) => ({
+                                label: jetton.name,
+                                value: jetton.id,
+                                avatar: jetton.img,
+                                description: jetton.symbl
+                            }))
+                            }
+                            selectType={selectType}
+                        />
+                    </FormItem>
+
                     <FormItem
                         top="Recepient"
                     >
@@ -1035,7 +1073,8 @@ export const App: React.FC = () => {
                 }
                 right={
                     <PanelHeaderButton onClick={() => {
-                        unlogin()
+                        setModal('conf_exit')
+                        // unlogin()
                     }}><Icon28DoorArrowRightOutline /></PanelHeaderButton>
                 }
                 >
@@ -1185,7 +1224,7 @@ export const App: React.FC = () => {
                     <Div>
                         <div style={{ paddingBottom: 32 }}>
                             <Title weight="3" level="1">Add</Title>
-                            <small>some text</small>
+                            <small>Give your jettons and get lp tokens</small>
                         </div>
 
                         <CardGrid size="l">
@@ -1266,7 +1305,7 @@ export const App: React.FC = () => {
                                         data-story="swap"
                                         before={<Icon28WalletOutline/>}
                                         after={<IconButton onClick={() => {
-                                            unlogin()
+                                            setModal('conf_exit')
                                         }}><Icon28DoorArrowRightOutline /></IconButton>}
                                     >{truncate(address, 12)}</Cell>
                                     : <Cell

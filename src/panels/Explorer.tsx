@@ -1,14 +1,12 @@
-import { Icon16SearchOutline, Icon28DoorArrowLeftOutline, Icon28WalletOutline } from '@vkontakte/icons'
+import { Icon16SearchOutline } from '@vkontakte/icons'
 import {
     Panel,
     PanelHeader,
     Group,
-    Avatar,
     View,
     Div,
     FormItem,
     Input,
-    PanelHeaderButton,
     IconButton,
     CardGrid,
     Card,
@@ -16,8 +14,7 @@ import {
     InfoRow,
     Title,
     ScreenSpinner,
-    Header,
-    RichCell
+    Header
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -58,6 +55,7 @@ function truncate (fullStr:any, strLen:any) {
 }
 
 const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
+
     const { tonrpc } = props
     const [ loadWallet, setLoadWallet ] = React.useState<number>(0)
     // const [ address, setAddress ] = React.useState<FrontAddr>(null)
@@ -65,14 +63,6 @@ const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
     const [ addressEx, setAddressEx ] = React.useState<string>('')
 
     const [ dataWalletAddress, setDataWalletAddress ] = React.useState<any>(null)
-
-    useEffect(() => {
-        const load = async () => {
-            // setAddress('1')
-
-        }
-        load()
-    }, [])
 
     async function searchAddress (addressEx2:string = addressEx) {
         if (addressEx2 !== '') {
@@ -94,6 +84,22 @@ const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
             props.setPopout(null)
         }
     }
+
+    function keyEnter (e:any) {
+        if (e.keyCode === 13) {
+            // можете делать все что угодно со значением текстового поля
+            console.log(e)
+            searchAddress()
+        }
+    }
+
+    useEffect(() => {
+        const load = async () => {
+            // setAddress('1')
+
+        }
+        load()
+    }, [])
 
     return (
         <View activePanel={props.id} id={props.id}>
@@ -126,6 +132,7 @@ const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
                                 value={addressEx}
                                 onChange={(e) => { setAddressEx(e.target.value) }}
                                 placeholder="Enter wallet address"
+                                onKeyDown={(e:any) => keyEnter(e)}
                                 after={
                                     <IconButton
                                         hoverMode="opacity"
