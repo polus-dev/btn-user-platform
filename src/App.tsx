@@ -2,6 +2,7 @@ import {
     Icon16CancelCircle,
     Icon16CheckDoubleOutline,
     Icon20DiamondOutline,
+    Icon28AddCircleOutline,
     Icon28ArrowDownOutline,
     Icon28ArrowLeftOutline,
     Icon28ArrowUpOutline,
@@ -97,7 +98,7 @@ function truncate (fullStr:any, strLen:any) {
 export const App: React.FC = () => {
     const platform = usePlatform()
 
-    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit' ]
+    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit', 'add_jetton' ]
 
     const [ modal, setModal ] = React.useState<any>(null)
     const [ popout, setPopout ] = React.useState<any>(null)
@@ -135,7 +136,7 @@ export const App: React.FC = () => {
 
     const [ cookies, setCookie, removeCookie ] = useCookies([ 'session', 'session_hub' ]) // куки
 
-    const listJettons:any = [
+    const [ listJettons, setListJettons ] = React.useState<Array<any>>([
         {
             id: 1,
             name: 'TON',
@@ -143,7 +144,9 @@ export const App: React.FC = () => {
             img: 'https://ton.org/_next/static/media/apple-touch-icon.d723311b.png',
             price: 1,
             min: 0.1,
-            max: 1000
+            max: 1000,
+            wallet: '',
+            balance: 0
         }, {
             id: 2,
             name: 'BTN',
@@ -151,18 +154,20 @@ export const App: React.FC = () => {
             img: 'https://biton.pw/static/biton/img/logo.png?1',
             price: 0,
             min: 0.1,
-            max: 1000
+            max: 1000,
+            wallet: '',
+            balance: 0
         }
-    ]
-    const [ fromJetton, setFromJetton ] = React.useState<object>(listJettons.ton)
-    const [ toJetton, setToJetton ] = React.useState<object>(listJettons.biton)
+    ])
+    const [ fromJetton, setFromJetton ] = React.useState<object>(listJettons[0])
+    const [ toJetton, setToJetton ] = React.useState<object>(listJettons[1])
 
     const [ adderessMintLp, setAdderessMintLp ] = React.useState<any>('')
     const [ adderessUserLp, setAdderessUserLp ] = React.useState<any>('')
 
     const [ balanceLp, setBalanceLp ] = React.useState<number>(0) // баланс лп юзера
 
-    const [ selectType, setSelectType ] = React.useState(undefined) // выбор жетона для перевода
+    const [ selectType, setSelectType ] = React.useState<any>('1') // выбор жетона для перевода
 
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
@@ -191,6 +196,94 @@ export const App: React.FC = () => {
 
         console.log('balanceBtnRespInt', balanceBtnRespInt)
     }
+
+    // получение баланса жетона
+    async function getJettonBalance (addressWallet:string, addressW:any = address) {
+        const addressHexNoWC = new Address(addressW).toString('raw').split(':')[1]
+
+        const jwallAddressResp = await tonrpc.request('runGetMethod', {
+            address: addressWallet,
+            method: 'get_wallet_address_int',
+            stack: [ [ 'num', `0x${addressHexNoWC}` ] ]
+        })
+
+        let jwallAddress: Address
+        if (jwallAddressResp.data.ok === true) {
+            jwallAddress = new Address(`0:${jwallAddressResp.data.result.stack[0][1].substring(2)}`)
+        } else {
+            console.error(jwallAddressResp)
+            return
+        }
+
+        const jwallAddressBounceable = jwallAddress.toString('base64', { bounceable: true })
+        // if (type) {
+        //     // setAddressJopa(jwallAddressBounceable)
+
+        //     // const listJettonsT:Array<any> = listJettons
+        //     // listJettonsT[1].wallet = jwallAddressBounceable
+        //     // setListJettons(listJettonsT)
+        // }
+
+        // const singTon = await windowTon.ton.send('ton_rawSign', [ { data: 'boc' } ])
+        console.log(
+            'user jetton wallet address:\n'
+                + `${jwallAddressBounceable}`
+        )
+
+        const jwallCheckAddressResp = await tonrpc.request('getAddressInformation', { address: jwallAddressBounceable })
+
+        // const returnBalanceOb:any = {
+        //     address: jwallAddressBounceable,
+        //     balance: 0
+        // }
+
+        if (jwallCheckAddressResp.data.result.state !== 'uninitialized') {
+            const jwallBalanceResp = await tonrpc.request('runGetMethod', {
+                address: jwallAddressBounceable,
+                method: 'get_wallet_data',
+                stack: [ ]
+            })
+            if (jwallBalanceResp.data.ok === true) {
+                const balanceBtnRespInt = (
+                    Number(jwallBalanceResp.data.result.stack[0][1]) / 10 ** 9
+                ).toFixed(9)
+                console.log(balanceBtnRespInt)
+
+                let listJettonsT:Array<any> = listJettons
+                listJettonsT.push(
+                    {
+                        id: listJettonsT[listJettonsT.length - 1].id + 1,
+                        name: 'JTN',
+                        symbl: 'JETTON',
+                        img: 'https://biton.pw/static/biton/img/logo.png?1',
+                        price: 0,
+                        min: 0.1,
+                        max: 1000,
+                        wallet: jwallAddressBounceable,
+                        balance: balanceBtnRespInt
+                    }
+                )
+                setListJettons(listJettonsT)
+            } else {
+                console.error('data not ok')
+                // if (type) {
+                //     setBalanceBTN(0)
+                // }
+            }
+
+            // костыль переделать вызов функции в другом месте
+
+            // getLpData(addressW)
+
+            console.log(jwallBalanceResp)
+        } else {
+            console.error('address uninitialized')
+            // if (type) {
+            //     setBalanceBTN(0)
+            // }
+        }
+    }
+
     // получение данных о кошельке лп токенов юзера
     async function getLpWalletUser (address2:Address, addressUser:string) {
         const addressMinterLp = address2.toString('base64', { bounceable: true })
@@ -293,6 +386,10 @@ export const App: React.FC = () => {
         const jwallAddressBounceable = jwallAddress.toString('base64', { bounceable: true })
         if (type) {
             setAddressJopa(jwallAddressBounceable)
+
+            const listJettonsT:Array<any> = listJettons
+            listJettonsT[1].wallet = jwallAddressBounceable
+            setListJettons(listJettonsT)
         }
 
         // const singTon = await windowTon.ton.send('ton_rawSign', [ { data: 'boc' } ])
@@ -669,6 +766,50 @@ export const App: React.FC = () => {
         }
     }
 
+    // отправка жетонов через тонхаб
+    async function sendJettonHub () {
+        const indexJetton:number = Number(selectType)
+        console.log('selectTypeChange', indexJetton)
+        if (indexJetton !== undefined) {
+            if (indexJetton === 0) { // ton
+                console.log('addressSend', addressSend)
+                sendBocTHub(addressSend, new Coins(amountSend).toNano())
+            } else { // остальные жетоны
+                const msg = TokenWallet.transferMsg({
+                    queryId: BigInt(Date.now()),
+                    amount: new Coins(amountSend),
+                    destination: new Address(addressSend),
+                    responseDestination: new Address(address),
+                    forwardTonAmount: new Coins(forwardSend ? 0.1 : 0)
+                })
+                const boc = BOC.toBase64Standard(msg)
+                const result:any = await sendBocTHub(listJettons[indexJetton].wallet, '100000000', boc)
+
+                if (result.type === 'error') {
+                    console.error(result)
+                    setSnackbar(<Snackbar
+                        onClose={() => setSnackbar(null)}
+                        before={
+                            <Avatar size={24} style={{ background: 'var(--destructive)' }}>
+                                <Icon16CancelCircle fill="#fff" width={14} height={14} />
+                            </Avatar>
+                        }
+                    >
+                    Error - {result.data.type}
+                    </Snackbar>)
+                } else {
+                // setModal('confirm')
+                    setAddressSend('')
+                    setAmountSend('')
+                    setForwardSend(false)
+                    console.log(result)
+                }
+            }
+        } else {
+            console.log('error #selectType')
+        }
+    }
+
     // покупка битонов
     async function buyBtn () {
         // const windowTon:any = window
@@ -935,6 +1076,28 @@ export const App: React.FC = () => {
             </ModalPage>
 
             <ModalPage
+                id={modals[9]}
+                onClose={() => {
+                    setAddressSend('')
+                    setModal(null)
+                }}
+                header={<ModalPageHeader>Add jetton</ModalPageHeader>}
+            >
+                <Group>
+                    <FormItem
+                        top="Jetton"
+                    >
+                        <Input value={addressSend} onChange={(e) => { setAddressSend(e.target.value) }} placeholder="Enter address" />
+                    </FormItem>
+
+                    <div>
+                        <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => getJettonBalance(addressSend)} mode="secondary">Add jetton</Button>
+                    </div>
+
+                </Group>
+            </ModalPage>
+
+            <ModalPage
                 id={modals[6]}
                 onClose={() => setModal(null)}
                 header={<ModalPageHeader>Confirm</ModalPageHeader>}
@@ -982,21 +1145,29 @@ export const App: React.FC = () => {
 
             <ModalPage
                 id={modals[1]}
-                onClose={() => setModal('wallet')}
+                onClose={() => {
+                    setModal('wallet')
+                    setAddressSend('')
+                }}
                 header={<ModalPageHeader>Send</ModalPageHeader>}
             >
                 <Group>
                     <FormItem style={{ flexGrow: 1, flexShrink: 1 }} top="Jetton">
                         <CustomSelect
                             placeholder="BTN"
-                            options={listJettons.map((jetton:any) => ({
+                            options={listJettons.map((jetton:any, key:number) => ({
                                 label: jetton.name,
-                                value: jetton.id,
+                                value: key,
                                 avatar: jetton.img,
                                 description: jetton.symbl
                             }))
                             }
                             selectType={selectType}
+                            value={selectType}
+                            onChange={(e:any) => {
+                                // console.log('selectTypeChange', e.target.value)
+                                setSelectType(e.target.value)
+                            }}
                         />
                     </FormItem>
 
@@ -1021,7 +1192,8 @@ export const App: React.FC = () => {
                             if (typeWallet === 0) {
                                 sendBocT()
                             } else {
-                                sendBtionHub()
+                                // sendBtionHub()
+                                sendJettonHub()
                             }
                         }} disabled={amountSend === '' || addressSend === '' || (addressSend.toLowerCase().substring(0, 2) !== 'kq' && addressSend.toLowerCase().substring(0, 2) !== 'eq')}>
                   Send
@@ -1150,6 +1322,11 @@ export const App: React.FC = () => {
                                     </Div>
                                 </Card>
                             </CardGrid>
+                            <br />
+
+                            <div>
+                                <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => setModal('add_jetton')} mode="secondary">Add jetton</Button>
+                            </div>
                             <br />
 
                             <div>
