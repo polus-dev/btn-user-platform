@@ -149,8 +149,8 @@ export const App: React.FC = () => {
             balance: 0
         }, {
             id: 2,
-            name: 'BTN',
-            symbl: 'BITON',
+            name: 'BITON',
+            symbl: 'BTN',
             img: 'https://biton.pw/static/biton/img/logo.png?1',
             price: 0,
             min: 0.1,
@@ -249,7 +249,7 @@ export const App: React.FC = () => {
                 ).toFixed(9)
                 console.log(balanceBtnRespInt)
 
-                let listJettonsT:Array<any> = listJettons
+                const listJettonsT:Array<any> = listJettons
                 listJettonsT.push(
                     {
                         id: listJettonsT[listJettonsT.length - 1].id + 1,
@@ -1079,7 +1079,7 @@ export const App: React.FC = () => {
                 id={modals[9]}
                 onClose={() => {
                     setAddressSend('')
-                    setModal(null)
+                    setModal('wallet')
                 }}
                 header={<ModalPageHeader>Add jetton</ModalPageHeader>}
             >
@@ -1289,6 +1289,22 @@ export const App: React.FC = () => {
                             <CardGrid size="l">
                                 <Card>
                                     <Div>
+                                        {listJettons.map(
+                                            (jetton:any, key:any) => <SimpleCell
+                                                key={key}
+                                                before={<Avatar size={48} src={jetton.img} />}
+                                                // badge={<Icon20DiamondOutline />}
+                                                after={
+                                                    <b>
+                                                        {Number(jetton.balance).toFixed(2)}
+                                                        {` ${jetton.symbl}`}
+                                                    </b>
+                                                }
+                                                disabled
+                                            >
+                                                {jetton.name}
+                                            </SimpleCell>
+                                        )}
                                         <SimpleCell
                                             before={<Avatar size={48} src={'https://ton.org/_next/static/media/apple-touch-icon.d723311b.png'} />}
                                             badge={<Icon20DiamondOutline />}
