@@ -157,6 +157,17 @@ export const App: React.FC = () => {
             max: 1000,
             wallet: '',
             balance: 0
+        },
+        {
+            id: 2,
+            name: 'BITON LP',
+            symbl: 'BTN-LP',
+            img: BitonLPTokenPNG,
+            price: 0,
+            min: 0.1,
+            max: 1000,
+            wallet: '',
+            balance: 0
         }
     ])
     const [ fromJetton, setFromJetton ] = React.useState<object>(listJettons[0])
@@ -194,7 +205,56 @@ export const App: React.FC = () => {
 
         setBalanceLp(Number(balanceBtnRespInt))
 
+        const listJettonsT:Array<any> = listJettons
+        listJettonsT[2].balance = Number(balanceBtnRespInt)
+        setListJettons(listJettonsT)
+
         console.log('balanceBtnRespInt', balanceBtnRespInt)
+    }
+
+    async function getDataJetton
+    (addressWallet:string, balanceJ:number, jwallAddressBounceable:String) {
+        const jwallAddressResp = await tonrpc.request('runGetMethod', {
+            address: addressWallet,
+            method: 'get_jetton_data',
+            stack: [ ]
+        })
+
+        if (jwallAddressResp.data.ok === true) {
+            const content = jwallAddressResp.data.result.stack[4][1].bytes
+
+            const bocConent = BOC.fromStandard(content)
+            console.log('bocConent', bocConent)
+
+            const sliceCell = Slice.parse(bocConent)
+            const prefix = sliceCell.loadUint(8)
+            console.log('prefix', prefix)
+            if (prefix === 255) {
+                const size = sliceCell.bits.length
+                const stringCell = sliceCell.loadBytes(size / 8)
+                const str = new TextDecoder('utf-8').decode(stringCell)
+
+                console.log('str', str)
+            } else {
+                console.error('enot lox')
+            }
+
+            let listJettonsT:Array<any> = listJettons
+            listJettonsT.push(
+                {
+                    id: listJettonsT[listJettonsT.length - 1].id + 1,
+                    name: 'JTN',
+                    symbl: 'JETTON',
+                    img: 'https://biton.pw/static/biton/img/logo.png?1',
+                    price: 0,
+                    min: 0.1,
+                    max: 1000,
+                    wallet: jwallAddressBounceable,
+                    balance: balanceJ
+                }
+            )
+            setListJettons(listJettonsT)
+        }
     }
 
     // получение баланса жетона
@@ -237,6 +297,7 @@ export const App: React.FC = () => {
         //     balance: 0
         // }
 
+        let balanceJetton = 0
         if (jwallCheckAddressResp.data.result.state !== 'uninitialized') {
             const jwallBalanceResp = await tonrpc.request('runGetMethod', {
                 address: jwallAddressBounceable,
@@ -248,22 +309,7 @@ export const App: React.FC = () => {
                     Number(jwallBalanceResp.data.result.stack[0][1]) / 10 ** 9
                 ).toFixed(9)
                 console.log(balanceBtnRespInt)
-
-                const listJettonsT:Array<any> = listJettons
-                listJettonsT.push(
-                    {
-                        id: listJettonsT[listJettonsT.length - 1].id + 1,
-                        name: 'JTN',
-                        symbl: 'JETTON',
-                        img: 'https://biton.pw/static/biton/img/logo.png?1',
-                        price: 0,
-                        min: 0.1,
-                        max: 1000,
-                        wallet: jwallAddressBounceable,
-                        balance: balanceBtnRespInt
-                    }
-                )
-                setListJettons(listJettonsT)
+                balanceJetton = Number(balanceBtnRespInt)
             } else {
                 console.error('data not ok')
                 // if (type) {
@@ -275,13 +321,15 @@ export const App: React.FC = () => {
 
             // getLpData(addressW)
 
-            console.log(jwallBalanceResp)
+            // console.log(jwallBalanceResp)
         } else {
             console.error('address uninitialized')
             // if (type) {
             //     setBalanceBTN(0)
             // }
         }
+
+        getDataJetton(addressWallet, balanceJetton, jwallAddressBounceable)
     }
 
     // получение данных о кошельке лп токенов юзера
@@ -356,6 +404,11 @@ export const App: React.FC = () => {
         if (type) {
             setBalance(balTon)
         }
+
+        const listJettonsT:Array<any> = listJettons
+        listJettonsT[0].balance = Number(balTon)
+        setListJettons(listJettonsT)
+
         return balTon
     }
 
@@ -419,6 +472,11 @@ export const App: React.FC = () => {
                 if (type) {
                     setBalanceBTN(parseFloat(balanceBtnRespInt))
                 }
+
+                const listJettonsT:Array<any> = listJettons
+                listJettonsT[1].balance = Number(balanceBtnRespInt)
+                setListJettons(listJettonsT)
+
                 returnBalanceOb.balance = balanceBtnRespInt
             } else {
                 console.error('data not ok')
@@ -1044,7 +1102,7 @@ export const App: React.FC = () => {
                         <Title weight="3" level="2">Do you really want to logout?</Title>
                         <br />
                         <ButtonGroup mode="horizontal" gap="m" stretched>
-                            <Button size="l" mode="secondary" stretched onClick={() => setModal(null)}>
+                            <Button size="l" mode="secondary" stretched onClick={() => setModal('wallet')}>
                             Cancel
                             </Button>
                             <Button size="l" appearance="negative" stretched onClick={() => unlogin()}>
@@ -1091,7 +1149,11 @@ export const App: React.FC = () => {
                     </FormItem>
 
                     <div>
-                        <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => getJettonBalance(addressSend)} mode="secondary">Add jetton</Button>
+                        <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => {
+                            getJettonBalance(addressSend)
+                            setModal('wallet')
+                        }
+                        } mode="secondary">Add jetton</Button>
                     </div>
 
                 </Group>
@@ -1230,9 +1292,12 @@ export const App: React.FC = () => {
                 </Group>
             </ModalPage>
 
+            {/* wallet */}
             <ModalPage
                 id={modals[3]}
                 onClose={() => setModal(null)}
+                dynamicContentHeight
+                settlingHeight={80}
                 header={<ModalPageHeader left={
                     <PanelHeaderButton onClick={() => {
                         if (typeWallet === 0) {
@@ -1305,36 +1370,6 @@ export const App: React.FC = () => {
                                                 {jetton.name}
                                             </SimpleCell>
                                         )}
-                                        <SimpleCell
-                                            before={<Avatar size={48} src={'https://ton.org/_next/static/media/apple-touch-icon.d723311b.png'} />}
-                                            badge={<Icon20DiamondOutline />}
-                                            after={
-                                                <b>{Number(balance).toFixed(2)} TON</b>
-                                            }
-                                            disabled
-                                        >
-                                            TON
-                                        </SimpleCell>
-
-                                        <SimpleCell
-                                            before={<Avatar size={48} src={'https://biton.pw/static/biton/img/logo.png?1'} />}
-                                            disabled
-                                            after={
-                                                <b>{Number(balanceBTN).toFixed(2)} BTN</b>
-                                            }
-                                        >
-                                            BITON
-                                        </SimpleCell>
-
-                                        <SimpleCell
-                                            before={<Avatar size={48} src={BitonLPTokenPNG} />}
-                                            disabled
-                                            after={
-                                                <b>{Number(balanceLp).toFixed(2)} BTN-LP</b>
-                                            }
-                                        >
-                                            BITON LP
-                                        </SimpleCell>
                                     </Div>
                                 </Card>
                             </CardGrid>
