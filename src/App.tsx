@@ -65,6 +65,8 @@ import {
     TonhubTransactionResponse
 } from 'ton-x-fix/dist/connector/TonhubConnector'
 
+// import TradingViewWidget, { Themes } from 'react-tradingview-widget'
+
 import { QRCodeSVG } from 'qrcode.react'
 
 import { Address, BOC, Builder, Coins, Slice } from 'ton3-core'
@@ -77,6 +79,7 @@ import { Enot } from './enot'
 
 // import BitonLPTokenSVG from './static/btn-lp.svg'
 import BitonLPTokenPNG from './static/btn-lp.png'
+import logoPNG from './static/logo.png'
 
 const axios = require('axios').default
 
@@ -252,7 +255,7 @@ export const App: React.FC = () => {
                 console.log('jsonJetton', jsonJetton.data)
 
                 if (jsonJetton.data) {
-                    let listJettonsT:Array<any> = listJettons
+                    const listJettonsT:Array<any> = listJettons
                     listJettonsT.push(
                         {
                             id: listJettonsT[listJettonsT.length - 1].id + 1,
@@ -1530,7 +1533,7 @@ export const App: React.FC = () => {
                 popout={popout}
                 modal={modalRoot}
             >
-                {isDesktop && (
+                {isDesktop && false && (
                     <SplitCol fixed width={280} maxWidth={280}>
                         <Panel>
                             {hasHeader && <PanelHeader ><div className="logo-block"><img src="https://biton.pw/static/biton/img/logo.png?1" className="logo" />BITON</div></PanelHeader>}
@@ -1603,8 +1606,47 @@ export const App: React.FC = () => {
                 <SplitCol
                     animate={!isDesktop}
                     spaced={isDesktop}
-                    width={isDesktop ? '560px' : '100%'}
-                    maxWidth={isDesktop ? '560px' : '100%'}
+                    width={isDesktop ? '800px' : '100%'}
+                    maxWidth={isDesktop ? '800px' : '100%'}
+                >
+                    <Panel>
+                        {hasHeader && <PanelHeader left={
+                            <img src={logoPNG} className="logo" />
+                        }>
+                            <div className="logo-block">
+                                <ButtonGroup
+                                    mode="horizontal"
+                                    gap="m"
+                                    stretched
+                                >
+                                    <Button size="l" appearance="accent" mode="tertiary">
+                                        Main
+                                    </Button>
+                                    <Button size="l" appearance="accent" mode="tertiary">
+                                        Dex
+                                    </Button>
+                                    <Button size="l" appearance="accent" mode="tertiary">
+                                        NFT Marketplace
+                                    </Button>
+                                    <Button size="l" appearance="accent" mode="tertiary">
+                                        NFT Earn
+                                    </Button>
+                                </ButtonGroup>
+                            </div>
+                        </PanelHeader>}
+                        <Group>
+                            <Div style={{ height: '40vh' }}>
+                                {/* <TradingViewWidget symbol="NASDAQ:AAPL" theme={Themes.DARK} autosize /> */}
+                            </Div>
+                        </Group>
+                    </Panel>
+                </SplitCol>
+
+                <SplitCol
+                    animate={!isDesktop}
+                    spaced={isDesktop}
+                    width={isDesktop ? '380px' : '100%'}
+                    maxWidth={isDesktop ? '380px' : '100%'}
                 >
                     <Epic
                         activeStory={activeStory}

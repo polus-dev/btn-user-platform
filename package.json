@@ -27,6 +27,7 @@
         "react-copy-to-clipboard": "^5.1.0",
         "react-dom": "^18.0.0",
         "react-scripts": "5.0.1",
+        "react-tradingview-widget": "^1.3.2",
         "svg-url-loader": "^7.1.1",
         "ton": "^9.6.3",
         "ton-x-fix": "^0.4.1",

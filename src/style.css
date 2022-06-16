@@ -1,6 +1,7 @@
 #root {
-    --accent: rgb(255, 179, 36);
-    --button_primary_background: rgb(255, 179, 36);
+    --accent: #F16B16;
+    --button_primary_background: #1850AC;
+    --button_primary_foreground: #EDEDF4;
 }
 
 html,
@@ -35,11 +36,12 @@ body {
     justify-content: center;
     align-items: center;
     font-weight: 900;
-    color: var(--accent)
+    color: var(--accent);
+    margin-left: 16px
 }
 
 .logo {
-    height: 50px;
+    /* height: 50px; */
 }
 
 .div_qr::after {
@@ -58,4 +60,28 @@ body {
     background-repeat: no-repeat;
     /* background-color: #fff; */
     border-radius: 0px;
+}
+
+
+/* начало новых стиелй*/
+
+html,
+* {
+    /* font-family: 'Ruberoid'!important; */
+}
+
+.vkuiGroup--card>.vkuiGroup__inner {
+    border-radius: 12px!important;
+    box-shadow: none!important;
+}
+
+.vkuiPanelHeader--ios::before,
+.vkuiPanelHeader--ios .vkuiPanelHeader__in {
+    height: 104px!important;
+}
+
+.vkuiButton {
+    padding: 10px 15px!important;
+    font-size: 17px!important;
+    border-radius: 12px!important;
 }
