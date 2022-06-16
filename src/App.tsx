@@ -78,6 +78,8 @@ import { Enot } from './enot'
 // import BitonLPTokenSVG from './static/btn-lp.svg'
 import BitonLPTokenPNG from './static/btn-lp.png'
 
+const axios = require('axios').default
+
 const connector = new TonhubConnector({ testnet: true })
 
 function truncate (fullStr:any, strLen:any) {
@@ -159,7 +161,7 @@ export const App: React.FC = () => {
             balance: 0
         },
         {
-            id: 2,
+            id: 3,
             name: 'BITON LP',
             symbl: 'BTN-LP',
             img: BitonLPTokenPNG,
@@ -212,6 +214,10 @@ export const App: React.FC = () => {
         console.log('balanceBtnRespInt', balanceBtnRespInt)
     }
 
+    async function gteDataApi (url:String) {
+        const data = await axios.get(url)
+        return data
+    }
     async function getDataJetton
     (addressWallet:string, balanceJ:number, jwallAddressBounceable:String) {
         const jwallAddressResp = await tonrpc.request('runGetMethod', {
@@ -221,7 +227,9 @@ export const App: React.FC = () => {
         })
 
         if (jwallAddressResp.data.ok === true) {
-            const content = jwallAddressResp.data.result.stack[4][1].bytes
+            const content = jwallAddressResp.data.result.stack[3][1].bytes
+
+            console.log('stack', jwallAddressResp.data.result.stack)
 
             const bocConent = BOC.fromStandard(content)
             console.log('bocConent', bocConent)
@@ -229,31 +237,44 @@ export const App: React.FC = () => {
             const sliceCell = Slice.parse(bocConent)
             const prefix = sliceCell.loadUint(8)
             console.log('prefix', prefix)
-            if (prefix === 255) {
+            if (prefix === 0x01) {
                 const size = sliceCell.bits.length
-                const stringCell = sliceCell.loadBytes(size / 8)
-                const str = new TextDecoder('utf-8').decode(stringCell)
+                console.log('sliceCell', sliceCell)
 
-                console.log('str', str)
+                const stringCell = sliceCell.loadBytes(size)
+
+                const str = (new TextDecoder('utf-8').decode(stringCell)).split('//')[1]
+
+                const urlIpfs = `https://${str}.ipfs.infura-ipfs.io/`
+
+                const jsonJetton = await gteDataApi(urlIpfs)
+
+                console.log('jsonJetton', jsonJetton.data)
+
+                if (jsonJetton.data) {
+                    let listJettonsT:Array<any> = listJettons
+                    listJettonsT.push(
+                        {
+                            id: listJettonsT[listJettonsT.length - 1].id + 1,
+                            name: jsonJetton.data.name,
+                            symbl: jsonJetton.data.symbol,
+                            img: `https://${jsonJetton.data.image.split('//')[1]}.ipfs.infura-ipfs.io/`,
+                            price: 0,
+                            min: 0.1,
+                            max: 1000,
+                            wallet: jwallAddressBounceable,
+                            balance: balanceJ
+                        }
+                    )
+                    setListJettons(listJettonsT)
+
+                    setModal('wallet') // костыль временно
+                } else {
+                    console.error('error load json jetton')
+                }
             } else {
                 console.error('enot lox')
             }
-
-            let listJettonsT:Array<any> = listJettons
-            listJettonsT.push(
-                {
-                    id: listJettonsT[listJettonsT.length - 1].id + 1,
-                    name: 'JTN',
-                    symbl: 'JETTON',
-                    img: 'https://biton.pw/static/biton/img/logo.png?1',
-                    price: 0,
-                    min: 0.1,
-                    max: 1000,
-                    wallet: jwallAddressBounceable,
-                    balance: balanceJ
-                }
-            )
-            setListJettons(listJettonsT)
         }
     }
 
