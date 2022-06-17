@@ -1,4 +1,4 @@
-import { Icon16CancelCircle, Icon24RefreshOutline, Icon28AddCircleOutline, Icon28DoorArrowLeftOutline, Icon28SortOutline, Icon28SyncOutline, Icon28WalletOutline } from '@vkontakte/icons'
+import { Icon16CancelCircle, Icon24RefreshOutline, Icon28AddCircleOutline, Icon28DoorArrowLeftOutline, Icon28DoorArrowRightOutline, Icon28SortOutline, Icon28SyncOutline, Icon28WalletOutline } from '@vkontakte/icons'
 import {
     Panel,
     PanelHeader,
@@ -203,13 +203,29 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     return (
         <View activePanel={props.id} id={props.id}>
             <Panel id={props.id}>
-                <PanelHeader >Swap</PanelHeader>
+                <PanelHeader
+                    right={
+                        props.loadWallet === 1
+                            ? <Button
+                                size="l" appearance="accent" mode="tertiary"
+                                onClick={() => props.setModal('wallet')}
+                                data-story="swap"
+                                after={<Icon28WalletOutline/>}
+                            >{truncate(props.address, 13)}</Button>
+                            : <Button
+                                size="l"
+                                onClick={() => props.setModal('login')}
+                                data-story="swap"
+                                before={<Icon28DoorArrowLeftOutline/>}
+                            >Connect wallet</Button>
+                    }
+                ></PanelHeader>
                 <Group>
                     <Div>
 
                         <Div style={{ paddingBottom: 32 }}>
-                            <Title weight="3" level="1">Exchange</Title>
-                            <small>Trade tokens in an instant</small>
+                            <Title weight="3" level="1">Swap</Title>
+                            <small>Trade token in an instant</small>
                         </Div>
 
                         <CardGrid size="l">
@@ -221,7 +237,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             <Input placeholder="0.0" value={props.btnSwap} onChange={(e) => { calculatePriceInput(inputNumberSet(e.target.value), true) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Balance: ${Number(props.balance).toFixed(2)}`} style={{ width: '20%' }}>
+                                        <FormItem top={`${Number(props.balance).toFixed(2)}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://ton.org/_next/static/media/apple-touch-icon.d723311b.png" size={24} />}
@@ -237,7 +253,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             <Input placeholder="0.0" value={props.btnSwap} onChange={(e) => { calculatePriceInput(inputNumberSet(e.target.value), true) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Balance: ${Number(props.balanceBTN).toFixed(2)}`} style={{ width: '20%' }}>
+                                        <FormItem top={`${Number(props.balanceBTN).toFixed(2)}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://biton.pw/static/biton/img/logo.png?1" size={24} />}
@@ -266,7 +282,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             <Input placeholder="0.0" value={tonSwap} onChange={(e) => { calculatePriceInput(inputNumberSet(e.target.value), false) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Balance: ${Number(props.balanceBTN).toFixed(2)}`} style={{ width: '20%' }}>
+                                        <FormItem top={`${Number(props.balanceBTN).toFixed(2)}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://biton.pw/static/biton/img/logo.png?1" size={24} />}
@@ -282,7 +298,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             <Input placeholder="0.0" value={tonSwap} onChange={(e) => { calculatePriceInput(inputNumberSet(e.target.value), false) }} type={'number'} />
                                         </FormItem>
 
-                                        <FormItem top={`Balance: ${Number(props.balance).toFixed(2)}`} style={{ width: '20%' }}>
+                                        <FormItem top={`${Number(props.balance).toFixed(2)}`} style={{ width: '20%' }}>
                                             <Cell
                                                 disabled
                                                 after={<Avatar src="https://ton.org/_next/static/media/apple-touch-icon.d723311b.png" size={24} />}
@@ -319,13 +335,22 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                         Price Impact
                         </Cell> */}
                         <Div>
-                            <Button
-                                size={'l'}
-                                stretched
-                                before={<Icon28SyncOutline/>}
-                                onClick={swapGo}
-                                disabled={priceSwap === '0' || props.loadWallet !== 1 || priceSwap === '' || props.btnSwap === '' || props.btnSwap === '0'}
-                            >Exchange</Button>
+                            {props.loadWallet === 1
+                                ? <Button
+                                    size={'l'}
+                                    stretched
+                                    before={<Icon28SyncOutline/>}
+                                    onClick={swapGo}
+                                    disabled={priceSwap === '0' || props.loadWallet !== 1 || priceSwap === '' || props.btnSwap === '' || props.btnSwap === '0'}
+                                >Exchange</Button>
+                                : <Button
+                                    size="l"
+                                    stretched
+                                    onClick={() => props.setModal('login')}
+                                    data-story="swap"
+                                    before={<Icon28DoorArrowLeftOutline/>}
+                                >Connect wallet</Button>
+                            }
                         </Div>
                         <Div>
                             <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => props.setModal('liquidity')} mode="secondary">Add liquidity</Button>
