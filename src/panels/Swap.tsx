@@ -27,6 +27,8 @@ import { Address, BOC, Coins } from 'ton3-core'
 import { ToncenterRPC } from '../logic/tonapi'
 import { TokenWallet } from '../logic/contracts'
 
+import logoPNG from '../static/logo.png'
+
 interface IMyProps {
     id: string,
     tonrpc: ToncenterRPC,
@@ -48,7 +50,8 @@ interface IMyProps {
     setBtnSwap: Function,
     btnSwap: string,
     setTorSwap: Function,
-    torSwap: string
+    torSwap: string,
+    isDesktop: any
 }
 
 function truncate (fullStr:any, strLen:any) {
@@ -204,20 +207,35 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         <View activePanel={props.id} id={props.id}>
             <Panel id={props.id}>
                 <PanelHeader
+                    left={props.isDesktop ? null : <img src={logoPNG} className="logo" style={{ marginLeft: '16px' }} />}
                     right={
-                        props.loadWallet === 1
-                            ? <Button
-                                size="l" appearance="accent" mode="tertiary"
-                                onClick={() => props.setModal('wallet')}
-                                data-story="swap"
-                                after={<Icon28WalletOutline/>}
-                            >{truncate(props.address, 13)}</Button>
-                            : <Button
-                                size="l"
-                                onClick={() => props.setModal('login')}
-                                data-story="swap"
-                                before={<Icon28DoorArrowLeftOutline/>}
-                            >Connect wallet</Button>
+                        props.isDesktop
+                            ? <div>
+                                {props.loadWallet === 1
+                                    ? <Button
+                                        size="l" appearance="accent" mode="tertiary"
+                                        onClick={() => props.setModal('wallet')}
+                                        data-story="swap"
+                                        after={<Icon28WalletOutline/>}
+                                    >{truncate(props.address, 13)}</Button>
+                                    : <Button
+                                        size="l"
+                                        onClick={() => props.setModal('login')}
+                                        data-story="swap"
+                                        before={<Icon28DoorArrowLeftOutline/>}
+                                    >Connect wallet</Button>}
+                            </div>
+                            : <div>
+                                {props.loadWallet === 1
+                                    ? <IconButton
+                                        onClick={() => props.setModal('wallet')}
+                                        data-story="swap"
+                                    ><Icon28WalletOutline/></IconButton>
+                                    : <IconButton
+                                        onClick={() => props.setModal('login')}
+                                        data-story="swap"
+                                    ><Icon28WalletOutline/></IconButton>}
+                            </div>
                     }
                 ></PanelHeader>
                 <Group>

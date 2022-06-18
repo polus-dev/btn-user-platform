@@ -75,13 +75,21 @@ html,
     box-shadow: none!important;
 }
 
-.vkuiPanelHeader--ios::before,
+
+/* .vkuiPanelHeader--ios::before,
 .vkuiPanelHeader--ios .vkuiPanelHeader__in {
     height: 104px!important;
-}
+} */
 
 .vkuiButton {
     padding: 10px 15px!important;
     font-size: 17px!important;
     border-radius: 12px!important;
+}
+
+@media (min-width: 800px) {
+    .vkuiPanelHeader::before,
+    .vkuiPanelHeader .vkuiPanelHeader__in {
+        height: 104px!important;
+    }
 }
