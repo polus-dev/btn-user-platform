@@ -7,9 +7,13 @@ import {
     Icon28ArrowLeftOutline,
     Icon28ArrowUpOutline,
     Icon28ArticleOutline,
+    Icon28CoinsOutline,
     Icon28DoorArrowLeftOutline,
     Icon28DoorArrowRightOutline,
+    Icon28HomeOutline,
+    Icon28MarketOutline,
     Icon28RefreshOutline,
+    Icon28StatisticsOutline,
     Icon28SyncOutline,
     Icon28WalletOutline
 } from '@vkontakte/icons'
@@ -1172,13 +1176,13 @@ export const App: React.FC = () => {
                         <Input value={addressSend} onChange={(e) => { setAddressSend(e.target.value) }} placeholder="Enter address" />
                     </FormItem>
 
-                    <div>
+                    <Div>
                         <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => {
                             getJettonBalance(addressSend)
                             setModal('wallet')
                         }
                         } mode="secondary">Add jetton</Button>
-                    </div>
+                    </Div>
 
                 </Group>
             </ModalPage>
@@ -1190,7 +1194,7 @@ export const App: React.FC = () => {
             >
                 <Group>
                     <Div>
-                        <Title weight="3" level="2">Info for swap</Title>
+                        <Title weight="3" level="2" style={{ margin: '0 12px' }}>Info for swap</Title>
                         <br />
                         {swapConfirm !== null
                             ? <div>
@@ -1208,7 +1212,8 @@ export const App: React.FC = () => {
                                 </SimpleCell>
                                 <SimpleCell multiline>
                                     <InfoRow header={'Price Impact'} style={swapConfirm.imact > 10 ? { color: 'var(--destructive)' } : {}}>
-                                        {Number(swapConfirm.imact).toFixed(2)} %
+                                        {Number(swapConfirm.imact < 0 ? 0 : swapConfirm.imact)
+                                            .toFixed(2)} %
                                     </InfoRow>
                                 </SimpleCell>
                                 <br />
@@ -1603,7 +1608,8 @@ export const App: React.FC = () => {
                     </SplitCol>
                 )}
 
-                <SplitCol
+                {isDesktop
+                && <SplitCol
                     animate={!isDesktop}
                     spaced={isDesktop}
                     width={isDesktop ? '800px' : '100%'}
@@ -1641,6 +1647,7 @@ export const App: React.FC = () => {
                         </Group>
                     </Panel>
                 </SplitCol>
+                }
 
                 <SplitCol
                     animate={!isDesktop}
@@ -1654,22 +1661,47 @@ export const App: React.FC = () => {
                             !isDesktop && (
                                 <Tabbar>
                                     <TabbarItem
+                                        // onClick={null}
+                                        selected={activeStory === 'main'}
+                                        text="Main"
+                                    >
+                                        <Icon28HomeOutline />
+                                    </TabbarItem>
+                                    <TabbarItem
                                         onClick={onStoryChange}
                                         selected={activeStory === 'swap'}
                                         data-story="swap"
-                                        text="Swap"
+                                        text="Dex"
                                     >
-                                        <Icon28SyncOutline />
+                                        <Icon28StatisticsOutline />
                                     </TabbarItem>
+
                                     <TabbarItem
+                                        // onClick={onStoryChange}
+                                        selected={activeStory === 'nft'}
+                                        data-story="nft"
+                                        text="NFT"
+                                    >
+                                        <Icon28MarketOutline />
+                                    </TabbarItem>
+
+                                    <TabbarItem
+                                        // onClick={onStoryChange}
+                                        selected={activeStory === 'earn'}
+                                        data-story="earn"
+                                        text="Earn"
+                                    >
+                                        <Icon28CoinsOutline />
+                                    </TabbarItem>
+                                    {/* <TabbarItem
                                         onClick={onStoryChange}
                                         selected={activeStory === 'explorer'}
                                         data-story="explorer"
                                         text="Explorer"
                                     >
                                         <Icon28ArticleOutline />
-                                    </TabbarItem>
-                                    <TabbarItem
+                                    </TabbarItem> */}
+                                    {/* <TabbarItem
                                         onClick={() => {
                                             if (loadWallet === 1) {
                                                 setModal('wallet')
@@ -1680,7 +1712,7 @@ export const App: React.FC = () => {
                                         text="Wallet"
                                     >
                                         <Icon28ArticleOutline />
-                                    </TabbarItem>
+                                    </TabbarItem> */}
                                 </Tabbar>
                             )
                         }
@@ -1729,6 +1761,7 @@ export const App: React.FC = () => {
                             btnSwap={btnSwap}
                             torSwap={torSwap}
                             setTorSwap={setTorSwap}
+                            isDesktop={isDesktop}
                         />
                     </Epic>
                 </SplitCol>
