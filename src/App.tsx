@@ -547,7 +547,6 @@ export const App: React.FC = () => {
         removeCookie('session_hub')
     }
 
-
     async function getTransAddress (addressW:any = address, type:boolean = true) {
         const Trans = await tonrpc.request('getTransactions', { address: addressW, limit: 50 })
         console.log(Trans.data.result)
@@ -1768,8 +1767,62 @@ export const App: React.FC = () => {
 
         <AppRoot>
             <SplitLayout
-                style={{ justifyContent: 'center' }}
-                header={hasHeader && <PanelHeader separator={false} />}
+                style={{ justifyContent: 'center', paddingTop: isDesktop ? '80px' : '40px' }}
+                header={hasHeader && <PanelHeader separator={false} className={'menu1'} left={
+                    <img src={logoPNG} className="logo" />
+                }
+                right={
+                    isDesktop
+                        ? <div>
+                            {loadWallet === 1
+                                ? <Button
+                                    size="l" appearance="accent" mode="tertiary"
+                                    onClick={() => setModal('wallet')}
+                                    data-story="swap"
+                                    after={<Icon28WalletOutline/>}
+                                >{truncate(address, 13)}</Button>
+                                : <Button
+                                    size="l"
+                                    onClick={() => setModal('login')}
+                                    data-story="swap"
+                                    before={<Icon28DoorArrowLeftOutline/>}
+                                >Connect wallet</Button>}
+                        </div>
+                        : <div>
+                            {loadWallet === 1
+                                ? <IconButton
+                                    onClick={() => setModal('wallet')}
+                                    data-story="swap"
+                                ><Icon28WalletOutline/></IconButton>
+                                : <IconButton
+                                    onClick={() => setModal('login')}
+                                    data-story="swap"
+                                ><Icon28WalletOutline/></IconButton>}
+                        </div>
+                }
+                >
+                    {isDesktop && (<div className="logo-block">
+                        <ButtonGroup
+                            mode="horizontal"
+                            gap="m"
+                            stretched
+                        >
+                            <Button size="l" appearance="accent" mode="tertiary">
+                                    Main
+                            </Button>
+                            <Button size="l" appearance="accent" mode="tertiary">
+                                    Dex
+                            </Button>
+                            <Button size="l" appearance="accent" mode="tertiary">
+                                    NFT Marketplace
+                            </Button>
+                            <Button size="l" appearance="accent" mode="tertiary">
+                                    NFT Earn
+                            </Button>
+                        </ButtonGroup>
+                    </div>)
+                    }
+                </PanelHeader>}
                 popout={popout}
                 modal={modalRoot}
             >
@@ -1844,7 +1897,7 @@ export const App: React.FC = () => {
                 )}
 
                 {isDesktop
-                && <SplitCol
+                && false && <SplitCol
                     animate={!isDesktop}
                     spaced={isDesktop}
                     width={isDesktop ? '800px' : '100%'}

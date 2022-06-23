@@ -206,7 +206,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     return (
         <View activePanel={props.id} id={props.id}>
             <Panel id={props.id}>
-                <PanelHeader
+                {/* <PanelHeader style={{ zIndex: '-1' }}></PanelHeader> */}
+                {/* <PanelHeader
                     left={props.isDesktop ? null : <img src={logoPNG} className="logo" style={{ marginLeft: '16px' }} />}
                     right={
                         props.isDesktop
@@ -237,7 +238,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     ><Icon28WalletOutline/></IconButton>}
                             </div>
                     }
-                ></PanelHeader>
+                ></PanelHeader> */}
                 <Group>
                     <Div>
 
