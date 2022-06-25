@@ -1,4 +1,4 @@
-import { Icon16CancelCircle, Icon24RefreshOutline, Icon28AddCircleOutline, Icon28DoorArrowLeftOutline, Icon28DoorArrowRightOutline, Icon28SortOutline, Icon28SyncOutline, Icon28WalletOutline } from '@vkontakte/icons'
+import { Icon16CancelCircle, Icon24RefreshOutline, Icon28AddCircleOutline, Icon28DoorArrowLeftOutline, Icon28DoorArrowRightOutline, Icon28RefreshOutline, Icon28SnowflakeOutline, Icon28SortOutline, Icon28StatisticsOutline, Icon28SwitchOutline, Icon28SyncOutline, Icon28WalletOutline } from '@vkontakte/icons'
 import {
     Panel,
     PanelHeader,
@@ -17,7 +17,11 @@ import {
     IconButton,
     Slider,
     PanelHeaderButton,
-    Snackbar
+    Snackbar,
+    Tabs,
+    TabsItem,
+    CellButton,
+    SegmentedControl
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -83,6 +87,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     const [ btnSwap, setBtnSwap ] = React.useState<string>('')
 
     const [ typeSwap, setTypeSwap ] = React.useState<boolean>(true)
+
+    const [ typeDex, setTypeDex ] = React.useState<any>('')
 
     async function getPriceSwap () {
         const jwallPriceResp = await tonrpc.request('runGetMethod', {
@@ -241,11 +247,45 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                 ></PanelHeader> */}
                 <Group>
                     <Div>
+                        <SegmentedControl
+                            name="sex"
+                            defaultValue="swap"
+                            onChange={value => {
+                                if (value === 'farms') {
+                                    props.setModal('farms')
+                                    setTypeDex('swap')
+                                } else {
+                                    setTypeDex(value)
+                                }
+                            }}
+                            value={typeDex}
+                            options={[
+                                {
+                                    label: 'Swap',
+                                    value: 'swap'
+                                },
+                                {
+                                    label: 'Farms',
+                                    value: 'farms'
+                                },
+                                {
+                                    label: 'Earn',
+                                    value: 'earn'
+                                }
+                            ]}
+                        />
 
-                        <Div style={{ paddingBottom: 32 }}>
-                            <Title weight="3" level="1">Swap</Title>
-                            <small>Trade token in an instant</small>
-                        </Div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
+                            <Div style={{ paddingBottom: 32 }}>
+                                <Title weight="3" level="1">Swap</Title>
+                                <small>Trade token in an instant</small>
+                            </Div>
+                            <Div>
+                                <IconButton onClick={getPriceSwap}>
+                                    <Icon28RefreshOutline />
+                                </IconButton>
+                            </Div>
+                        </div>
 
                         <CardGrid size="l">
                             {typeSwap
@@ -371,9 +411,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 >Connect wallet</Button>
                             }
                         </Div>
-                        <Div>
+                        {/* <Div>
                             <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => props.setModal('liquidity')} mode="secondary">Add liquidity</Button>
-                        </Div>
+                        </Div> */}
 
                     </Div>
 

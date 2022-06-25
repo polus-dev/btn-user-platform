@@ -17,7 +17,8 @@ import {
     Icon28RefreshOutline,
     Icon28StatisticsOutline,
     Icon28SyncOutline,
-    Icon28WalletOutline
+    Icon28WalletOutline,
+    Icon56AddCircleOutline
 } from '@vkontakte/icons'
 
 import {
@@ -56,7 +57,8 @@ import {
     Spinner,
     IconButton,
     ButtonGroup,
-    CustomSelect
+    CustomSelect,
+    UsersStack
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -112,7 +114,7 @@ export const App: React.FC = () => {
 
     const platform = usePlatform()
 
-    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit', 'add_jetton', 'remove_jetton' ]
+    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit', 'add_jetton', 'remove_jetton', 'farms' ]
 
     const [ modal, setModal ] = React.useState<any>(null)
     const [ popout, setPopout ] = React.useState<any>(null)
@@ -1403,6 +1405,52 @@ export const App: React.FC = () => {
                 </Group>
             </ModalPage>
 
+            <ModalPage
+                id={modals[11]}
+                onClose={() => {
+                    setModal(null)
+                }}
+                header={<ModalPageHeader>Farms</ModalPageHeader>}
+            >
+                <Group>
+                    <Div>
+                        <div style={{ paddingBottom: 32 }}>
+                            <Title weight="3" level="1">Liquidity</Title>
+                            <small>Stake LP tokens to earn</small>
+                        </div>
+                        <CardGrid size="l">
+                            <Card>
+                                <SimpleCell
+                                    disabled
+                                    before={
+                                        <Div style={{ display: 'flex', justifyContent: 'start', alignItems: 'center', paddingLeft: 0 }}>
+                                            <Avatar size={48} src={listJettons[0].img} />
+                                            <Avatar size={48} src={listJettons[1].img} />
+                                        </Div>
+                                    }
+                                    after={
+                                        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+                                            <span style={{ paddingRight: '12px' }}>
+                                                <b>
+                                                    {listJettons[2].balance} BTN-LP
+                                                </b>
+                                            </span>
+                                            <IconButton onClick={() => setModal('liquidity')}>
+                                                <Icon28AddCircleOutline />
+                                            </IconButton>
+                                        </div>
+                                    }
+                                    // description="Бот"
+                                >
+                                    <b>TON-BTN</b>
+                                </SimpleCell>
+                            </Card>
+                        </CardGrid>
+                    </Div>
+
+                </Group>
+            </ModalPage>
+
             {/* confirm */}
             <ModalPage
                 id={modals[6]}
@@ -1568,19 +1616,11 @@ export const App: React.FC = () => {
 
             >
                 <Group>
-                    <Gradient
-                        style={{
-                            margin: '-7px -7px 0 -7px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            textAlign: 'center',
-                            padding: 32
-                        }}
-                    >
-                        {/* <Avatar size={96} /> */}
-                        <small>List of tokens</small>
+                    <Div>
+                        <div style={{ paddingBottom: 32 }}>
+                            <Title weight="3" level="1">Account</Title>
+                            <small>Connect with TonHub on BITON</small>
+                        </div>
                         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
                             <Button size="l" mode="secondary" style={{ marginRight: '12px' }} before={<Icon28ArrowDownOutline />} onClick={() => {
                                 setModal('recive')
@@ -1594,7 +1634,35 @@ export const App: React.FC = () => {
                             </Button>
 
                         </div>
-                    </Gradient>
+                    </Div>
+                    {/* <Gradient
+                        style={{
+                            margin: '-7px -7px 0 -7px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            textAlign: 'center',
+                            padding: '6px 32px 32px'
+                        }}
+                    >
+                        <div style={{ paddingBottom: 8 }}>
+                            <small>Connect with TonHub on BITON</small>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
+                            <Button size="l" mode="secondary" style={{ marginRight: '12px' }} before={<Icon28ArrowDownOutline />} onClick={() => {
+                                setModal('recive')
+                            }}>
+                            Receive
+                            </Button>
+                            <Button size="l" mode="secondary" before={<Icon28ArrowUpOutline/>} onClick={() => {
+                                setModal('send')
+                            }}>
+                            Send
+                            </Button>
+
+                        </div>
+                    </Gradient> */}
 
                     { loadWallet === 1
                         ? <Div>
@@ -1633,23 +1701,32 @@ export const App: React.FC = () => {
                                                 {jetton.name}
                                             </SimpleCell>
                                         )}
+                                        <SimpleCell
+                                            onClick={() => setModal('add_jetton')}
+                                            before={
+                                                <Icon56AddCircleOutline width={48} height={48} />
+                                            }
+                                            // badge={<Icon20DiamondOutline />}
+                                        >
+                                            <b>Add jetton</b>
+                                        </SimpleCell>
                                     </Div>
                                 </Card>
                             </CardGrid>
                             <br />
 
-                            <div>
+                            {/* <div>
                                 <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => setModal('add_jetton')} mode="secondary">Add jetton</Button>
                             </div>
-                            <br />
+                            <br /> */}
 
                             <div>
-                                <Button size='l' stretched onClick={buyBtn}>Buy BTN</Button>
+                                <Button size='s' stretched onClick={buyBtn}>Buy BTN</Button>
                             </div>
                             <br />
 
                             <div>
-                                <Button size='l' stretched mode="secondary" href="https://t.me/sandbox_faucet_bot" target='_blank'>Get TestNet Coins</Button>
+                                <Button size='s' stretched mode="secondary" href="https://t.me/sandbox_faucet_bot" target='_blank'>Get TestNet Coins</Button>
                             </div>
                         </Div>
                         : null
@@ -1658,6 +1735,7 @@ export const App: React.FC = () => {
                 </Group>
             </ModalPage>
 
+            {/* Login */}
             <ModalPage
                 id={modals[4]}
                 onClose={() => setModal(null)}
@@ -1671,7 +1749,7 @@ export const App: React.FC = () => {
                 }>Login</ModalPageHeader>}
             >
                 <Group>
-                    {urlAuHub === null
+                    {urlAuHub === null && false
                         ? <CardGrid size="l">
                             <Card>
                                 <CellButton onClick={login} disabled centered before={<Avatar src='https://ton.org/download/ton_symbol.svg' size={24} />}>
@@ -1706,9 +1784,14 @@ export const App: React.FC = () => {
                 </Group>
             </ModalPage>
 
+            {/* liquidity */}
             <ModalPage
                 id={modals[7]}
-                onClose={() => setModal(null)}
+                onClose={() => {
+                    setInputLiq1('')
+                    setInputLiq2('')
+                    setModal('farms')
+                }}
                 header={<ModalPageHeader>Liquidity</ModalPageHeader>}
             >
                 <Group>
@@ -1738,7 +1821,7 @@ export const App: React.FC = () => {
                             <Card>
                                 <div style={{ display: 'flex' }}>
                                     <FormItem top="Add Biton" style={{ width: '65%' }}>
-                                        <Input placeholder="0.0" value={inputLiq2} onChange={(e) => { }} type={'number'} />
+                                        <Input placeholder="0.0" value={inputLiq2} onChange={() => { }} type={'number'} disabled />
                                     </FormItem>
 
                                     <FormItem top={`Balance: ${Number(balanceBTN).toFixed(2)}`} style={{ width: '20%' }}>
@@ -1769,18 +1852,23 @@ export const App: React.FC = () => {
             <SplitLayout
                 style={{ justifyContent: 'center', paddingTop: isDesktop ? '80px' : '40px' }}
                 header={hasHeader && <PanelHeader separator={false} className={'menu1'} left={
-                    <img src={logoPNG} className="logo" />
+                    <img src={logoPNG} className="logo" style={{ cursor: 'pointer' }} />
                 }
                 right={
                     isDesktop
                         ? <div>
                             {loadWallet === 1
-                                ? <Button
-                                    size="l" appearance="accent" mode="tertiary"
-                                    onClick={() => setModal('wallet')}
-                                    data-story="swap"
-                                    after={<Icon28WalletOutline/>}
-                                >{truncate(address, 13)}</Button>
+                                ? <CardGrid size="l">
+                                    <Card>
+                                        <SimpleCell
+                                            before={<Avatar src={listJettons[0].img} size={28} />}
+                                            onClick={() => setModal('wallet')}
+                                            after={<Icon28WalletOutline/>}
+                                        >
+                                            {truncate(address, 13)}
+                                        </SimpleCell>
+                                    </Card>
+                                </CardGrid>
                                 : <Button
                                     size="l"
                                     onClick={() => setModal('login')}
@@ -1827,7 +1915,7 @@ export const App: React.FC = () => {
                 modal={modalRoot}
             >
                 {isDesktop && false && (
-                    <SplitCol fixed width={280} maxWidth={280}>
+                    <SplitCol fixed width={300} maxWidth={300}>
                         <Panel>
                             {hasHeader && <PanelHeader ><div className="logo-block"><img src="https://biton.pw/static/biton/img/logo.png?1" className="logo" />BITON</div></PanelHeader>}
                             <Group>

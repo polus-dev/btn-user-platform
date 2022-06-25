@@ -10,6 +10,10 @@ body {
     padding: 0!important;
 }
 
+body {
+    /* overflow-x: scroll; */
+}
+
 .vkuiModalPage__in {
     width: 516px!important;
 }
@@ -99,6 +103,22 @@ html,
 
 .menu1 .PanelHeader__in {
     width: 990px!important;
+}
+
+.vkuiModalRoot__mask {
+    backdrop-filter: blur(3px);
+}
+
+.vkuiModalPage--desktop .vkuiModalPage__in {
+    max-height: 800px;
+}
+
+.vkuiModalPage__in {
+    background: #19191ad2;
+}
+
+.vkuiSplitLayout__inner {
+    height: auto;
 }
 
 @media (min-width: 800px) {
