@@ -15,9 +15,9 @@
         ]
     },
     "dependencies": {
-        "@vkontakte/icons": "^1.150.2",
+        "@vkontakte/icons": "^1.172.0",
         "@vkontakte/vk-bridge": "^2.5.3",
-        "@vkontakte/vkui": "^4.28.1",
+        "@vkontakte/vkui": "^4.33.1",
         "axios": "^0.27.2",
         "buffer": "^6.0.3",
         "moment": "^2.29.3",

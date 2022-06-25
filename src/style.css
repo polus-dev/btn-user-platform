@@ -121,6 +121,15 @@ html,
     height: auto;
 }
 
+.fix_input input {
+    font-size: 20px
+}
+
+.fix_input * {
+    border-color: transparent!important;
+    font-size: 20px!important
+}
+
 @media (min-width: 800px) {
     .menu1.vkuiPanelHeader::before,
     .menu1.vkuiPanelHeader .vkuiPanelHeader__in {

@@ -21,7 +21,10 @@ import {
     Tabs,
     TabsItem,
     CellButton,
-    SegmentedControl
+    SegmentedControl,
+    CustomSelect,
+    CustomSelectOption,
+    FormLayoutGroup
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -55,7 +58,11 @@ interface IMyProps {
     btnSwap: string,
     setTorSwap: Function,
     torSwap: string,
-    isDesktop: any
+    isDesktop: any,
+    setActiveStory: Function,
+    listJettons: any,
+    fromJetton: any,
+    setFromJetton: Function
 }
 
 function truncate (fullStr:any, strLen:any) {
@@ -89,6 +96,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     const [ typeSwap, setTypeSwap ] = React.useState<boolean>(true)
 
     const [ typeDex, setTypeDex ] = React.useState<any>('')
+
+    function balanceString (balance2:any) {
+        return Number(Number(balance2).toFixed(2)).toLocaleString('ru')
+    }
 
     async function getPriceSwap () {
         const jwallPriceResp = await tonrpc.request('runGetMethod', {
@@ -186,6 +197,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
             // setAddress('1')
             // login()
             getPriceSwap()
+            setTypeDex('swap')
         }
         load()
     }, [])
@@ -212,7 +224,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     return (
         <View activePanel={props.id} id={props.id}>
             <Panel id={props.id}>
-                {/* <PanelHeader style={{ zIndex: '-1' }}></PanelHeader> */}
+                <PanelHeader></PanelHeader>
                 {/* <PanelHeader
                     left={props.isDesktop ? null : <img src={logoPNG} className="logo" style={{ marginLeft: '16px' }} />}
                     right={
@@ -250,10 +262,12 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                         <SegmentedControl
                             name="sex"
                             defaultValue="swap"
-                            onChange={value => {
+                            onChange={(value) => {
                                 if (value === 'farms') {
                                     props.setModal('farms')
                                     setTypeDex('swap')
+                                } else if (value === 'explorer') {
+                                    props.setActiveStory('explorer')
                                 } else {
                                     setTypeDex(value)
                                 }
@@ -269,8 +283,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     value: 'farms'
                                 },
                                 {
-                                    label: 'Earn',
-                                    value: 'earn'
+                                    label: 'Explorer',
+                                    value: 'explorer'
                                 }
                             ]}
                         />
@@ -288,6 +302,76 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                         </div>
 
                         <CardGrid size="l">
+                            {false
+                            && <Card>
+                                <Div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <small>From</small>
+                                        <small>{`Balance: ${balanceString(props.listJettons[props.fromJetton].balance)}`}</small>
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
+
+                                        <Avatar
+                                            src={props.listJettons[props.fromJetton].img}
+                                            size={38}
+                                        />
+                                        <CustomSelect
+                                            placeholder="BTN"
+                                            selectType="plain"
+                                            className='fix_input'
+                                            options={
+                                                props.listJettons.map(
+                                                    (jetton:any, key:number) => ({
+                                                        label: jetton.name,
+                                                        value: key,
+                                                        avatar: jetton.img,
+                                                        description: `${balanceString(jetton.balance)} ${jetton.symbl}`
+                                                    })
+                                                )
+                                            }
+                                            renderOption={({ option, ...restProps }) => (
+                                                <CustomSelectOption
+                                                    {...restProps}
+                                                    before={
+                                                        <Avatar
+                                                            size={20}
+                                                            src={option.avatar}
+                                                        />
+                                                    }
+                                                    description={option.description}
+                                                />
+
+                                            )}
+                                            value={props.fromJetton}
+                                            onChange={(e:any) => {
+                                                props.setFromJetton(e.target.value)
+                                            }}
+                                        >
+                                        </CustomSelect>
+
+                                        <Input
+                                            placeholder="0.0"
+                                            value={props.btnSwap}
+                                            onChange={(e) => {
+                                                calculatePriceInput(
+                                                    inputNumberSet(e.target.value),
+                                                    true
+                                                )
+                                            }}
+                                            align="right"
+                                            className='fix_input'
+                                            style={
+                                                { border: 'none' }
+                                            }
+                                        />
+
+                                    </div>
+                                </Div>
+
+                            </Card>
+                            }
+
                             {typeSwap
                                 ? <Card>
 

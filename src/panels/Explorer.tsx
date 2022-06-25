@@ -14,7 +14,8 @@ import {
     InfoRow,
     Title,
     ScreenSpinner,
-    Header
+    Header,
+    SegmentedControl
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -36,7 +37,8 @@ interface IMyProps {
     getBalanceBiton: Function,
     getBalanceTon: Function,
     setPopout: Function,
-    getTransAddress: Function
+    getTransAddress: Function,
+    setActiveStory: Function
 }
 
 function truncate (fullStr:any, strLen:any) {
@@ -55,7 +57,6 @@ function truncate (fullStr:any, strLen:any) {
 }
 
 const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
-
     const { tonrpc } = props
     const [ loadWallet, setLoadWallet ] = React.useState<number>(0)
     // const [ address, setAddress ] = React.useState<FrontAddr>(null)
@@ -120,6 +121,35 @@ const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
                 >Explorer</PanelHeader>
                 <Group>
                     <Div>
+                        <SegmentedControl
+                            name="sex"
+                            defaultValue="explorer"
+                            onChange={(value) => {
+                                if (value === 'farms') {
+                                    props.setModal('farms')
+                                    // setTypeDex('swap')
+                                } else if (value === 'swap') {
+                                    props.setActiveStory('swap')
+                                } else {
+                                    // setTypeDex(value)
+                                }
+                            }}
+                            // value={typeDex}
+                            options={[
+                                {
+                                    label: 'Swap',
+                                    value: 'swap'
+                                },
+                                {
+                                    label: 'Farms',
+                                    value: 'farms'
+                                },
+                                {
+                                    label: 'Explorer',
+                                    value: 'explorer'
+                                }
+                            ]}
+                        />
                         <Div style={{ paddingBottom: 16 }}>
                             <Title weight="3" level="1">Explorer</Title>
                             <small>View Biton jetton</small>

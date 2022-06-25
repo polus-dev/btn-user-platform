@@ -58,7 +58,8 @@ import {
     IconButton,
     ButtonGroup,
     CustomSelect,
-    UsersStack
+    UsersStack,
+    CustomSelectOption
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -191,8 +192,8 @@ export const App: React.FC = () => {
             address: ''
         }
     ])
-    const [ fromJetton, setFromJetton ] = React.useState<object>(listJettons[0])
-    const [ toJetton, setToJetton ] = React.useState<object>(listJettons[1])
+    const [ fromJetton, setFromJetton ] = React.useState<number>(0)
+    const [ toJetton, setToJetton ] = React.useState<number>(1)
 
     const [ adderessMintLp, setAdderessMintLp ] = React.useState<any>('')
     const [ adderessUserLp, setAdderessUserLp ] = React.useState<any>('')
@@ -1287,6 +1288,10 @@ export const App: React.FC = () => {
         setListJettonsFromStor(listJettonsT)
     }
 
+    function balanceString (balance2:any) {
+        return Number(Number(balance2).toFixed(2)).toLocaleString('ru')
+    }
+
     const ModalRootFix:any = ModalRoot
     const modalRoot = (
         <ModalRootFix activeModal={modal}>
@@ -1509,23 +1514,36 @@ export const App: React.FC = () => {
                 header={<ModalPageHeader>Send</ModalPageHeader>}
             >
                 <Group>
-                    <FormItem style={{ flexGrow: 1, flexShrink: 1 }} top="Jetton">
+                    <FormItem style={{ flexGrow: 1, flexShrink: 1 }} top="Jetton" bottom={`Balance: ${balanceString(listJettons[selectType].balance)}`} >
+
                         <CustomSelect
                             placeholder="BTN"
-                            options={listJettons.map((jetton:any, key:number) => ({
-                                label: jetton.name,
-                                value: key,
-                                avatar: jetton.img,
-                                description: jetton.symbl
-                            }))
+                            options={
+                                listJettons.map(
+                                    (jetton:any, key:number) => ({
+                                        label: jetton.name,
+                                        value: key,
+                                        avatar: jetton.img,
+                                        description: `${balanceString(jetton.balance)} ${jetton.symbl}`
+                                    })
+                                )
                             }
-                            selectType={selectType}
+                            renderOption={({ option, ...restProps }) => (
+                                <CustomSelectOption
+                                    {...restProps}
+                                    before={
+                                        <Avatar size={20} src={option.avatar} />
+                                    }
+                                    description={option.description}
+                                />
+
+                            )}
                             value={selectType}
                             onChange={(e:any) => {
-                                // console.log('selectTypeChange', e.target.value)
                                 setSelectType(e.target.value)
                             }}
-                        />
+                        >
+                        </CustomSelect>
                     </FormItem>
 
                     <FormItem
@@ -1846,11 +1864,21 @@ export const App: React.FC = () => {
         </ModalRootFix>
     )
 
+    function getWidthCol () {
+        if (isDesktop) {
+            if (activeStory === 'explorer') {
+                return '700px'
+            }
+            return '380px'
+        }
+        return '100%'
+    }
+
     return (
 
         <AppRoot>
             <SplitLayout
-                style={{ justifyContent: 'center', paddingTop: isDesktop ? '80px' : '40px' }}
+                style={{ justifyContent: 'center', paddingTop: isDesktop ? '10px' : '40px' }}
                 header={hasHeader && <PanelHeader separator={false} className={'menu1'} left={
                     <img src={logoPNG} className="logo" style={{ cursor: 'pointer' }} />
                 }
@@ -2030,8 +2058,8 @@ export const App: React.FC = () => {
                 <SplitCol
                     animate={!isDesktop}
                     spaced={isDesktop}
-                    width={isDesktop ? '380px' : '100%'}
-                    maxWidth={isDesktop ? '380px' : '100%'}
+                    width={getWidthCol()}
+                    maxWidth={getWidthCol()}
                 >
                     <Epic
                         activeStory={activeStory}
@@ -2116,6 +2144,7 @@ export const App: React.FC = () => {
                             getBalanceTon={getBalanceTon}
                             setPopout={setPopout}
                             getTransAddress={getTransAddress}
+                            setActiveStory={setActiveStory}
                         />
                         <SwapPanel
                             id={'swap'}
@@ -2140,6 +2169,10 @@ export const App: React.FC = () => {
                             torSwap={torSwap}
                             setTorSwap={setTorSwap}
                             isDesktop={isDesktop}
+                            setActiveStory={setActiveStory}
+                            listJettons={listJettons}
+                            fromJetton={fromJetton}
+                            setFromJetton={setFromJetton}
                         />
                     </Epic>
                 </SplitCol>
