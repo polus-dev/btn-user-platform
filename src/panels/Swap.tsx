@@ -62,7 +62,9 @@ interface IMyProps {
     setActiveStory: Function,
     listJettons: any,
     fromJetton: any,
-    setFromJetton: Function
+    setFromJetton: Function,
+    toJetton: any,
+    setToJetton: Function
 }
 
 function truncate (fullStr:any, strLen:any) {
@@ -102,8 +104,11 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     }
 
     async function getPriceSwap () {
+        const address2 = props.fromJetton === 0
+            ? props.listJettons[props.toJetton].addressSwap
+            : props.listJettons[props.fromJetton].addressSwap
         const jwallPriceResp = await tonrpc.request('runGetMethod', {
-            address: props.ContrBTNSwapAddress,
+            address: address2,
             method: 'get_price',
             stack: [ ]
         })
@@ -221,6 +226,60 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         return ''
     }
 
+    function sliceArr (arr:any, i:any) {
+        const arr2 = JSON.stringify(arr)
+        const arr3 = JSON.parse(arr2)
+        arr3.splice(i, 1)
+        return arr3
+    }
+
+    function calculateAmountNew (amount:any, type:any) {
+        const amountN = Number(amount)
+        if (type === 0) { // from
+            if (props.fromJetton === 0) { // from ton to jetton
+                const amountTo = typeSwap
+                    ? parseFloat(priceSwapTon) * amountN
+                    : parseFloat(priceSwap) * amountN
+            }
+        } else { // to
+
+        }
+    }
+
+    function changeJetton (jetton:any, type:any) {
+        getPriceSwap()
+
+        if (type === 0) { // from
+            if (Number(jetton) === Number(props.toJetton)) {
+                // если юзер выбрал 2 одинаковых жетона - меняем местами
+                props.setToJetton(Number(props.fromJetton))
+            } else if (Number(props.toJetton) === 0) {
+                // если юзер хочет поменять тон на жетон - поставить тон в другой выбор
+                props.setToJetton(0)
+            } else if (Number(props.fromJetton) === 0) {
+                props.setToJetton(0)
+            }
+            props.setFromJetton(Number(jetton))
+        } else { // to
+            if (Number(jetton) === Number(props.fromJetton)) {
+                // если юзер выбрал 2 одинаковых жетона - меняем местами
+                props.setFromJetton(Number(props.toJetton))
+            } else if (Number(props.toJetton) === 0) {
+                // если юзер хочет поменять тон на жетон - поставить тон в другой выбор
+                props.setFromJetton(0)
+            } else if (Number(props.fromJetton) === 0) {
+                props.setFromJetton(0)
+            }
+            props.setToJetton(Number(jetton))
+        }
+    }
+
+    function filterArr (arr:any) {
+        const result = arr.filter((jetton:any) => jetton.addressSwap !== '')
+        console.log(result)
+        return result
+    }
+
     return (
         <View activePanel={props.id} id={props.id}>
             <Panel id={props.id}>
@@ -302,77 +361,165 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                         </div>
 
                         <CardGrid size="l">
-                            {false
-                            && <Card>
-                                <Div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <small>From</small>
-                                        <small>{`Balance: ${balanceString(props.listJettons[props.fromJetton].balance)}`}</small>
-                                    </div>
+                            {true
+                            && <div>
+                                <Card>
+                                    <Div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <small>From</small>
+                                            <small>{`Balance: ${balanceString(props.listJettons[props.fromJetton].balance)}`}</small>
+                                        </div>
 
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
 
-                                        <Avatar
-                                            src={props.listJettons[props.fromJetton].img}
-                                            size={38}
-                                        />
-                                        <CustomSelect
-                                            placeholder="BTN"
-                                            selectType="plain"
-                                            className='fix_input'
-                                            options={
-                                                props.listJettons.map(
-                                                    (jetton:any, key:number) => ({
-                                                        label: jetton.name,
-                                                        value: key,
-                                                        avatar: jetton.img,
-                                                        description: `${balanceString(jetton.balance)} ${jetton.symbl}`
-                                                    })
-                                                )
-                                            }
-                                            renderOption={({ option, ...restProps }) => (
-                                                <CustomSelectOption
-                                                    {...restProps}
-                                                    before={
-                                                        <Avatar
-                                                            size={20}
-                                                            src={option.avatar}
-                                                        />
-                                                    }
-                                                    description={option.description}
-                                                />
+                                            <Avatar
+                                                src={props.listJettons[props.fromJetton].img}
+                                                size={34}
+                                            />
+                                            <CustomSelect
+                                                placeholder="BTN"
+                                                selectType="plain"
+                                                className='fix_input'
+                                                style={{ maxWidth: '38%' }}
+                                                options={
+                                                    filterArr(props.listJettons).map(
+                                                        (jetton:any, key:number) => ({
+                                                            label: jetton.symbl,
+                                                            value: key,
+                                                            avatar: jetton.img,
+                                                            description: `${balanceString(jetton.balance)} ${jetton.symbl}`
+                                                        })
+                                                    )
+                                                }
+                                                renderOption={({ option, ...restProps }) => (
 
-                                            )}
-                                            value={props.fromJetton}
-                                            onChange={(e:any) => {
-                                                props.setFromJetton(e.target.value)
-                                            }}
-                                        >
-                                        </CustomSelect>
+                                                    <CustomSelectOption
+                                                        {...restProps}
+                                                        before={
+                                                            <Avatar
+                                                                size={20}
+                                                                src={option.avatar}
+                                                            />
+                                                        }
+                                                        // description={option.description}
+                                                    />
 
-                                        <Input
-                                            placeholder="0.0"
-                                            value={props.btnSwap}
-                                            onChange={(e) => {
-                                                calculatePriceInput(
-                                                    inputNumberSet(e.target.value),
-                                                    true
-                                                )
-                                            }}
-                                            align="right"
-                                            className='fix_input'
-                                            style={
-                                                { border: 'none' }
-                                            }
-                                        />
+                                                )}
+                                                value={props.fromJetton}
+                                                onChange={(e:any) => {
+                                                    changeJetton(e.target.value, 0)
+                                                }}
+                                            >
+                                            </CustomSelect>
 
-                                    </div>
+                                            <Input
+                                                placeholder="0.0"
+                                                value={props.btnSwap}
+                                                onChange={(e) => {
+                                                    calculatePriceInput(
+                                                        inputNumberSet(e.target.value),
+                                                        true
+                                                    )
+                                                }}
+                                                align="right"
+                                                className='fix_input'
+                                                style={
+                                                    { border: 'none' }
+                                                }
+                                            />
+
+                                        </div>
+                                    </Div>
+
+                                </Card>
+
+                                <Div style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    marginBottom: '-8px',
+                                    color: 'var(--accent)',
+                                    width: '100%'
+                                }}>
+                                    <IconButton onClick={() => changeJetton(props.toJetton, 0)}>
+                                        <Icon28SortOutline/>
+                                    </IconButton>
                                 </Div>
 
-                            </Card>
+                                <Card>
+                                    <Div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <small>To</small>
+                                            <small>{`Balance: ${balanceString(props.listJettons[props.toJetton].balance)}`}</small>
+                                        </div>
+
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
+
+                                            <Avatar
+                                                src={props.listJettons[props.toJetton].img}
+                                                size={34}
+                                            />
+                                            <CustomSelect
+                                                placeholder="BTN"
+                                                selectType="plain"
+                                                className='fix_input'
+                                                style={{ maxWidth: '38%' }}
+                                                options={
+                                                    filterArr(props.listJettons).map(
+                                                        (jetton:any, key:number) => (
+                                                            {
+                                                                label: jetton.symbl,
+                                                                value: key,
+                                                                avatar: jetton.img,
+                                                                description: `${balanceString(jetton.balance)} ${jetton.symbl}`
+                                                            }
+                                                        )
+                                                    )
+                                                }
+                                                renderOption={({ option, ...restProps }) => (
+                                                    <CustomSelectOption
+                                                        {...restProps}
+                                                        before={
+                                                            <Avatar
+                                                                size={20}
+                                                                src={option.avatar}
+                                                            />
+                                                        }
+                                                        // description={option.description}
+                                                    />
+
+                                                )}
+                                                value={props.toJetton}
+                                                onChange={(e:any) => {
+                                                    changeJetton(e.target.value, 1)
+                                                }}
+                                            >
+                                            </CustomSelect>
+
+                                            <Input
+                                                placeholder="0.0"
+                                                value={tonSwap}
+                                                onChange={(e) => {
+                                                    calculatePriceInput(
+                                                        inputNumberSet(e.target.value),
+                                                        false
+                                                    )
+                                                }}
+                                                align="right"
+                                                className='fix_input'
+                                                style={
+                                                    { border: 'none' }
+                                                }
+                                            />
+
+                                        </div>
+                                    </Div>
+
+                                </Card>
+                            </div>
                             }
 
-                            {typeSwap
+                            {/* {typeSwap
                                 ? <Card>
 
                                     <div style={{ display: 'flex' }}>
@@ -451,7 +598,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     </div>
 
                                 </Card>
-                            }
+                            } */}
                         </CardGrid>
                         <Div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center' }}>
                             <small>Price</small>
@@ -459,10 +606,6 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 ? <small> {priceSwapTon} BTN per 1 TON</small>
                                 : <small> {priceSwap} TON per 1 BTN</small>
                             }
-                            <Icon24RefreshOutline width={16} height={16} onClick={() => {
-                                // props.login()
-                                getPriceSwap()
-                            }} style={{ cursor: 'pointer' }} />
 
                         </Div>
                         <FormItem top="Slippage Tolerance" bottom={`${props.torSwap} %`}>

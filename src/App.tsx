@@ -166,7 +166,8 @@ export const App: React.FC = () => {
             max: 1000,
             wallet: '',
             balance: 0,
-            address: ''
+            address: '',
+            addressSwap: '-'
         }, {
             id: 2,
             name: 'BITON',
@@ -177,7 +178,8 @@ export const App: React.FC = () => {
             max: 1000,
             wallet: '',
             balance: 0,
-            address: ContrBTNAddress
+            address: ContrBTNAddress,
+            addressSwap: ContrBTNSwapAddress
         },
         {
             id: 3,
@@ -189,7 +191,8 @@ export const App: React.FC = () => {
             max: 1000,
             wallet: '',
             balance: 0,
-            address: ''
+            address: '',
+            addressSwap: ''
         }
     ])
     const [ fromJetton, setFromJetton ] = React.useState<number>(0)
@@ -283,7 +286,8 @@ export const App: React.FC = () => {
                 max: 1000,
                 wallet: jwallAddressBounceable,
                 balance: balanceJ,
-                address: addressJetton
+                address: addressJetton,
+                addressSwap: ''
             }
         )
         setListJettons(listJettonsT)
@@ -1696,7 +1700,7 @@ export const App: React.FC = () => {
                                                 after={
                                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                                         <b>
-                                                            {Number(jetton.balance).toFixed(2)}
+                                                            {balanceString(jetton.balance)}
                                                             {` ${jetton.symbl}`}
                                                         </b>
                                                         {key > 2
@@ -2173,6 +2177,8 @@ export const App: React.FC = () => {
                             listJettons={listJettons}
                             fromJetton={fromJetton}
                             setFromJetton={setFromJetton}
+                            toJetton={toJetton}
+                            setToJetton={setToJetton}
                         />
                     </Epic>
                 </SplitCol>
