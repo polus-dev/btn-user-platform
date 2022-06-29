@@ -92,7 +92,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     const [ priceSwap, setPriceSwap ] = React.useState<string>('0')
     const [ priceSwapTon, setPriceSwapTon ] = React.useState<string>('0')
 
-    const [ tonSwap, setTonSwap ] = React.useState<string>('')
+    const [ tonSwap, setTonSwap ] = React.useState<any>('')
     const [ btnSwap, setBtnSwap ] = React.useState<string>('')
 
     const [ typeSwap, setTypeSwap ] = React.useState<boolean>(true)
@@ -234,16 +234,39 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     }
 
     function calculateAmountNew (amount:any, type:any) {
-        const amountN = Number(amount)
-        if (type === 0) { // from
-            if (props.fromJetton === 0) { // from ton to jetton
-                const amountTo = typeSwap
-                    ? parseFloat(priceSwapTon) * amountN
-                    : parseFloat(priceSwap) * amountN
-            }
-        } else { // to
+        if (amount === '') {
+            props.setBtnSwap('')
+            setTonSwap('')
+        } else {
+            const amountN = Number(amount)
+            if (type === 0) { // from
+                let amountTo = 0
+                if (props.fromJetton === 0) { // from ton to jetton
+                    amountTo = parseFloat(priceSwapTon) * amountN
+                } else { // from jetton to ton
+                    amountTo = parseFloat(priceSwap) * amountN
+                }
 
+                setTonSwap(parseFloat(amountTo.toFixed(10)).toFixed(9))
+                props.setBtnSwap(amount)
+            } else { // to
+                let amountFrom = 0
+                if (props.fromJetton === 0) { // from ton to jetton
+                    amountFrom = parseFloat(priceSwapTon) * amountN
+                } else { // from jetton to ton
+                    amountFrom = parseFloat(priceSwap) * amountN
+                }
+
+                props.setBtnSwap(parseFloat(amountFrom.toFixed(10)).toFixed(9))
+                setTonSwap(amount)
+            }
         }
+    }
+
+    function resyncInputAmount () {
+        const tonSwapCopy = tonSwap
+        setTonSwap(Number(props.btnSwap))
+        props.setBtnSwap(Number(tonSwapCopy))
     }
 
     function changeJetton (jetton:any, type:any) {
@@ -272,11 +295,13 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
             }
             props.setToJetton(Number(jetton))
         }
+
+        calculateAmountNew(props.btnSwap, 0)
     }
 
     function filterArr (arr:any) {
         const result = arr.filter((jetton:any) => jetton.addressSwap !== '')
-        console.log(result)
+        // console.log(result)
         return result
     }
 
@@ -377,7 +402,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 size={34}
                                             />
                                             <CustomSelect
-                                                placeholder="BTN"
+                                                placeholder="TON"
                                                 selectType="plain"
                                                 className='fix_input'
                                                 style={{ maxWidth: '38%' }}
@@ -416,9 +441,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 placeholder="0.0"
                                                 value={props.btnSwap}
                                                 onChange={(e) => {
-                                                    calculatePriceInput(
+                                                    calculateAmountNew(
                                                         inputNumberSet(e.target.value),
-                                                        true
+                                                        0
                                                     )
                                                 }}
                                                 align="right"
@@ -441,7 +466,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     color: 'var(--accent)',
                                     width: '100%'
                                 }}>
-                                    <IconButton onClick={() => changeJetton(props.toJetton, 0)}>
+                                    <IconButton onClick={() => {
+                                        changeJetton(props.toJetton, 0)
+                                        resyncInputAmount()
+                                    }}>
                                         <Icon28SortOutline/>
                                     </IconButton>
                                 </Div>
@@ -500,9 +528,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 placeholder="0.0"
                                                 value={tonSwap}
                                                 onChange={(e) => {
-                                                    calculatePriceInput(
+                                                    calculateAmountNew(
                                                         inputNumberSet(e.target.value),
-                                                        false
+                                                        1
                                                     )
                                                 }}
                                                 align="right"
@@ -602,9 +630,13 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                         </CardGrid>
                         <Div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center' }}>
                             <small>Price</small>
-                            {typeSwap
-                                ? <small> {priceSwapTon} BTN per 1 TON</small>
-                                : <small> {priceSwap} TON per 1 BTN</small>
+                            {Number(props.fromJetton) === 0
+                                ? <small>
+                                    {`${priceSwapTon} ${props.listJettons[props.toJetton].symbl} per 1 ${props.listJettons[props.fromJetton].symbl}`}
+                                </small>
+                                : <small>
+                                    {`${priceSwap} ${props.listJettons[props.fromJetton].symbl} per 1 ${props.listJettons[props.toJetton].symbl}`}
+                                </small>
                             }
 
                         </Div>

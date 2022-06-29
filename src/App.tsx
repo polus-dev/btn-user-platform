@@ -113,49 +113,7 @@ export const App: React.FC = () => {
     const ContrBTNAddress = 'kQDokczBRtbRnuWDrHiEalB3Uqnl6sTsuGwx1H3WmJqJgBxb'
     const ContrBTNSwapAddress = 'kQAXGz4GcdLJYcNaLGJON_qQisWHdKwIHP93eGxfZDaHhAC3'
 
-    const platform = usePlatform()
-
-    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit', 'add_jetton', 'remove_jetton', 'farms' ]
-
-    const [ modal, setModal ] = React.useState<any>(null)
-    const [ popout, setPopout ] = React.useState<any>(null)
-    const [ snackbar, setSnackbar ] = React.useState<any>(null)
-
-    const [ activeStory, setActiveStory ] = React.useState<any>('swap')
-
-    const [ address, setAddress ] = React.useState<string>('') // адрес кошелька юзера
-
-    const [ balance, setBalance ] = React.useState<any>(0) // баланс тонов юзера
-
-    const [ balanceBTN, setBalanceBTN ] = React.useState<number>(0) // баланс битонов юзера
-
-    const [ addressJopa, setAddressJopa ] = React.useState<string>('') // адрес жетон валета ???
-
-    const [ addressSend, setAddressSend ] = React.useState<string>('') // адрес на который отправить битоны (инпут)
-    const [ amountSend, setAmountSend ] = React.useState<string>('') // сумма отправки битонов (инпут)
-    const [ forwardSend, setForwardSend ] = React.useState<boolean>(false) // нужен ли форвард
-
-    const [ loadWallet, setLoadWallet ] = React.useState<number>(0) // загрузка кошелька
-    const [ typeWallet, setTypeWallet ] = React.useState<number>(0) // тип кошелька 1 - тонхаб
-    const [ WalletHub, setWalletHub ] = React.useState<any>(null) // объект кошелька тонхаб
-    const [ sessionHub, setSessionHub ] = React.useState<any>(null) // объект сессии тонхаб
-
-    const [ urlAuHub, setUrlAuHub ] = React.useState<any>(null) // юрл авторизации для тонхаб
-
-    const [ swapConfirm, setSwapConfirm ] = React.useState<any>(null) // объект подтерждения свопа
-    const [ btnSwap, setBtnSwap ] = React.useState<string>('') // сумма монет из 1 поля
-
-    const [ inputLiq1, setInputLiq1 ] = React.useState<string>('') // сумма монет из 1 поля ликвидность
-    const [ inputLiq2, setInputLiq2 ] = React.useState<string>('') // сумма монет из 2 поля ликвидность
-    const [ liqprop, setLiqprop ] = React.useState<number>(0) // линейный курс для ликвида
-
-    const [ torSwap, setTorSwap ] = React.useState<string>('5') // Slippage Tolerance
-
-    const [ indexArrayDelJetton, setIndexArrayDelJetton ] = React.useState<any>(null) // индекс жетона который необходимо удалить
-
-    const [ cookies, setCookie, removeCookie ] = useCookies([ 'session', 'session_hub' ]) // куки
-
-    const [ listJettons, setListJettons ] = React.useState<any>([
+    const listJTestNet:any = [
         {
             id: 1,
             name: 'TON',
@@ -194,9 +152,73 @@ export const App: React.FC = () => {
             address: '',
             addressSwap: ''
         }
-    ])
-    const [ fromJetton, setFromJetton ] = React.useState<number>(0)
-    const [ toJetton, setToJetton ] = React.useState<number>(1)
+    ]
+
+    const listJMainNet:any = [
+        {
+            id: 1,
+            name: 'TON',
+            symbl: 'TON',
+            img: 'https://ton.org/_next/static/media/apple-touch-icon.d723311b.png',
+            price: 1,
+            min: 0.1,
+            max: 1000,
+            wallet: '',
+            balance: 0,
+            address: '',
+            addressSwap: '-'
+        }
+    ]
+
+    const platform = usePlatform()
+
+    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit', 'add_jetton', 'remove_jetton', 'farms' ]
+
+    const [ modal, setModal ] = React.useState<any>(null)
+    const [ popout, setPopout ] = React.useState<any>(null)
+    const [ snackbar, setSnackbar ] = React.useState<any>(null)
+
+    const [ activeStory, setActiveStory ] = React.useState<any>('swap')
+
+    const [ address, setAddress ] = React.useState<string>('') // адрес кошелька юзера
+
+    const [ balance, setBalance ] = React.useState<any>(0) // баланс тонов юзера
+
+    const [ balanceBTN, setBalanceBTN ] = React.useState<number>(0) // баланс битонов юзера
+
+    const [ addressJopa, setAddressJopa ] = React.useState<string>('') // адрес жетон валета ???
+
+    const [ addressSend, setAddressSend ] = React.useState<string>('') // адрес на который отправить битоны (инпут)
+    const [ amountSend, setAmountSend ] = React.useState<string>('') // сумма отправки битонов (инпут)
+    const [ forwardSend, setForwardSend ] = React.useState<boolean>(false) // нужен ли форвард
+
+    const [ loadWallet, setLoadWallet ] = React.useState<number>(0) // загрузка кошелька
+    const [ typeWallet, setTypeWallet ] = React.useState<number>(0) // тип кошелька 1 - тонхаб
+    const [ WalletHub, setWalletHub ] = React.useState<any>(null) // объект кошелька тонхаб
+    const [ sessionHub, setSessionHub ] = React.useState<any>(null) // объект сессии тонхаб
+
+    const [ urlAuHub, setUrlAuHub ] = React.useState<any>(null) // юрл авторизации для тонхаб
+
+    const [ swapConfirm, setSwapConfirm ] = React.useState<any>(null) // объект подтерждения свопа
+    const [ btnSwap, setBtnSwap ] = React.useState<string>('') // сумма монет из 1 поля
+
+    const [ inputLiq1, setInputLiq1 ] = React.useState<string>('') // сумма монет из 1 поля ликвидность
+    const [ inputLiq2, setInputLiq2 ] = React.useState<string>('') // сумма монет из 2 поля ликвидность
+    const [ liqprop, setLiqprop ] = React.useState<number>(0) // линейный курс для ликвида
+    const [ liqprop2, setLiqprop2 ] = React.useState<number>(0) // линейный курс для ликвида
+
+    const [ torSwap, setTorSwap ] = React.useState<string>('5') // Slippage Tolerance
+
+    const [ indexArrayDelJetton, setIndexArrayDelJetton ] = React.useState<any>(null) // индекс жетона который необходимо удалить
+
+    const [ cookies, setCookie, removeCookie ] = useCookies([ 'session', 'session_hub' ]) // куки
+
+    const [ listJettons, setListJettons ] = React.useState<any>(
+        listJTestNet
+    ) // список жетонов в дексе
+
+    const [ fromJetton, setFromJetton ] = React.useState<number>(0) // первый жетон в дексе на обмен
+    const [ toJetton, setToJetton ] = React.useState<number>(1) // второй жетон в дексе на обмен
 
     const [ adderessMintLp, setAdderessMintLp ] = React.useState<any>('')
     const [ adderessUserLp, setAdderessUserLp ] = React.useState<any>('')
@@ -205,6 +227,8 @@ export const App: React.FC = () => {
 
     const [ selectType, setSelectType ] = React.useState<any>('1') // выбор жетона для перевода
 
+    const [ dexType, setDexType ] = React.useState<number>(0) // выбор жетона для перевода
+
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
     }
@@ -212,7 +236,23 @@ export const App: React.FC = () => {
     const isDesktop = window.innerWidth >= 1000
     const hasHeader = platform !== VKCOM
 
-    const tonrpc = new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
+    function setListJettonsFromDexType (address2:any = address) {
+        if (dexType) { // mainnet
+            if (address2 !== '') {
+                getJettonWalletAddress('EQBdR5fufKRyJ_ZCT8gnrpW6aal6cz0KWjr4rlimx-ommXvf', address2)
+            }
+            return listJMainNet
+        } // testnet
+        return listJTestNet
+    }
+
+    function createTonRPC () {
+        if (dexType) { // mainnet
+            return new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
+        } // testnet
+        return new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
+    }
+    const tonrpc = createTonRPC()
 
     function setListJettonsFromStor (list:any) {
         localStorage.setItem('jettons', JSON.stringify(list))
@@ -552,6 +592,8 @@ export const App: React.FC = () => {
         removeCookie('session')
 
         removeCookie('session_hub')
+
+        // loginHub ()
     }
 
     async function getTransAddress (addressW:any = address, type:boolean = true) {
@@ -651,6 +693,12 @@ export const App: React.FC = () => {
         if (jwallPriceResp.data.ok === true) {
             setLiqprop(
                 parseFloat((Number(jwallPriceResp.data.result.stack[0][1]) / 10 ** 9).toFixed(9))
+            )
+
+            setLiqprop2(
+                parseFloat(
+                    (1 / (Number(jwallPriceResp.data.result.stack[0][1]) / 10 ** 9)).toFixed(9)
+                )
             )
         }
         console.log(jwallPriceResp)
@@ -771,6 +819,8 @@ export const App: React.FC = () => {
             // loadBalanceFromListJettons(listJ)
             loadWalletAddressFromListJettons(listJ, sess.wallet.address)
 
+            setListJettons(setListJettonsFromDexType(sess.wallet.address))
+
             setLoadWallet(1)
         }
     }
@@ -828,6 +878,8 @@ export const App: React.FC = () => {
                 // loadBalanceFromListJettons(listJ)
                 loadWalletAddressFromListJettons(listJ, session.wallet.address)
 
+                setListJettons(setListJettonsFromDexType(session.wallet.address))
+
                 setPopout(null)
             } else {
                 setUrlAuHub(null)
@@ -875,6 +927,9 @@ export const App: React.FC = () => {
 
             loginCook()
             getPriceLP()
+            // loginHub()
+
+            setListJettons(setListJettonsFromDexType()) // временно
         }
 
         load()
@@ -892,7 +947,7 @@ export const App: React.FC = () => {
         const boc = BOC.toBase64Standard(msg)
         const windowTon:any = window
         if (windowTon.ton) {
-            const singTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 100000000, to: addressJopa, dataType: 'boc', data: boc } ])
+            const singTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 100000000, to: listJettons[1].wallet, dataType: 'boc', data: boc } ])
             console.log(singTon)
             setAddressSend('')
             setAmountSend('')
@@ -903,7 +958,7 @@ export const App: React.FC = () => {
 
     // основная функция отправка транс через тонхаб
     async function sendBocTHub (
-        addressJopa1: any = addressJopa,
+        addressJopa1: any = listJettons[1].wallet,
         valueTon: any = '100000000',
         boc1: any = null
     ): Promise<Object> {
@@ -911,10 +966,10 @@ export const App: React.FC = () => {
             // setPopout(<ScreenSpinner />)
             setModal('confirm')
             // const windowTon:any = window
-            // console.log(boc1)
+            console.log('addressJopa1', addressJopa1)
 
-            // console.log('WalletHub', WalletHub)
-            // console.log('sessionHub', sessionHub)
+            console.log('WalletHub', WalletHub)
+            console.log('sessionHub', sessionHub)
             // Request body
             const request: TonhubTransactionRequest = {
                 seed: sessionHub.seed, // Session Seed
@@ -985,10 +1040,11 @@ export const App: React.FC = () => {
             forwardTonAmount: new Coins(forwardSend ? 0.1 : 0)
         })
         const boc = BOC.toBase64Standard(msg)
-        const result:any = await sendBocTHub(addressJopa, '100000000', boc)
+        const result:any = await sendBocTHub(listJettons[1].wallet, '100000000', boc)
 
         if (result.type === 'error') {
             console.error(result)
+            setModal(null)
             setSnackbar(<Snackbar
                 onClose={() => setSnackbar(null)}
                 before={
@@ -1029,6 +1085,7 @@ export const App: React.FC = () => {
 
                 if (result.type === 'error') {
                     console.error(result)
+                    setModal(null)
                     setSnackbar(<Snackbar
                         onClose={() => setSnackbar(null)}
                         before={
@@ -1062,6 +1119,7 @@ export const App: React.FC = () => {
 
         if (result.type === 'error') {
             console.error(result)
+            setModal(null)
             setSnackbar(<Snackbar
                 onClose={() => setSnackbar(null)}
                 before={
@@ -1096,6 +1154,7 @@ export const App: React.FC = () => {
 
         if (result.type === 'error') {
             console.error(result)
+            setModal(null)
             setSnackbar(<Snackbar
                 onClose={() => setSnackbar(null)}
                 before={
@@ -1134,13 +1193,14 @@ export const App: React.FC = () => {
             })
 
             const result: any = await sendBocTHub(
-                addressJopa,
+                listJettons[1].wallet,
                 new Coins(0.1).toNano(),
                 BOC.toBase64Standard(msg)
             )
 
             if (result.type === 'error') {
                 console.error(result)
+                setModal(null)
                 setSnackbar(<Snackbar
                     onClose={() => setSnackbar(null)}
                     before={
@@ -1198,13 +1258,14 @@ export const App: React.FC = () => {
         })
         const boc = BOC.toBase64Standard(msg)
         const result:any = await sendBocTHub(
-            addressJopa,
+            listJettons[1].wallet,
             new Coins(inputLiq1).add(0.2).toNano(),
             boc
         )
 
         if (result.type === 'error') {
-            console.error(result)
+            console.error('error addLiq', result)
+            console.error('addressJopa', listJettons[1].wallet)
             setSnackbar(<Snackbar
                 onClose={() => setSnackbar(null)}
                 before={
@@ -1294,6 +1355,51 @@ export const App: React.FC = () => {
 
     function balanceString (balance2:any) {
         return Number(Number(balance2).toFixed(2)).toLocaleString('ru')
+    }
+
+    function calculateAmountNew (amount:any, type:any) {
+        if (amount === '') {
+            setInputLiq1('')
+            setInputLiq2('')
+        } else {
+            const amountN = Number(amount)
+            if (type === 0) { // from
+                const amountTo = liqprop * amountN
+
+                setInputLiq2(parseFloat(amountTo.toFixed(10)).toFixed(9))
+                setInputLiq1(amount)
+            } else { // to
+                const amountFrom = liqprop2 * amountN
+
+                setInputLiq1(parseFloat(amountFrom.toFixed(10)).toFixed(9))
+                setInputLiq2(amount)
+            }
+        }
+    }
+
+    function inputNumberSet (value:string) {
+        if (value !== '') {
+            const numValue = Number(value)
+            const isN = Number.isNaN(numValue)
+            if (isN === false) {
+                if (numValue > 0) {
+                    if (numValue < 10000) {
+                        return value
+                    }
+                    return '10000'
+                }
+                return '0'
+            }
+            console.log('erro1')
+            return ''
+        }
+        return ''
+    }
+
+    function filterArr (arr:any) {
+        const result = arr.filter((jetton:any) => jetton.addressSwap !== '')
+        // console.log(result)
+        return result
     }
 
     const ModalRootFix:any = ModalRoot
@@ -1428,32 +1534,34 @@ export const App: React.FC = () => {
                             <small>Stake LP tokens to earn</small>
                         </div>
                         <CardGrid size="l">
-                            <Card>
-                                <SimpleCell
-                                    disabled
-                                    before={
-                                        <Div style={{ display: 'flex', justifyContent: 'start', alignItems: 'center', paddingLeft: 0 }}>
-                                            <Avatar size={48} src={listJettons[0].img} />
-                                            <Avatar size={48} src={listJettons[1].img} />
-                                        </Div>
-                                    }
-                                    after={
-                                        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                                            <span style={{ paddingRight: '12px' }}>
-                                                <b>
-                                                    {listJettons[2].balance} BTN-LP
-                                                </b>
-                                            </span>
-                                            <IconButton onClick={() => setModal('liquidity')}>
-                                                <Icon28AddCircleOutline />
-                                            </IconButton>
-                                        </div>
-                                    }
+                            {listJettons.length > 1
+                                ? <Card>
+                                    <SimpleCell
+                                        disabled
+                                        before={
+                                            <Div style={{ display: 'flex', justifyContent: 'start', alignItems: 'center', paddingLeft: 0 }}>
+                                                <Avatar size={48} src={listJettons[0].img} />
+                                                <Avatar size={48} src={listJettons[1].img} />
+                                            </Div>
+                                        }
+                                        after={
+                                            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+                                                <span style={{ paddingRight: '12px' }}>
+                                                    <b>
+                                                        {listJettons[2].balance} BTN-LP
+                                                    </b>
+                                                </span>
+                                                <IconButton onClick={() => setModal('liquidity')}>
+                                                    <Icon28AddCircleOutline />
+                                                </IconButton>
+                                            </div>
+                                        }
                                     // description="Бот"
-                                >
-                                    <b>TON-BTN</b>
-                                </SimpleCell>
-                            </Card>
+                                    >
+                                        <b>TON-BTN</b>
+                                    </SimpleCell>
+                                </Card>
+                                : null }
                         </CardGrid>
                     </Div>
 
@@ -1825,7 +1933,7 @@ export const App: React.FC = () => {
 
                         <CardGrid size="l">
                             <Card>
-                                <div style={{ display: 'flex' }}>
+                                {/* <div style={{ display: 'flex' }}>
                                     <FormItem top="Add Ton" style={{ width: '65%' }}>
                                         <Input placeholder="0.0" value={inputLiq1} onChange={(e) => { calculatePriceInput(e.target.value) }} type={'number'} />
                                     </FormItem>
@@ -1837,23 +1945,144 @@ export const App: React.FC = () => {
                                         >TON</Cell>
                                     </FormItem>
 
-                                </div>
+                                </div> */}
+
+                                <Div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <small>From</small>
+                                        <small>{`Balance: ${balanceString(listJettons[0].balance)}`}</small>
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
+
+                                        <Avatar
+                                            src={listJettons[0].img}
+                                            size={34}
+                                        />
+                                        <CustomSelect
+                                            placeholder="TON"
+                                            selectType="plain"
+                                            className='fix_input'
+                                            style={{ maxWidth: '38%' }}
+                                            disabled
+                                            options={
+                                                filterArr(listJettons).map(
+                                                    (jetton:any, key:number) => ({
+                                                        label: jetton.symbl,
+                                                        value: key,
+                                                        avatar: jetton.img,
+                                                        description: `${balanceString(jetton.balance)} ${jetton.symbl}`
+                                                    })
+                                                )
+                                            }
+                                            renderOption={({ option, ...restProps }) => (
+
+                                                <CustomSelectOption
+                                                    {...restProps}
+                                                    before={
+                                                        <Avatar
+                                                            size={20}
+                                                            src={option.avatar}
+                                                        />
+                                                    }
+                                                    // description={option.description}
+                                                />
+
+                                            )}
+                                            value={0}
+                                            onChange={(e:any) => {
+                                            }}
+                                        >
+                                        </CustomSelect>
+
+                                        <Input
+                                            placeholder="0.0"
+                                            value={inputLiq1}
+                                            onChange={(e) => {
+                                                calculateAmountNew(
+                                                    inputNumberSet(e.target.value),
+                                                    0
+                                                )
+                                            }}
+                                            align="right"
+                                            className='fix_input'
+                                            style={
+                                                { border: 'none' }
+                                            }
+                                        />
+
+                                    </div>
+                                </Div>
+
                             </Card>
 
                             <Card>
-                                <div style={{ display: 'flex' }}>
-                                    <FormItem top="Add Biton" style={{ width: '65%' }}>
-                                        <Input placeholder="0.0" value={inputLiq2} onChange={() => { }} type={'number'} disabled />
-                                    </FormItem>
+                                <Div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <small>From</small>
+                                        <small>{`Balance: ${balanceString(listJettons[1].balance)}`}</small>
+                                    </div>
 
-                                    <FormItem top={`Balance: ${Number(balanceBTN).toFixed(2)}`} style={{ width: '20%' }}>
-                                        <Cell
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
+
+                                        <Avatar
+                                            src={listJettons[1].img}
+                                            size={34}
+                                        />
+                                        <CustomSelect
+                                            placeholder="BTN"
+                                            selectType="plain"
+                                            className='fix_input'
+                                            style={{ maxWidth: '38%' }}
                                             disabled
-                                            after={<Avatar src="https://biton.pw/static/biton/img/logo.png?1" size={24} />}
-                                        >BTN</Cell>
-                                    </FormItem>
+                                            options={
+                                                filterArr(listJettons).map(
+                                                    (jetton:any, key:number) => ({
+                                                        label: jetton.symbl,
+                                                        value: key,
+                                                        avatar: jetton.img,
+                                                        description: `${balanceString(jetton.balance)} ${jetton.symbl}`
+                                                    })
+                                                )
+                                            }
+                                            renderOption={({ option, ...restProps }) => (
 
-                                </div>
+                                                <CustomSelectOption
+                                                    {...restProps}
+                                                    before={
+                                                        <Avatar
+                                                            size={20}
+                                                            src={option.avatar}
+                                                        />
+                                                    }
+                                                    // description={option.description}
+                                                />
+
+                                            )}
+                                            value={1}
+                                            onChange={(e:any) => {
+                                            }}
+                                        >
+                                        </CustomSelect>
+
+                                        <Input
+                                            placeholder="0.0"
+                                            value={inputLiq2}
+                                            onChange={(e) => {
+                                                calculateAmountNew(
+                                                    inputNumberSet(e.target.value),
+                                                    1
+                                                )
+                                            }}
+                                            align="right"
+                                            className='fix_input'
+                                            style={
+                                                { border: 'none' }
+                                            }
+                                        />
+
+                                    </div>
+                                </Div>
                             </Card>
                         </CardGrid>
                         <br />
@@ -1903,7 +2132,10 @@ export const App: React.FC = () => {
                                 </CardGrid>
                                 : <Button
                                     size="l"
-                                    onClick={() => setModal('login')}
+                                    onClick={() => {
+                                        loginHub()
+                                        setModal('login')
+                                    }}
                                     data-story="swap"
                                     before={<Icon28DoorArrowLeftOutline/>}
                                 >Connect wallet</Button>}
@@ -1915,7 +2147,10 @@ export const App: React.FC = () => {
                                     data-story="swap"
                                 ><Icon28WalletOutline/></IconButton>
                                 : <IconButton
-                                    onClick={() => setModal('login')}
+                                    onClick={() => {
+                                        loginHub()
+                                        setModal('login')
+                                    }}
                                     data-story="swap"
                                 ><Icon28WalletOutline/></IconButton>}
                         </div>
@@ -1974,7 +2209,10 @@ export const App: React.FC = () => {
                                         }}><Icon28DoorArrowRightOutline /></IconButton>}
                                     >{truncate(address, 12)}</Cell>
                                     : <Cell
-                                        onClick={() => setModal('login')}
+                                        onClick={() => {
+                                            loginHub()
+                                            setModal('login')
+                                        }}
                                         data-story="swap"
                                         before={<Icon28DoorArrowLeftOutline/>}
                                     >Login</Cell>
