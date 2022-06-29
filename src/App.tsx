@@ -262,16 +262,18 @@ export const App: React.FC = () => {
     const isDesktop = window.innerWidth >= 1000
     const hasHeader = platform !== VKCOM
 
-    async function setListJettonsFromDexType (address2:any = address) {
+    function setListJettonsFromDexType (address2:any = address) {
         if (dexType === 1) { // mainnet
             if (address2 !== '') { // добавление жетона в список
                 const jetton2 = 'kQAbqFt1YVaa8LnsFWOzeaqqVOLBXAyGqYNiI8jphUSyshJz'
-                const walletAddress = await getJettonWalletAddress(jetton2, address2)
-                console.log('setListJettonsFromDexType walletAddress', walletAddress)
-                if (walletAddress) {
-                    const balanceJetton = await getJettonBalanceFromWalletAddress(walletAddress)
-                    getDataJetton(jetton2, balanceJetton, walletAddress)
-                }
+                getJettonWalletAddress(jetton2, address2).then((walletAddress) => {
+                    console.log('setListJettonsFromDexType walletAddress', walletAddress)
+                    if (walletAddress) {
+                        getJettonBalanceFromWalletAddress(walletAddress).then((balanceJetton) => {
+                            getDataJetton(jetton2, balanceJetton, walletAddress)
+                        })
+                    }
+                })
             }
             return listJMainNet
         } // testnet
