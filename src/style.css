@@ -110,7 +110,7 @@ html,
 }
 
 .vkuiModalPage--desktop .vkuiModalPage__in {
-    max-height: 800px;
+    /* max-height: 800px; */
 }
 
 .vkuiModalPage__in {

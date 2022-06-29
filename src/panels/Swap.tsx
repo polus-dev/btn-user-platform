@@ -385,8 +385,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                             </Div>
                         </div>
 
-                        <CardGrid size="l">
-                            {true
+                        {props.listJettons.length > 1
+                            ? <CardGrid size="l">
+                                {true
                             && <div>
                                 <Card>
                                     <Div>
@@ -545,9 +546,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
 
                                 </Card>
                             </div>
-                            }
+                                }
 
-                            {/* {typeSwap
+                                {/* {typeSwap
                                 ? <Card>
 
                                     <div style={{ display: 'flex' }}>
@@ -627,19 +628,23 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
 
                                 </Card>
                             } */}
-                        </CardGrid>
-                        <Div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center' }}>
-                            <small>Price</small>
-                            {Number(props.fromJetton) === 0
-                                ? <small>
-                                    {`${priceSwapTon} ${props.listJettons[props.toJetton].symbl} per 1 ${props.listJettons[props.fromJetton].symbl}`}
-                                </small>
-                                : <small>
-                                    {`${priceSwap} ${props.listJettons[props.fromJetton].symbl} per 1 ${props.listJettons[props.toJetton].symbl}`}
-                                </small>
-                            }
+                            </CardGrid>
+                            : null}
 
-                        </Div>
+                        {props.listJettons.length > 1
+                            ? <Div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center' }}>
+                                <small>Price</small>
+                                {Number(props.fromJetton) === 0
+                                    ? <small>
+                                        {`${priceSwapTon} ${props.listJettons[props.toJetton].symbl} per 1 ${props.listJettons[props.fromJetton].symbl}`}
+                                    </small>
+                                    : <small>
+                                        {`${priceSwap} ${props.listJettons[props.fromJetton].symbl} per 1 ${props.listJettons[props.toJetton].symbl}`}
+                                    </small>
+                                }
+
+                            </Div>
+                            : null}
                         <FormItem top="Slippage Tolerance" bottom={`${props.torSwap} %`}>
                             <Slider
                                 step={1}

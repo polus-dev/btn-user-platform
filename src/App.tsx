@@ -167,6 +167,32 @@ export const App: React.FC = () => {
             balance: 0,
             address: '',
             addressSwap: '-'
+        },
+        {
+            id: 2,
+            name: 'JETTON',
+            symbl: 'JETTON',
+            img: '',
+            price: 0,
+            min: 0.1,
+            max: 1000,
+            wallet: '',
+            balance: 0,
+            address: '',
+            addressSwap: '-'
+        },
+        {
+            id: 2,
+            name: 'JETTON',
+            symbl: 'JETTON',
+            img: '',
+            price: 0,
+            min: 0.1,
+            max: 1000,
+            wallet: '',
+            balance: 0,
+            address: '',
+            addressSwap: ''
         }
     ]
 
@@ -227,7 +253,7 @@ export const App: React.FC = () => {
 
     const [ selectType, setSelectType ] = React.useState<any>('1') // выбор жетона для перевода
 
-    const [ dexType, setDexType ] = React.useState<number>(0) // выбор жетона для перевода
+    const [ dexType, setDexType ] = React.useState<number>(0) // тип декса 0- тестнет
 
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
@@ -236,10 +262,16 @@ export const App: React.FC = () => {
     const isDesktop = window.innerWidth >= 1000
     const hasHeader = platform !== VKCOM
 
-    function setListJettonsFromDexType (address2:any = address) {
-        if (dexType) { // mainnet
-            if (address2 !== '') {
-                getJettonWalletAddress('EQBdR5fufKRyJ_ZCT8gnrpW6aal6cz0KWjr4rlimx-ommXvf', address2)
+    async function setListJettonsFromDexType (address2:any = address) {
+        if (dexType === 1) { // mainnet
+            if (address2 !== '') { // добавление жетона в список
+                const jetton2 = 'kQAbqFt1YVaa8LnsFWOzeaqqVOLBXAyGqYNiI8jphUSyshJz'
+                const walletAddress = await getJettonWalletAddress(jetton2, address2)
+                console.log('setListJettonsFromDexType walletAddress', walletAddress)
+                if (walletAddress) {
+                    const balanceJetton = await getJettonBalanceFromWalletAddress(walletAddress)
+                    getDataJetton(jetton2, balanceJetton, walletAddress)
+                }
             }
             return listJMainNet
         } // testnet
@@ -247,7 +279,7 @@ export const App: React.FC = () => {
     }
 
     function createTonRPC () {
-        if (dexType) { // mainnet
+        if (dexType === 1) { // mainnet
             return new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
         } // testnet
         return new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
@@ -258,7 +290,7 @@ export const App: React.FC = () => {
         localStorage.setItem('jettons', JSON.stringify(list))
     }
 
-    function loadListJettonsFromStor () {
+    function loadListJettonsFromStor (address2:any = address) {
         const localJettons = localStorage.getItem('jettons')
         if (localJettons) {
             const localJettonsParce = JSON.parse(localJettons)
@@ -266,8 +298,8 @@ export const App: React.FC = () => {
             setListJettons(localJettonsParce)
             return localJettonsParce
         }
-        setListJettonsFromStor(listJettons)
-        return listJettons
+        setListJettonsFromStor(setListJettonsFromDexType(address2))
+        return setListJettonsFromDexType(address2)
     }
 
     async function getBalanceTon (addressW:any = address, type:boolean = true) {
@@ -347,41 +379,49 @@ export const App: React.FC = () => {
         })
 
         if (jwallAddressResp.data.ok === true) {
-            const content = jwallAddressResp.data.result.stack[3][1].bytes
+            if (jwallAddressResp.data.result.stack) {
+                if (jwallAddressResp.data.result.stack.length > 2) {
+                    const content = jwallAddressResp.data.result.stack[3][1].bytes
 
-            console.log('stack', jwallAddressResp.data.result.stack)
+                    console.log('stack', jwallAddressResp.data.result.stack)
 
-            const bocConent = BOC.fromStandard(content)
-            console.log('bocConent', bocConent)
+                    const bocConent = BOC.fromStandard(content)
+                    console.log('bocConent', bocConent)
 
-            const sliceCell = Slice.parse(bocConent)
-            const prefix = sliceCell.loadUint(8)
-            console.log('prefix', prefix)
-            if (prefix === 0x01) {
-                const size = sliceCell.bits.length
-                console.log('sliceCell', sliceCell)
+                    const sliceCell = Slice.parse(bocConent)
+                    const prefix = sliceCell.loadUint(8)
+                    console.log('prefix', prefix)
+                    if (prefix === 0x01) {
+                        const size = sliceCell.bits.length
+                        console.log('sliceCell', sliceCell)
 
-                const stringCell = sliceCell.loadBytes(size)
+                        const stringCell = sliceCell.loadBytes(size)
 
-                const str = (new TextDecoder('utf-8').decode(stringCell)).split('//')[1]
+                        const str = (new TextDecoder('utf-8').decode(stringCell)).split('//')[1]
 
-                const urlIpfs = `https://${str}.ipfs.infura-ipfs.io/`
+                        const urlIpfs = `https://${str}.ipfs.infura-ipfs.io/`
 
-                const jsonJetton = await gteDataApi(urlIpfs)
+                        const jsonJetton = await gteDataApi(urlIpfs)
 
-                console.log('jsonJetton', jsonJetton.data)
+                        console.log('jsonJetton', jsonJetton.data)
 
-                if (jsonJetton.data) {
-                    addJettonToList(
-                        jsonJetton,
-                        jwallAddressBounceable,
-                        balanceJ,
-                        addressWallet
-                    )
+                        if (jsonJetton.data) {
+                            addJettonToList(
+                                jsonJetton,
+                                jwallAddressBounceable,
+                                balanceJ,
+                                addressWallet
+                            )
 
-                    setModal('wallet') // костыль временно
+                            // setModal('wallet') // костыль временно
+                        } else {
+                            console.error('error load json jetton')
+                        }
+                    } else {
+                        console.error('error load json jetton stack')
+                    }
                 } else {
-                    console.error('error load json jetton')
+                    console.error('error load json jetton stack')
                 }
             } else {
                 console.error('enot lox')
@@ -805,6 +845,8 @@ export const App: React.FC = () => {
             setTypeWallet(1)
             setWalletHub(sess)
 
+            setListJettons(setListJettonsFromDexType(sess.wallet.address))
+
             setSessionHub(sessNow)
 
             setAddress(sess.wallet.address)
@@ -814,12 +856,10 @@ export const App: React.FC = () => {
             getLpData(sess.wallet.address)
             // getBalanceBiton(sess.wallet.address)
 
-            const listJ:any = loadListJettonsFromStor()
+            const listJ:any = loadListJettonsFromStor(sess.wallet.address)
 
             // loadBalanceFromListJettons(listJ)
             loadWalletAddressFromListJettons(listJ, sess.wallet.address)
-
-            setListJettons(setListJettonsFromDexType(sess.wallet.address))
 
             setLoadWallet(1)
         }
@@ -860,6 +900,8 @@ export const App: React.FC = () => {
                 console.log(session)
                 setWalletHub(session)
 
+                setListJettons(setListJettonsFromDexType(session.wallet.address))
+
                 setCookie('session', session)
 
                 setAddress(session.wallet.address)
@@ -873,12 +915,10 @@ export const App: React.FC = () => {
 
                 setLoadWallet(1)
 
-                const listJ:any = loadListJettonsFromStor()
+                const listJ:any = loadListJettonsFromStor(session.wallet.address)
 
                 // loadBalanceFromListJettons(listJ)
                 loadWalletAddressFromListJettons(listJ, session.wallet.address)
-
-                setListJettons(setListJettonsFromDexType(session.wallet.address))
 
                 setPopout(null)
             } else {
@@ -1625,68 +1665,72 @@ export const App: React.FC = () => {
                 }}
                 header={<ModalPageHeader>Send</ModalPageHeader>}
             >
-                <Group>
-                    <FormItem style={{ flexGrow: 1, flexShrink: 1 }} top="Jetton" bottom={`Balance: ${balanceString(listJettons[selectType].balance)}`} >
+                {listJettons[selectType]
+                    ? <Group>
+                        <FormItem style={{ flexGrow: 1, flexShrink: 1 }} top="Jetton" bottom={`Balance: ${balanceString(listJettons[selectType].balance)}`} >
 
-                        <CustomSelect
-                            placeholder="BTN"
-                            options={
-                                listJettons.map(
-                                    (jetton:any, key:number) => ({
-                                        label: jetton.name,
-                                        value: key,
-                                        avatar: jetton.img,
-                                        description: `${balanceString(jetton.balance)} ${jetton.symbl}`
-                                    })
-                                )
-                            }
-                            renderOption={({ option, ...restProps }) => (
-                                <CustomSelectOption
-                                    {...restProps}
-                                    before={
-                                        <Avatar size={20} src={option.avatar} />
+                            {listJettons.length > 0
+                                ? <CustomSelect
+                                    placeholder="BTN"
+                                    options={
+                                        listJettons.map(
+                                            (jetton:any, key:number) => ({
+                                                label: jetton.name,
+                                                value: key,
+                                                avatar: jetton.img,
+                                                description: `${balanceString(jetton.balance)} ${jetton.symbl}`
+                                            })
+                                        )
                                     }
-                                    description={option.description}
-                                />
+                                    renderOption={({ option, ...restProps }) => (
+                                        <CustomSelectOption
+                                            {...restProps}
+                                            before={
+                                                <Avatar size={20} src={option.avatar} />
+                                            }
+                                            description={option.description}
+                                        />
 
-                            )}
-                            value={selectType}
-                            onChange={(e:any) => {
-                                setSelectType(e.target.value)
-                            }}
+                                    )}
+                                    value={selectType}
+                                    onChange={(e:any) => {
+                                        setSelectType(e.target.value)
+                                    }}
+                                >
+                                </CustomSelect>
+                                : null}
+                        </FormItem>
+
+                        <FormItem
+                            top="Recepient"
                         >
-                        </CustomSelect>
-                    </FormItem>
+                            <Input value={addressSend} onChange={(e) => { setAddressSend(e.target.value) }} placeholder="Enter wallet address" />
+                        </FormItem>
 
-                    <FormItem
-                        top="Recepient"
-                    >
-                        <Input value={addressSend} onChange={(e) => { setAddressSend(e.target.value) }} placeholder="Enter wallet address" />
-                    </FormItem>
-
-                    <FormItem
-                        top="Amount"
-                    >
-                        <Input value={amountSend} onChange={(e) => { setAmountSend(e.target.value) }} placeholder="0.0" type="number" />
-                    </FormItem>
-                    <Checkbox onClick={() => {
-                        setForwardSend(!forwardSend)
-                    }}>
+                        <FormItem
+                            top="Amount"
+                        >
+                            <Input value={amountSend} onChange={(e) => { setAmountSend(e.target.value) }} placeholder="0.0" type="number" />
+                        </FormItem>
+                        <Checkbox onClick={() => {
+                            setForwardSend(!forwardSend)
+                        }}>
                     Notify receiver with 0.1 TON
-                    </Checkbox>
-                    <FormItem>
-                        <Button size="l" stretched onClick={() => {
-                            if (typeWallet === 0) {
-                                sendBocT()
-                            } else {
+                        </Checkbox>
+                        <FormItem>
+                            <Button size="l" stretched onClick={() => {
+                                if (typeWallet === 0) {
+                                    sendBocT()
+                                } else {
                                 // sendBtionHub()
-                                sendJettonHub()
-                            }
-                        }} disabled={amountSend === '' || addressSend === '' || (addressSend.toLowerCase().substring(0, 2) !== 'kq' && addressSend.toLowerCase().substring(0, 2) !== 'eq')}>
+                                    sendJettonHub()
+                                }
+                            }} disabled={amountSend === '' || addressSend === '' || (addressSend.toLowerCase().substring(0, 2) !== 'kq' && addressSend.toLowerCase().substring(0, 2) !== 'eq')}>
                   Send
-                        </Button>
-                    </FormItem>
-                </Group>
+                            </Button>
+                        </FormItem>
+                    </Group>
+                    : null }
             </ModalPage>
 
             <ModalPage
@@ -1800,7 +1844,7 @@ export const App: React.FC = () => {
                             <CardGrid size="l">
                                 <Card>
                                     <Div>
-                                        {listJettons.map(
+                                        {listJettons.length ? listJettons.map(
                                             (jetton:any, key:any) => <SimpleCell
                                                 key={key}
                                                 before={<Avatar size={48} src={jetton.img} />}
@@ -1830,7 +1874,7 @@ export const App: React.FC = () => {
                                             >
                                                 {jetton.name}
                                             </SimpleCell>
-                                        )}
+                                        ) : null}
                                         <SimpleCell
                                             onClick={() => setModal('add_jetton')}
                                             before={
@@ -1930,10 +1974,11 @@ export const App: React.FC = () => {
                             <Title weight="3" level="1">Add</Title>
                             <small>Give your jettons and get lp tokens</small>
                         </div>
+                        {listJettons.length > 1
 
-                        <CardGrid size="l">
-                            <Card>
-                                {/* <div style={{ display: 'flex' }}>
+                            ? <CardGrid size="l">
+                                <Card>
+                                    {/* <div style={{ display: 'flex' }}>
                                     <FormItem top="Add Ton" style={{ width: '65%' }}>
                                         <Input placeholder="0.0" value={inputLiq1} onChange={(e) => { calculatePriceInput(e.target.value) }} type={'number'} />
                                     </FormItem>
@@ -1947,144 +1992,145 @@ export const App: React.FC = () => {
 
                                 </div> */}
 
-                                <Div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <small>From</small>
-                                        <small>{`Balance: ${balanceString(listJettons[0].balance)}`}</small>
-                                    </div>
+                                    <Div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <small>From</small>
+                                            <small>{`Balance: ${balanceString(listJettons[0].balance)}`}</small>
+                                        </div>
 
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
 
-                                        <Avatar
-                                            src={listJettons[0].img}
-                                            size={34}
-                                        />
-                                        <CustomSelect
-                                            placeholder="TON"
-                                            selectType="plain"
-                                            className='fix_input'
-                                            style={{ maxWidth: '38%' }}
-                                            disabled
-                                            options={
-                                                filterArr(listJettons).map(
-                                                    (jetton:any, key:number) => ({
-                                                        label: jetton.symbl,
-                                                        value: key,
-                                                        avatar: jetton.img,
-                                                        description: `${balanceString(jetton.balance)} ${jetton.symbl}`
-                                                    })
-                                                )
-                                            }
-                                            renderOption={({ option, ...restProps }) => (
+                                            <Avatar
+                                                src={listJettons[0].img}
+                                                size={34}
+                                            />
+                                            <CustomSelect
+                                                placeholder="TON"
+                                                selectType="plain"
+                                                className='fix_input'
+                                                style={{ maxWidth: '38%' }}
+                                                disabled
+                                                options={
+                                                    filterArr(listJettons).map(
+                                                        (jetton:any, key:number) => ({
+                                                            label: jetton.symbl,
+                                                            value: key,
+                                                            avatar: jetton.img,
+                                                            description: `${balanceString(jetton.balance)} ${jetton.symbl}`
+                                                        })
+                                                    )
+                                                }
+                                                renderOption={({ option, ...restProps }) => (
 
-                                                <CustomSelectOption
-                                                    {...restProps}
-                                                    before={
-                                                        <Avatar
-                                                            size={20}
-                                                            src={option.avatar}
-                                                        />
-                                                    }
+                                                    <CustomSelectOption
+                                                        {...restProps}
+                                                        before={
+                                                            <Avatar
+                                                                size={20}
+                                                                src={option.avatar}
+                                                            />
+                                                        }
                                                     // description={option.description}
-                                                />
+                                                    />
 
-                                            )}
-                                            value={0}
-                                            onChange={(e:any) => {
-                                            }}
-                                        >
-                                        </CustomSelect>
+                                                )}
+                                                value={0}
+                                                onChange={(e:any) => {
+                                                }}
+                                            >
+                                            </CustomSelect>
 
-                                        <Input
-                                            placeholder="0.0"
-                                            value={inputLiq1}
-                                            onChange={(e) => {
-                                                calculateAmountNew(
-                                                    inputNumberSet(e.target.value),
-                                                    0
-                                                )
-                                            }}
-                                            align="right"
-                                            className='fix_input'
-                                            style={
-                                                { border: 'none' }
-                                            }
-                                        />
+                                            <Input
+                                                placeholder="0.0"
+                                                value={inputLiq1}
+                                                onChange={(e) => {
+                                                    calculateAmountNew(
+                                                        inputNumberSet(e.target.value),
+                                                        0
+                                                    )
+                                                }}
+                                                align="right"
+                                                className='fix_input'
+                                                style={
+                                                    { border: 'none' }
+                                                }
+                                            />
 
-                                    </div>
-                                </Div>
+                                        </div>
+                                    </Div>
 
-                            </Card>
+                                </Card>
 
-                            <Card>
-                                <Div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <small>From</small>
-                                        <small>{`Balance: ${balanceString(listJettons[1].balance)}`}</small>
-                                    </div>
+                                <Card>
+                                    <Div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <small>From</small>
+                                            <small>{`Balance: ${balanceString(listJettons[1].balance)}`}</small>
+                                        </div>
 
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
 
-                                        <Avatar
-                                            src={listJettons[1].img}
-                                            size={34}
-                                        />
-                                        <CustomSelect
-                                            placeholder="BTN"
-                                            selectType="plain"
-                                            className='fix_input'
-                                            style={{ maxWidth: '38%' }}
-                                            disabled
-                                            options={
-                                                filterArr(listJettons).map(
-                                                    (jetton:any, key:number) => ({
-                                                        label: jetton.symbl,
-                                                        value: key,
-                                                        avatar: jetton.img,
-                                                        description: `${balanceString(jetton.balance)} ${jetton.symbl}`
-                                                    })
-                                                )
-                                            }
-                                            renderOption={({ option, ...restProps }) => (
+                                            <Avatar
+                                                src={listJettons[1].img}
+                                                size={34}
+                                            />
+                                            <CustomSelect
+                                                placeholder="BTN"
+                                                selectType="plain"
+                                                className='fix_input'
+                                                style={{ maxWidth: '38%' }}
+                                                disabled
+                                                options={
+                                                    filterArr(listJettons).map(
+                                                        (jetton:any, key:number) => ({
+                                                            label: jetton.symbl,
+                                                            value: key,
+                                                            avatar: jetton.img,
+                                                            description: `${balanceString(jetton.balance)} ${jetton.symbl}`
+                                                        })
+                                                    )
+                                                }
+                                                renderOption={({ option, ...restProps }) => (
 
-                                                <CustomSelectOption
-                                                    {...restProps}
-                                                    before={
-                                                        <Avatar
-                                                            size={20}
-                                                            src={option.avatar}
-                                                        />
-                                                    }
+                                                    <CustomSelectOption
+                                                        {...restProps}
+                                                        before={
+                                                            <Avatar
+                                                                size={20}
+                                                                src={option.avatar}
+                                                            />
+                                                        }
                                                     // description={option.description}
-                                                />
+                                                    />
 
-                                            )}
-                                            value={1}
-                                            onChange={(e:any) => {
-                                            }}
-                                        >
-                                        </CustomSelect>
+                                                )}
+                                                value={1}
+                                                onChange={(e:any) => {
+                                                }}
+                                            >
+                                            </CustomSelect>
 
-                                        <Input
-                                            placeholder="0.0"
-                                            value={inputLiq2}
-                                            onChange={(e) => {
-                                                calculateAmountNew(
-                                                    inputNumberSet(e.target.value),
-                                                    1
-                                                )
-                                            }}
-                                            align="right"
-                                            className='fix_input'
-                                            style={
-                                                { border: 'none' }
-                                            }
-                                        />
+                                            <Input
+                                                placeholder="0.0"
+                                                value={inputLiq2}
+                                                onChange={(e) => {
+                                                    calculateAmountNew(
+                                                        inputNumberSet(e.target.value),
+                                                        1
+                                                    )
+                                                }}
+                                                align="right"
+                                                className='fix_input'
+                                                style={
+                                                    { border: 'none' }
+                                                }
+                                            />
 
-                                    </div>
-                                </Div>
-                            </Card>
-                        </CardGrid>
+                                        </div>
+                                    </Div>
+                                </Card>
+                            </CardGrid>
+                            : null}
                         <br />
 
                         <Button size='l' stretched onClick={addLiq}>Add</Button>
