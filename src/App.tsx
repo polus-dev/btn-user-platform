@@ -2169,10 +2169,10 @@ export const App: React.FC = () => {
         <AppRoot>
             <SplitLayout
                 style={{ justifyContent: 'center', paddingTop: isDesktop ? '10px' : '40px' }}
-                header={hasHeader && <PanelHeader separator={false} className={'menu1'} left={
+                header={hasHeader && !isExtension && <PanelHeader separator={false} className={'menu1'} left={
                     <img src={logoPNG} className="logo" style={{ cursor: 'pointer' }} />
                 }
-                right={
+                right={ !isExtension && (
                     isDesktop
                         ? <div>
                             {loadWallet === 1
@@ -2211,7 +2211,7 @@ export const App: React.FC = () => {
                                     data-story="swap"
                                 ><Icon28WalletOutline/></IconButton>}
                         </div>
-                }
+                )}
                 >
                     {isDesktop && !isExtension && (<div className="logo-block">
                         <ButtonGroup
