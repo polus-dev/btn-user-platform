@@ -875,73 +875,78 @@ export const App: React.FC = () => {
 
     // авторизация через кошелек тонхаб
     async function loginHub () {
-        setPopout(<ScreenSpinner />)
-        const session1: TonhubCreatedSession = await connector.createNewSession({
-            name: 'Biton',
-            url: window.location.href
-        })
+        if (isExtension) {
+            let connector = new TonhubLocalConnector('sandbox')
+            alert(JSON.stringify(connector))
+        } else {
+            setPopout(<ScreenSpinner />)
+            const session1: TonhubCreatedSession = await connector.createNewSession({
+                name: 'Biton',
+                url: window.location.href
+            })
 
-        // Session ID, Seed and Auth Link
-        const sessionId = session1.id
-        const sessionSeed = session1.seed
-        const sessionLink = session1.link
-        setUrlAuHub(sessionLink)
-        setPopout(null)
-        setSessionHub(session1)
-
-        setCookie('session_hub', session1)
-
-        const session: TonhubSessionAwaited = await connector
-            .awaitSessionReady(sessionId, 5 * 60 * 1000) // 5 min timeout
-
-        if (session.state === 'revoked' || session.state === 'expired') {
-            // Handle revoked or expired session
-            setUrlAuHub(null)
+            // Session ID, Seed and Auth Link
+            const sessionId = session1.id
+            const sessionSeed = session1.seed
+            const sessionLink = session1.link
+            setUrlAuHub(sessionLink)
             setPopout(null)
-        } else if (session.state === 'ready') {
-            const correctConfig: boolean = TonhubConnector
-                .verifyWalletConfig(sessionId, session.wallet)
+            setSessionHub(session1)
 
-            if (correctConfig) {
-                setTypeWallet(1)
-                setPopout(<ScreenSpinner />)
-                console.log(session)
-                setWalletHub(session)
+            setCookie('session_hub', session1)
 
-                setListJettons(setListJettonsFromDexType(session.wallet.address))
+            const session: TonhubSessionAwaited = await connector
+                .awaitSessionReady(sessionId, 5 * 60 * 1000) // 5 min timeout
 
-                setCookie('session', session)
-
-                setAddress(session.wallet.address)
-
-                setModal(null)
-
-                getBalanceTon(session.wallet.address)
-                // getBalanceBiton(session.wallet.address)
-
-                getLpData(session.wallet.address)
-
-                setLoadWallet(1)
-
-                const listJ:any = loadListJettonsFromStor(session.wallet.address)
-
-                // loadBalanceFromListJettons(listJ)
-                loadWalletAddressFromListJettons(listJ, session.wallet.address)
-
+            if (session.state === 'revoked' || session.state === 'expired') {
+            // Handle revoked or expired session
+                setUrlAuHub(null)
                 setPopout(null)
+            } else if (session.state === 'ready') {
+                const correctConfig: boolean = TonhubConnector
+                    .verifyWalletConfig(sessionId, session.wallet)
+
+                if (correctConfig) {
+                    setTypeWallet(1)
+                    setPopout(<ScreenSpinner />)
+                    console.log(session)
+                    setWalletHub(session)
+
+                    setListJettons(setListJettonsFromDexType(session.wallet.address))
+
+                    setCookie('session', session)
+
+                    setAddress(session.wallet.address)
+
+                    setModal(null)
+
+                    getBalanceTon(session.wallet.address)
+                    // getBalanceBiton(session.wallet.address)
+
+                    getLpData(session.wallet.address)
+
+                    setLoadWallet(1)
+
+                    const listJ:any = loadListJettonsFromStor(session.wallet.address)
+
+                    // loadBalanceFromListJettons(listJ)
+                    loadWalletAddressFromListJettons(listJ, session.wallet.address)
+
+                    setPopout(null)
+                } else {
+                    setUrlAuHub(null)
+                    setPopout(null)
+                    setModal(null)
+                    console.log('error')
+                }
             } else {
                 setUrlAuHub(null)
                 setPopout(null)
                 setModal(null)
-                console.log('error')
+                throw new Error('Impossible')
             }
-        } else {
-            setUrlAuHub(null)
             setPopout(null)
-            setModal(null)
-            throw new Error('Impossible')
         }
-        setPopout(null)
     }
 
     async function enotLox (adress:string, address2:Address) {
