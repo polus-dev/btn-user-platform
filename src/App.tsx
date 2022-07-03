@@ -66,13 +66,13 @@ import '@vkontakte/vkui/dist/vkui.css'
 import './style.css'
 
 import React, { useEffect } from 'react'
-import { TonhubConnector } from 'ton-x-fix'
+import { TonhubConnector } from 'ton-x'
 import {
     TonhubCreatedSession,
     TonhubSessionAwaited,
     TonhubTransactionRequest,
     TonhubTransactionResponse
-} from 'ton-x-fix/dist/connector/TonhubConnector'
+} from 'ton-x/dist/connector/TonhubConnector'
 
 // import TradingViewWidget, { Themes } from 'react-tradingview-widget'
 
@@ -92,8 +92,6 @@ import logoPNG from './static/logo.png'
 
 const axios = require('axios').default
 
-const connector = new TonhubConnector({ testnet: true })
-
 function truncate (fullStr:any, strLen:any) {
     if (fullStr.length <= strLen) return fullStr
 
@@ -108,6 +106,20 @@ function truncate (fullStr:any, strLen:any) {
            + separator
            + fullStr.substr(fullStr.length - backChars)
 }
+
+const dexTypeGlobal:number = 0 // 0 -  тестнет
+let connector:any
+
+function createTonRPC () {
+    if (dexTypeGlobal === 1) { // mainnet
+        connector = new TonhubConnector({ network: 'sandbox' })
+        return new ToncenterRPC('https://mainnet-rpc.biton.app/')
+    } // testnet
+    connector = new TonhubConnector({ network: 'mainnet' })
+    return new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
+}
+
+const tonrpc = createTonRPC()
 
 export const App: React.FC = () => {
     const ContrBTNAddress = 'kQDokczBRtbRnuWDrHiEalB3Uqnl6sTsuGwx1H3WmJqJgBxb'
@@ -279,14 +291,6 @@ export const App: React.FC = () => {
         } // testnet
         return listJTestNet
     }
-
-    function createTonRPC () {
-        if (dexType === 1) { // mainnet
-            return new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
-        } // testnet
-        return new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
-    }
-    const tonrpc = createTonRPC()
 
     function setListJettonsFromStor (list:any) {
         localStorage.setItem('jettons', JSON.stringify(list))
@@ -2345,51 +2349,52 @@ export const App: React.FC = () => {
                 </SplitCol>
                 }
 
-                <SplitCol
-                    animate={!isDesktop}
-                    spaced={isDesktop}
-                    width={getWidthCol()}
-                    maxWidth={getWidthCol()}
-                >
-                    <Epic
-                        activeStory={activeStory}
-                        tabbar={
-                            !isDesktop && (
-                                <Tabbar>
-                                    <TabbarItem
+                {listJettons.length > 1
+                    ? <SplitCol
+                        animate={!isDesktop}
+                        spaced={isDesktop}
+                        width={getWidthCol()}
+                        maxWidth={getWidthCol()}
+                    >
+                        <Epic
+                            activeStory={activeStory}
+                            tabbar={
+                                !isDesktop && (
+                                    <Tabbar>
+                                        <TabbarItem
                                         // onClick={null}
-                                        selected={activeStory === 'main'}
-                                        text="Main"
-                                    >
-                                        <Icon28HomeOutline />
-                                    </TabbarItem>
-                                    <TabbarItem
-                                        onClick={onStoryChange}
-                                        selected={activeStory === 'swap'}
-                                        data-story="swap"
-                                        text="Dex"
-                                    >
-                                        <Icon28StatisticsOutline />
-                                    </TabbarItem>
+                                            selected={activeStory === 'main'}
+                                            text="Main"
+                                        >
+                                            <Icon28HomeOutline />
+                                        </TabbarItem>
+                                        <TabbarItem
+                                            onClick={onStoryChange}
+                                            selected={activeStory === 'swap'}
+                                            data-story="swap"
+                                            text="Dex"
+                                        >
+                                            <Icon28StatisticsOutline />
+                                        </TabbarItem>
 
-                                    <TabbarItem
+                                        <TabbarItem
                                         // onClick={onStoryChange}
-                                        selected={activeStory === 'nft'}
-                                        data-story="nft"
-                                        text="NFT"
-                                    >
-                                        <Icon28MarketOutline />
-                                    </TabbarItem>
+                                            selected={activeStory === 'nft'}
+                                            data-story="nft"
+                                            text="NFT"
+                                        >
+                                            <Icon28MarketOutline />
+                                        </TabbarItem>
 
-                                    <TabbarItem
+                                        <TabbarItem
                                         // onClick={onStoryChange}
-                                        selected={activeStory === 'earn'}
-                                        data-story="earn"
-                                        text="Earn"
-                                    >
-                                        <Icon28CoinsOutline />
-                                    </TabbarItem>
-                                    {/* <TabbarItem
+                                            selected={activeStory === 'earn'}
+                                            data-story="earn"
+                                            text="Earn"
+                                        >
+                                            <Icon28CoinsOutline />
+                                        </TabbarItem>
+                                        {/* <TabbarItem
                                         onClick={onStoryChange}
                                         selected={activeStory === 'explorer'}
                                         data-story="explorer"
@@ -2397,7 +2402,7 @@ export const App: React.FC = () => {
                                     >
                                         <Icon28ArticleOutline />
                                     </TabbarItem> */}
-                                    {/* <TabbarItem
+                                        {/* <TabbarItem
                                         onClick={() => {
                                             if (loadWallet === 1) {
                                                 setModal('wallet')
@@ -2409,65 +2414,69 @@ export const App: React.FC = () => {
                                     >
                                         <Icon28ArticleOutline />
                                     </TabbarItem> */}
-                                </Tabbar>
-                            )
-                        }
-                    >
-                        <WalletPanel
-                            id={'wallet'}
-                            tonrpc={tonrpc}
-                            setAddress={setAddress}
-                            setModal={setModal}
-                            setAddressJopa={setAddressJopa}
-                            ContrBTNAddress={ContrBTNAddress}
-                        />
-                        <ExplorerPanel
-                            id={'explorer'}
-                            tonrpc={tonrpc}
-                            setAddress={setAddress}
-                            setModal={setModal}
-                            setAddressJopa={setAddressJopa}
-                            ContrBTNAddress={ContrBTNAddress}
-                            address={address}
-                            loadWallet={loadWallet}
-                            getBalanceBiton={getBalanceBiton}
-                            getBalanceTon={getBalanceTon}
-                            setPopout={setPopout}
-                            getTransAddress={getTransAddress}
-                            setActiveStory={setActiveStory}
-                        />
-                        <SwapPanel
-                            id={'swap'}
-                            tonrpc={tonrpc}
-                            setAddress={setAddress}
-                            setModal={setModal}
-                            setAddressJopa={setAddressJopa}
-                            ContrBTNAddress={ContrBTNAddress}
-                            ContrBTNSwapAddress={ContrBTNSwapAddress}
-                            addressJopa={addressJopa}
-                            address={address}
-                            login={login}
-                            loadWallet={loadWallet}
-                            balance={balance}
-                            balanceBTN={balanceBTN}
-                            sendBocTHub={sendBocTHub}
-                            setSnackbar={setSnackbar}
-                            setSwapConfirm={setSwapConfirm}
-                            swapConfirm={swapConfirm}
-                            setBtnSwap={setBtnSwap}
-                            btnSwap={btnSwap}
-                            torSwap={torSwap}
-                            setTorSwap={setTorSwap}
-                            isDesktop={isDesktop}
-                            setActiveStory={setActiveStory}
-                            listJettons={listJettons}
-                            fromJetton={fromJetton}
-                            setFromJetton={setFromJetton}
-                            toJetton={toJetton}
-                            setToJetton={setToJetton}
-                        />
-                    </Epic>
-                </SplitCol>
+                                    </Tabbar>
+                                )
+                            }
+                        >
+                            <WalletPanel
+                                id={'wallet'}
+                                tonrpc={tonrpc}
+                                setAddress={setAddress}
+                                setModal={setModal}
+                                setAddressJopa={setAddressJopa}
+                                ContrBTNAddress={ContrBTNAddress}
+                            />
+                            <ExplorerPanel
+                                id={'explorer'}
+                                tonrpc={tonrpc}
+                                setAddress={setAddress}
+                                setModal={setModal}
+                                setAddressJopa={setAddressJopa}
+                                ContrBTNAddress={ContrBTNAddress}
+                                address={address}
+                                loadWallet={loadWallet}
+                                getBalanceBiton={getBalanceBiton}
+                                getBalanceTon={getBalanceTon}
+                                setPopout={setPopout}
+                                getTransAddress={getTransAddress}
+                                setActiveStory={setActiveStory}
+                            />
+                            <SwapPanel
+                                id={'swap'}
+                                tonrpc={tonrpc}
+                                setAddress={setAddress}
+                                setModal={setModal}
+                                setAddressJopa={setAddressJopa}
+                                ContrBTNAddress={ContrBTNAddress}
+                                ContrBTNSwapAddress={ContrBTNSwapAddress}
+                                addressJopa={addressJopa}
+                                address={address}
+                                login={login}
+                                loadWallet={loadWallet}
+                                balance={balance}
+                                balanceBTN={balanceBTN}
+                                sendBocTHub={sendBocTHub}
+                                setSnackbar={setSnackbar}
+                                setSwapConfirm={setSwapConfirm}
+                                swapConfirm={swapConfirm}
+                                setBtnSwap={setBtnSwap}
+                                btnSwap={btnSwap}
+                                torSwap={torSwap}
+                                setTorSwap={setTorSwap}
+                                isDesktop={isDesktop}
+                                setActiveStory={setActiveStory}
+                                listJettons={listJettons}
+                                fromJetton={fromJetton}
+                                setFromJetton={setFromJetton}
+                                toJetton={toJetton}
+                                setToJetton={setToJetton}
+                            />
+                        </Epic>
+                    </SplitCol>
+                    : <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                        <Spinner size="large" style={{ margin: '20px 0' }} />
+                    </div>
+                }
                 {snackbar}
             </SplitLayout>
         </AppRoot>
