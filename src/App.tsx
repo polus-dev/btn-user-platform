@@ -66,7 +66,7 @@ import '@vkontakte/vkui/dist/vkui.css'
 import './style.css'
 
 import React, { useEffect } from 'react'
-import { TonhubConnector } from 'ton-x'
+import { TonhubConnector, TonhubLocalConnector } from 'ton-x'
 import {
     TonhubCreatedSession,
     TonhubSessionAwaited,
@@ -92,6 +92,8 @@ import logoPNG from './static/logo.png'
 
 const axios = require('axios').default
 
+const isExtension: boolean = TonhubLocalConnector.isAvailable()
+
 function truncate (fullStr:any, strLen:any) {
     if (fullStr.length <= strLen) return fullStr
 
@@ -112,10 +114,10 @@ let connector:any
 
 function createTonRPC () {
     if (dexTypeGlobal === 1) { // mainnet
-        connector = new TonhubConnector({ network: 'sandbox' })
+        connector = new TonhubConnector({ network: 'mainnet' })
         return new ToncenterRPC('https://mainnet-rpc.biton.app/')
     } // testnet
-    connector = new TonhubConnector({ network: 'mainnet' })
+    connector = new TonhubConnector({ network: 'sandbox' })
     return new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
 }
 
@@ -930,11 +932,13 @@ export const App: React.FC = () => {
             } else {
                 setUrlAuHub(null)
                 setPopout(null)
+                setModal(null)
                 console.log('error')
             }
         } else {
             setUrlAuHub(null)
             setPopout(null)
+            setModal(null)
             throw new Error('Impossible')
         }
         setPopout(null)
@@ -1925,6 +1929,7 @@ export const App: React.FC = () => {
                     urlAuHub === null ? null
                         : <PanelHeaderButton onClick={() => {
                             setUrlAuHub(null)
+                            setModal(null)
                         }}><Icon28ArrowLeftOutline /></PanelHeaderButton>
                 }>Login</ModalPageHeader>}
             >
@@ -2208,7 +2213,7 @@ export const App: React.FC = () => {
                         </div>
                 }
                 >
-                    {isDesktop && (<div className="logo-block">
+                    {isDesktop && !isExtension && (<div className="logo-block">
                         <ButtonGroup
                             mode="horizontal"
                             gap="m"
@@ -2359,7 +2364,7 @@ export const App: React.FC = () => {
                         <Epic
                             activeStory={activeStory}
                             tabbar={
-                                !isDesktop && (
+                                !isDesktop && !isExtension && (
                                     <Tabbar>
                                         <TabbarItem
                                         // onClick={null}
