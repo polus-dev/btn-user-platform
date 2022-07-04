@@ -109,7 +109,7 @@ function truncate (fullStr:any, strLen:any) {
            + fullStr.substr(fullStr.length - backChars)
 }
 
-const dexTypeGlobal:number = 0 // 0 -  тестнет
+const dexTypeGlobal:number = 1 // 0 -  тестнет
 let connector:any
 
 function createTonRPC () {
@@ -267,7 +267,7 @@ export const App: React.FC = () => {
 
     const [ selectType, setSelectType ] = React.useState<any>('1') // выбор жетона для перевода
 
-    const [ dexType, setDexType ] = React.useState<number>(0) // тип декса 0- тестнет
+    const [ dexType, setDexType ] = React.useState<number>(dexTypeGlobal) // тип декса 0- тестнет
 
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
@@ -1474,7 +1474,7 @@ export const App: React.FC = () => {
                         </div>
                         <br />
                         {isDesktop ? null
-                            : <Button size='l' stretched href={'ton-test://connect'}>Confirm in TonHub</Button>
+                            : <Button size='l' stretched href={dexTypeGlobal ? 'ton://connect' : 'ton-test://connect'}>Confirm in TonHub</Button>
                         }
                     </Div>
                 </Group>
@@ -1543,7 +1543,7 @@ export const App: React.FC = () => {
                         </div>
                         <br />
                         {isDesktop ? null
-                            : <Button size='l' stretched href={'ton-test://connect'}>View in TonHub</Button>
+                            : <Button size='l' stretched href={dexTypeGlobal ? 'ton://connect' : 'ton-test://connect'}>View in TonHub</Button>
                         }
                     </Div>
                 </Group>
