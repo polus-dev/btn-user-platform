@@ -192,7 +192,7 @@ export const App: React.FC = () => {
             max: 1000,
             wallet: '',
             balance: 0,
-            address: 'EQBqNodPadvtXOWg5esaKWxrrFLJ2LXfxdmLTHllyLV06ZEz',
+            address: 'EQBdR5fufKRyJ_ZCT8gnrpW6aal6cz0KWjr4rlimx-ommXvf',
             addressSwap: '-'
         },
         {
