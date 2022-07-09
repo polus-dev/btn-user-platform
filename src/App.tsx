@@ -81,6 +81,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { Address, BOC, Builder, Coins, Slice } from 'ton3-core'
 import { useCookies } from 'react-cookie'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { exit } from 'process'
 import { WalletPanel, SwapPanel, ExplorerPanel } from './panels'
 import { ToncenterRPC } from './logic/tonapi'
 import { TokenWallet } from './logic/contracts'
@@ -192,27 +193,14 @@ export const App: React.FC = () => {
             max: 1000,
             wallet: '',
             balance: 0,
-            address: 'EQBdR5fufKRyJ_ZCT8gnrpW6aal6cz0KWjr4rlimx-ommXvf',
-            addressSwap: '-'
-        },
-        {
-            id: 2,
-            name: 'JETTON',
-            symbl: 'JETTON',
-            img: '',
-            price: 0,
-            min: 0.1,
-            max: 1000,
-            wallet: '',
-            balance: 0,
-            address: 'EQBlU_tKISgpepeMFT9t3xTDeiVmo25dW_4vUOl6jId_BNIj',
-            addressSwap: ''
+            address: 'EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw',
+            addressSwap: ContrBTNSwapAddress
         }
     ]
 
     const platform = usePlatform()
 
-    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit', 'add_jetton', 'remove_jetton', 'farms' ]
+    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit', 'add_jetton', 'remove_jetton', 'farms', 'ico' ]
 
     const [ modal, setModal ] = React.useState<any>(null)
     const [ popout, setPopout ] = React.useState<any>(null)
@@ -269,6 +257,8 @@ export const App: React.FC = () => {
 
     const [ dexType, setDexType ] = React.useState<number>(dexTypeGlobal) // тип декса 0- тестнет
 
+    const [ inpBuy, setInpBuy ] = React.useState<any>('') // выбор жетона для перевода
+
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
     }
@@ -279,15 +269,15 @@ export const App: React.FC = () => {
     function setListJettonsFromDexType (address2:any = address) {
         if (dexType === 1) { // mainnet
             if (address2 !== '') { // добавление жетона в список
-                const jetton2 = 'EQBlU_tKISgpepeMFT9t3xTDeiVmo25dW_4vUOl6jId_BNIj'
-                getJettonWalletAddress(jetton2, address2).then((walletAddress) => {
-                    console.log('setListJettonsFromDexType walletAddress', walletAddress)
-                    if (walletAddress) {
-                        getJettonBalanceFromWalletAddress(walletAddress).then((balanceJetton) => {
-                            getDataJetton(jetton2, balanceJetton, walletAddress)
-                        })
-                    }
-                })
+                const jetton2 = 'EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw'
+                // getJettonWalletAddress(jetton2, address2).then((walletAddress) => {
+                //     console.log('setListJettonsFromDexType walletAddress', walletAddress)
+                //     if (walletAddress) {
+                //         getJettonBalanceFromWalletAddress(walletAddress).then((balanceJetton) => {
+                //             getDataJetton(jetton2, balanceJetton, walletAddress)
+                //         })
+                //     }
+                // })
             }
             return listJMainNet
         } // testnet
@@ -295,7 +285,7 @@ export const App: React.FC = () => {
     }
 
     function setListJettonsFromStor (list:any) {
-        localStorage.setItem('jettons', JSON.stringify(list))
+        // localStorage.setItem('jettons', JSON.stringify(list))
     }
 
     function loadListJettonsFromStor (address2:any = address) {
@@ -355,31 +345,52 @@ export const App: React.FC = () => {
     function addJettonToList
     (jsonJetton:any, jwallAddressBounceable:any, balanceJ:any, addressJetton:any) {
         const listJettonsT:Array<any> = listJettons
-        listJettonsT.push(
-            {
-                id: listJettonsT[listJettonsT.length - 1].id + 1,
-                name: jsonJetton.data.name,
-                symbl: jsonJetton.data.symbol,
-                img: `https://${jsonJetton.data.image.split('//')[1]}.ipfs.infura-ipfs.io/`,
-                price: 0,
-                min: 0.1,
-                max: 1000,
-                wallet: jwallAddressBounceable,
-                balance: balanceJ,
-                address: addressJetton,
-                addressSwap: ''
+        let img2 = ''
+        if (jsonJetton.data.image) {
+            img2 = jsonJetton.data.image
+            if (img2.indexOf('//') > -1) {
+                img2 = img2.substring(7, img2.length)
+                img2 = `https://${jsonJetton.data.image.split('//')[1]}.ipfs.infura-ipfs.io/`
+            } else {
+                img2 = ''
             }
-        )
-        setListJettons(listJettonsT)
+        }
 
-        setListJettonsFromStor(listJettonsT)
+        let heck = 0
 
-        getBalanceTon()
+        for (let i = 1; i < listJettons.length; i++) {
+            if (listJettons[i].address === addressJetton) {
+                heck = 1
+                exit()
+            }
+        }
+        if (heck === 0) {
+            listJettonsT.push(
+                {
+                    id: listJettonsT[listJettonsT.length - 1].id + 1,
+                    name: jsonJetton.data.name,
+                    symbl: jsonJetton.data.symbol,
+                    img: img2,
+                    price: 0,
+                    min: 0.1,
+                    max: 1000,
+                    wallet: jwallAddressBounceable,
+                    balance: balanceJ,
+                    address: addressJetton,
+                    addressSwap: ''
+                }
+            )
+            setListJettons(listJettonsT)
+
+            setListJettonsFromStor(listJettonsT)
+
+            getBalanceTon()
+        }
     }
 
-    // добавление жетона в список
+    // загрузка данных о жетоне
     async function getDataJetton
-    (addressWallet:string, balanceJ:number, jwallAddressBounceable:String) {
+    (addressWallet:string, balanceJ:number, jwallAddressBounceable:String, type:any = 0) {
         const jwallAddressResp = await tonrpc.request('runGetMethod', {
             address: addressWallet,
             method: 'get_jetton_data',
@@ -404,22 +415,29 @@ export const App: React.FC = () => {
                         console.log('sliceCell', sliceCell)
 
                         const stringCell = sliceCell.loadBytes(size)
+                        let str2 = (new TextDecoder('utf-8').decode(stringCell))
+                        console.log('str2', str2)
+                        if (str2.indexOf('//') > -1) {
+                            str2 = str2.substring(7, str2.length)
+                        }
 
-                        const str = (new TextDecoder('utf-8').decode(stringCell)).split('//')[1]
-
-                        const urlIpfs = `https://${str}.ipfs.infura-ipfs.io/`
+                        const urlIpfs = `https://${str2}.ipfs.infura-ipfs.io/`
 
                         const jsonJetton = await gteDataApi(urlIpfs)
 
                         console.log('jsonJetton', jsonJetton.data)
 
                         if (jsonJetton.data) {
-                            addJettonToList(
-                                jsonJetton,
-                                jwallAddressBounceable,
-                                balanceJ,
-                                addressWallet
-                            )
+                            if (type === 0) {
+                                addJettonToList(
+                                    jsonJetton,
+                                    jwallAddressBounceable,
+                                    balanceJ,
+                                    addressWallet
+                                )
+                            } else {
+                                return jsonJetton.data
+                            }
 
                             // setModal('wallet') // костыль временно
                         } else {
@@ -434,6 +452,8 @@ export const App: React.FC = () => {
             } else {
                 console.error('enot lox')
             }
+        } else {
+            console.error('jwallAddressResp error')
         }
     }
 
@@ -486,15 +506,32 @@ export const App: React.FC = () => {
         if (jwallAddressResp.data.ok === true) {
             if (jwallAddressResp.data.result.exit_code === 0) {
                 const addr2 = `0:${jwallAddressResp.data.result.stack[0][1].substring(2)}`
-                console.log(jwallAddressResp.data.result.exit_code)
-                jwallAddress = new Address(addr2)
+                console.log(addr2)
+                const walid = Address.isValid(addr2)
+                if (walid) {
+                    jwallAddress = new Address(addr2)
 
-                jwallAddressBounceable = jwallAddress.toString('base64', { bounceable: true })
+                    jwallAddressBounceable = jwallAddress.toString('base64', { bounceable: true })
+                } else {
+                    console.error(jwallAddressResp.data)
+                }
             } else {
-                console.error(jwallAddressResp)
+                // попробовать другой метод
+
+                //         let jwallAddressBounceable2:any
+
+                //         const ownerAddressCell = Slice
+                //         ownerAddressCell.a
+                // const jwallAddressResp2 = await tonrpc.request('runGetMethod', {
+                //     address: addressJetton,
+                //     method: 'get_wallet_address',
+                //     stack: [ [ 'tvm.Slice', `0x${addressHexNoWC}` ] ]
+                // })
+
+                console.error(jwallAddressResp.data)
             }
         } else {
-            console.error(jwallAddressResp)
+            console.error(jwallAddressResp.data)
         }
         return jwallAddressBounceable
     }
@@ -824,15 +861,53 @@ export const App: React.FC = () => {
         setPopout(null)
     }
 
+    async function updateInfoJettons (list:any) {
+        const listJettons2 = list
+        for (let i = 1; i < listJettons2.length; i++) {
+            if (listJettons2[i].wallet !== '') {
+                console.log('listJettons2[i]', listJettons2[i])
+                const info = await getDataJetton(listJettons2[i].wallet, 0, '', 1)
+                if (info) {
+                    listJettons2[i].name = info.name
+                    listJettons2[i].symbol = info.symbol
+
+                    let img2 = ''
+                    if (info.image) {
+                        img2 = info.image
+                        if (img2.indexOf('//') > -1) {
+                            img2 = img2.substring(7, img2.length)
+                            img2 = `https://${info.image.split('//')[1]}.ipfs.infura-ipfs.io/`
+                        } else {
+                            img2 = ''
+                        }
+                    }
+                    listJettons2[i].img = img2
+                } else {
+                    console.error('info null', info)
+                }
+            } else {
+                console.error('wallet address jetton null')
+            }
+        }
+        setListJettonsFromStor(listJettons2)
+        setListJettons(listJettons2)
+    }
+
     // обновление баланса жентонов из списка
     async function loadBalanceFromListJettons (list:any) {
         const listJettons2 = list
         for (let i = 1; i < listJettons2.length; i++) {
-            const balanceJetton = await getJettonBalanceFromWalletAddress(listJettons2[i].wallet)
-            listJettons2[i].balance = balanceJetton
+            if (listJettons2[i].wallet !== '') {
+                // console.log('listJettons2[i]', listJettons2[i])
+                const balanceJetton = await getJettonBalanceFromWalletAddress(listJettons2[i].wallet)
+                listJettons2[i].balance = balanceJetton
+            } else {
+                console.error('wallet address jetton null')
+            }
         }
-        setListJettonsFromStor(listJettons2)
-        setListJettons(listJettons2)
+        updateInfoJettons(listJettons2)
+        // setListJettonsFromStor(listJettons2)
+        // setListJettons(listJettons2)
     }
 
     // обновление валетадресов жентонов из списка
@@ -840,13 +915,14 @@ export const App: React.FC = () => {
         const listJettons2 = list
         console.log('listJettons2', listJettons2)
         for (let i = 1; i < listJettons2.length; i++) {
+            // console.log('listJettons2[i]', listJettons2[i])
             const walletJetton = await getJettonWalletAddress(listJettons2[i].address, address2)
             if (walletJetton) {
                 listJettons2[i].wallet = walletJetton
             }
         }
-        setListJettonsFromStor(listJettons2)
-        setListJettons(listJettons2)
+        // setListJettonsFromStor(listJettons2)
+        // setListJettons(listJettons2)
 
         loadBalanceFromListJettons(listJettons2)
     }
@@ -867,7 +943,7 @@ export const App: React.FC = () => {
 
             getBalanceTon(sess.wallet.address)
 
-            getLpData(sess.wallet.address)
+            // getLpData(sess.wallet.address)
             // getBalanceBiton(sess.wallet.address)
 
             const listJ:any = loadListJettonsFromStor(sess.wallet.address)
@@ -888,7 +964,8 @@ export const App: React.FC = () => {
             setPopout(<ScreenSpinner />)
             const session1: TonhubCreatedSession = await connector.createNewSession({
                 name: 'Biton',
-                url: window.location.href
+                url: 'https://btn-user-platform-git-dev-biton.vercel.app/'
+                // url: window.location.href
             })
 
             // Session ID, Seed and Auth Link
@@ -987,10 +1064,10 @@ export const App: React.FC = () => {
             // login()
 
             loginCook()
-            getPriceLP()
+            // getPriceLP()
             // loginHub()
 
-            setListJettons(setListJettonsFromDexType()) // временно
+            // setListJettons(setListJettonsFromDexType()) // временно
         }
 
         load()
@@ -1171,12 +1248,12 @@ export const App: React.FC = () => {
     }
 
     // покупка битонов
-    async function buyBtn () {
+    async function buyBtn (amount:any = 10) {
         // const windowTon:any = window
         // const addressTon = await windowTon.ton.send('ton_sendTransaction', [ { value: 10000000000, to: ContrBTNAddress } ])
         // console.log(addressTon)
 
-        const result:any = await sendBocTHub(ContrBTNAddress, '10000000000', null)
+        const result:any = await sendBocTHub(ContrBTNAddress, new Coins(amount).toNano(), null)
 
         if (result.type === 'error') {
             console.error(result)
@@ -1582,6 +1659,35 @@ export const App: React.FC = () => {
             </ModalPage>
 
             <ModalPage
+                id={modals[12]}
+                onClose={() => {
+                    setInpBuy('')
+                    setModal('wallet')
+                }}
+                header={<ModalPageHeader>Buy BTN</ModalPageHeader>}
+            >
+                <Group>
+                    <Div>
+                        <Title weight="3" level="2" style={{ margin: '0 12px' }}>Price: 10 BTN per 1 TON</Title>
+                    </Div>
+                    <FormItem
+                        top="Amount TON"
+                    >
+                        <Input value={inpBuy} onChange={(e) => { setInpBuy(inputNumberSet(e.target.value)) }} placeholder="1 - 10000" />
+                    </FormItem>
+
+                    <Div>
+                        <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => {
+                            buyBtn(Number(inpBuy))
+                            // setModal('confirm')
+                        }
+                        } mode="secondary">Buy BTN</Button>
+                    </Div>
+
+                </Group>
+            </ModalPage>
+
+            <ModalPage
                 id={modals[11]}
                 onClose={() => {
                     setModal(null)
@@ -1595,7 +1701,7 @@ export const App: React.FC = () => {
                             <small>Stake LP tokens to earn</small>
                         </div>
                         <CardGrid size="l">
-                            {listJettons.length > 1
+                            {listJettons.length > 2
                                 ? <Card>
                                     <SimpleCell
                                         disabled
@@ -1916,7 +2022,7 @@ export const App: React.FC = () => {
                             <br /> */}
 
                             <div>
-                                <Button size='s' stretched onClick={buyBtn}>Buy BTN</Button>
+                                <Button size='s' stretched onClick={() => setModal('ico')}>Buy BTN</Button>
                             </div>
                             <br />
 
