@@ -115,7 +115,7 @@ let connector:any
 function createTonRPC () {
     if (dexTypeGlobal === 1) { // mainnet
         connector = new TonhubConnector({ network: 'mainnet' })
-        return new ToncenterRPC('https://mainnet-rpc.biton.app/')
+        return new ToncenterRPC('https://mainnet-rpc.biton.app/jsonRPC')
     } // testnet
     connector = new TonhubConnector({ network: 'sandbox' })
     return new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
@@ -192,7 +192,7 @@ export const App: React.FC = () => {
             max: 1000,
             wallet: '',
             balance: 0,
-            address: '',
+            address: 'EQBqNodPadvtXOWg5esaKWxrrFLJ2LXfxdmLTHllyLV06ZEz',
             addressSwap: '-'
         },
         {
@@ -205,7 +205,7 @@ export const App: React.FC = () => {
             max: 1000,
             wallet: '',
             balance: 0,
-            address: '',
+            address: 'EQBlU_tKISgpepeMFT9t3xTDeiVmo25dW_4vUOl6jId_BNIj',
             addressSwap: ''
         }
     ]
@@ -279,7 +279,7 @@ export const App: React.FC = () => {
     function setListJettonsFromDexType (address2:any = address) {
         if (dexType === 1) { // mainnet
             if (address2 !== '') { // добавление жетона в список
-                const jetton2 = 'kQAbqFt1YVaa8LnsFWOzeaqqVOLBXAyGqYNiI8jphUSyshJz'
+                const jetton2 = 'EQBlU_tKISgpepeMFT9t3xTDeiVmo25dW_4vUOl6jId_BNIj'
                 getJettonWalletAddress(jetton2, address2).then((walletAddress) => {
                     console.log('setListJettonsFromDexType walletAddress', walletAddress)
                     if (walletAddress) {
@@ -484,9 +484,15 @@ export const App: React.FC = () => {
 
         let jwallAddress: Address
         if (jwallAddressResp.data.ok === true) {
-            jwallAddress = new Address(`0:${jwallAddressResp.data.result.stack[0][1].substring(2)}`)
+            if (jwallAddressResp.data.result.exit_code === 0) {
+                const addr2 = `0:${jwallAddressResp.data.result.stack[0][1].substring(2)}`
+                console.log(jwallAddressResp.data.result.exit_code)
+                jwallAddress = new Address(addr2)
 
-            jwallAddressBounceable = jwallAddress.toString('base64', { bounceable: true })
+                jwallAddressBounceable = jwallAddress.toString('base64', { bounceable: true })
+            } else {
+                console.error(jwallAddressResp)
+            }
         } else {
             console.error(jwallAddressResp)
         }
@@ -876,7 +882,7 @@ export const App: React.FC = () => {
     // авторизация через кошелек тонхаб
     async function loginHub () {
         if (isExtension) {
-            let connector = new TonhubLocalConnector('sandbox')
+            const connector = new TonhubLocalConnector('sandbox')
             alert(JSON.stringify(connector))
         } else {
             setPopout(<ScreenSpinner />)
