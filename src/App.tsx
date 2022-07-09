@@ -254,7 +254,7 @@ export const App: React.FC = () => {
     const [ cookies, setCookie, removeCookie ] = useCookies([ 'session', 'session_hub' ]) // куки
 
     const [ listJettons, setListJettons ] = React.useState<any>(
-        listJTestNet
+        dexTypeGlobal === 1 ? listJMainNet : listJTestNet
     ) // список жетонов в дексе
 
     const [ fromJetton, setFromJetton ] = React.useState<number>(0) // первый жетон в дексе на обмен
