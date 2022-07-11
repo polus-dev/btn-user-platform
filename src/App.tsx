@@ -205,6 +205,45 @@ export const App: React.FC = () => {
             balance: 0,
             address: 'EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw',
             addressSwap: ContrBTNSwapAddress
+        },
+        {
+            id: 3,
+            name: 'JETTON',
+            symbl: 'JETTON',
+            img: '',
+            price: 0,
+            min: 0.1,
+            max: 1000,
+            wallet: '',
+            balance: 0,
+            address: 'EQDAgy1xcNg0aFle548miasSdLCkL1nDeqSLP7Pua4wq-iTo',
+            addressSwap: ContrBTNSwapAddress
+        },
+        {
+            id: 4,
+            name: 'JETTON',
+            symbl: 'JETTON',
+            img: '',
+            price: 0,
+            min: 0.1,
+            max: 1000,
+            wallet: '',
+            balance: 0,
+            address: 'EQDQoc5M3Bh8eWFephi9bClhevelbZZvWhkqdo80XuY_0qXv',
+            addressSwap: ContrBTNSwapAddress
+        },
+        {
+            id: 4,
+            name: 'JETTON',
+            symbl: 'JETTON',
+            img: '',
+            price: 0,
+            min: 0.1,
+            max: 1000,
+            wallet: '',
+            balance: 0,
+            address: 'EQAvDfWFG0oYX19jwNDNBBL1rKNT9XfaGP9HyTb5nb2Eml6y',
+            addressSwap: ContrBTNSwapAddress
         }
     ]
 
@@ -268,6 +307,8 @@ export const App: React.FC = () => {
     const [ dexType, setDexType ] = React.useState<number>(dexTypeGlobal) // тип декса 0- тестнет
 
     const [ inpBuy, setInpBuy ] = React.useState<any>('') // выбор жетона для перевода
+
+    const [ loadPage, setLoadPage ] = React.useState<any>(0) // Полная загрузка страницы
 
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
@@ -358,7 +399,10 @@ export const App: React.FC = () => {
         let img2 = ''
         if (jsonJetton.data.image) {
             img2 = jsonJetton.data.image
-            if (img2.indexOf('//') > -1) {
+
+            if (img2.indexOf('http') > -1) {
+                img2 += ''
+            } else if (img2.indexOf('ipfs://') > -1) {
                 img2 = img2.substring(7, img2.length)
                 img2 = `https://${jsonJetton.data.image.split('//')[1]}.ipfs.infura-ipfs.io/`
             } else {
@@ -425,13 +469,18 @@ export const App: React.FC = () => {
                         console.log('sliceCell', sliceCell)
 
                         const stringCell = sliceCell.loadBytes(size)
-                        let str2 = (new TextDecoder('utf-8').decode(stringCell))
-                        console.log('str2', str2)
-                        if (str2.indexOf('//') > -1) {
-                            str2 = str2.substring(7, str2.length)
-                        }
 
-                        const urlIpfs = `https://${str2}.ipfs.infura-ipfs.io/`
+                        let urlIpfs = ''
+                        let str2 = (new TextDecoder('utf-8').decode(stringCell))
+
+                        console.log('str2', str2)
+
+                        if (str2.indexOf('http') > -1) {
+                            urlIpfs = str2
+                        } else if (str2.indexOf('//') > -1) {
+                            str2 = str2.substring(7, str2.length)
+                            urlIpfs = `https://${str2}.ipfs.infura-ipfs.io/`
+                        }
 
                         const jsonJetton = await gteDataApi(urlIpfs)
 
@@ -454,10 +503,11 @@ export const App: React.FC = () => {
                             console.error('error load json jetton')
                         }
                     } else {
-                        console.error('error load json jetton stack')
+                        console.error('#2 error load json jetton stack')
                     }
                 } else {
-                    console.error('error load json jetton stack')
+                    console.error('#1 error load json jetton stack')
+                    console.log('error data=>', jwallAddressResp.data.result.stack)
                 }
             } else {
                 console.error('enot lox')
@@ -544,15 +594,27 @@ export const App: React.FC = () => {
                 if (jwallAddressResp2.data.ok === true) {
                     if (jwallAddressResp2.data.result.exit_code === 0) {
                         // const addr2 = `0:${jwallAddressResp2.data.result.stack[0][1].substring(2)}`
-                        console.log('addr2', jwallAddressResp2.data.result)
+                        // console.log('addr2', jwallAddressResp2.data.result)
 
-                        console.log('bytes', jwallAddressResp2.data.result.stack[0][1].bytes)
+                        // console.log('bytes', jwallAddressResp2.data.result.stack[0][1].bytes)
 
-                        const addr3 = BOC.fromStandard(
-                            jwallAddressResp2.data.result.stack[0][1].bytes
-                        )
+                        const addr3 = jwallAddressResp2.data.result.stack[0][1].bytes
 
-                        console.log('addr3', addr3)
+                        if (addr3 !== null) {
+                            const addressWallet = Slice.parse(
+                                BOC.fromStandard(addr3)
+                            ).loadAddress()
+
+                            console.log('addressWallet', addressWallet)
+
+                            if (addressWallet !== null) {
+                                jwallAddressBounceable = addressWallet.toString('base64', { bounceable: true })
+                            } else {
+                                console.error('#222 errror', jwallAddressResp2.data)
+                            }
+                        } else {
+                            console.error('#999 error', jwallAddressResp2.data)
+                        }
 
                         // const walletAddress = Cell
                         //     .fromBoc(Buffer.from(stack[0][1].bytes, 'base64'))[0]
@@ -901,15 +963,17 @@ export const App: React.FC = () => {
         for (let i = 1; i < listJettons2.length; i++) {
             if (listJettons2[i].wallet !== '') {
                 console.log('listJettons2[i]', listJettons2[i])
-                const info = await getDataJetton(listJettons2[i].wallet, 0, '', 1)
+                const info = await getDataJetton(listJettons2[i].address, 0, '', 1)
                 if (info) {
                     listJettons2[i].name = info.name
-                    listJettons2[i].symbol = info.symbol
+                    listJettons2[i].symbl = info.symbol
 
                     let img2 = ''
                     if (info.image) {
                         img2 = info.image
-                        if (img2.indexOf('//') > -1) {
+                        if (img2.indexOf('http') > -1) {
+                            img2 += ''
+                        } else if (img2.indexOf('//') > -1) {
                             img2 = img2.substring(7, img2.length)
                             img2 = `https://${info.image.split('//')[1]}.ipfs.infura-ipfs.io/`
                         } else {
@@ -926,6 +990,8 @@ export const App: React.FC = () => {
         }
         setListJettonsFromStor(listJettons2)
         setListJettons(listJettons2)
+
+        setLoadPage(1)
     }
 
     // обновление баланса жентонов из списка
@@ -1157,8 +1223,7 @@ export const App: React.FC = () => {
             const request: TonhubLocalTransactionRequest = {
                 to: addressJopa1, // Destination
                 value: valueTon, // Amount in nano-tons
-                text: '', // Optional comment. If no payload specified - sends actual content, if payload is provided this text is used as UI-only hint
-                payload: '....' // Optional serialized to base64 string payload cell
+                text: '' // Optional comment. If no payload specified - sends actual content, if payload is provided this text is used as UI-only hint
             }
 
             if (boc1 !== null) {
@@ -1245,7 +1310,7 @@ export const App: React.FC = () => {
                         Success
                     </Snackbar>)
                     getBalanceTon()
-                    getBalanceBiton()
+                    loginCook() // временно
                 }, 10 * 1000)
                 return { type: 'ok', data: response }
             }
@@ -1991,7 +2056,7 @@ export const App: React.FC = () => {
                         if (typeWallet === 0) {
                             login()
                         } else {
-                            // getBalanceTon()
+                            getBalanceTon()
                             loginCook()
                             // getBalanceBiton()
                         }
@@ -2074,7 +2139,7 @@ export const App: React.FC = () => {
                                                             {balanceString(jetton.balance)}
                                                             {` ${jetton.symbl}`}
                                                         </b>
-                                                        {key > 2
+                                                        {key > 4
                                                             ? <IconButton
                                                                 onClick={
                                                                     () => {
@@ -2373,11 +2438,21 @@ export const App: React.FC = () => {
         return '100%'
     }
 
+    function getPaddingTop () {
+        if (isDesktop) {
+            return '10px'
+        }
+        if (isExtension) {
+            return '0px'
+        }
+        return '40px'
+    }
+
     return (
 
         <AppRoot>
             <SplitLayout
-                style={{ justifyContent: 'center', paddingTop: isDesktop ? '10px' : '40px' }}
+                style={{ justifyContent: 'center', paddingTop: getPaddingTop() }}
                 header={hasHeader && !isExtension && <PanelHeader separator={false} className={'menu1'} left={
                     <img src={logoPNG} className="logo" style={{ cursor: 'pointer' }} />
                 }
@@ -2563,7 +2638,7 @@ export const App: React.FC = () => {
                 </SplitCol>
                 }
 
-                {listJettons.length > 1
+                {listJettons.length > 1 && loadPage === 1
                     ? <SplitCol
                         animate={!isDesktop}
                         spaced={isDesktop}
@@ -2688,7 +2763,7 @@ export const App: React.FC = () => {
                         </Epic>
                     </SplitCol>
                     : <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                        <Spinner size="large" style={{ margin: '20px 0' }} />
+                        <Spinner size="large" style={{ margin: isDesktop ? '50px 0' : '20px 0' }} />
                     </div>
                 }
                 {snackbar}

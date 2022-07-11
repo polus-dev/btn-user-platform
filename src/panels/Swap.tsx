@@ -133,7 +133,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         if (priceData.data.ok === true) {
             const amout1 = (Number(priceData.data.result.stack[0][1]) / 10 ** 9).toFixed(9)
             const price1 = (Number(priceData.data.result.stack[1][1]) / 10 ** 9).toFixed(9)
-            const fee1 = (Number(priceData.data.result.stack[2][1]) / 10 ** 9).toFixed(9)
+            let fee1 = '0.01'
+            if (priceData.data.result.stack[2]) {
+                fee1 = (Number(priceData.data.result.stack[2][1]) / 10 ** 9).toFixed(9)
+            }
 
             console.log('test price', priceData.data.result)
 
@@ -311,7 +314,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     return (
         <View activePanel={props.id} id={props.id}>
             <Panel id={props.id}>
-                <PanelHeader></PanelHeader>
+                {!isExtension && <PanelHeader></PanelHeader>}
                 {/* <PanelHeader
                     left={props.isDesktop ? null : <img src={logoPNG} className="logo" style={{ marginLeft: '16px' }} />}
                     right={
@@ -345,7 +348,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                     }
                 ></PanelHeader> */}
                 <Group>
-                    <Div>
+                    <Div style={ isExtension ? { paddingTop: '0' } : {}}>
                         {!isExtension
                         && <SegmentedControl
                             name="sex"
@@ -677,6 +680,13 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 >Connect wallet</Button>
                             }
                         </Div>
+
+                        {isExtension
+                            ? <Div style={{ textAlign: 'center' }}>
+                                <div style={{ textAlign: 'center' }}>Powered by <Link href="https://biton.pw" target='_blank'>BITON</Link></div>
+                                {/* <img src={logoPNG} className="logo" /> */}
+                            </Div>
+                            : null}
                         {/* <Div>
                             <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => props.setModal('liquidity')} mode="secondary">Add liquidity</Button>
                         </Div> */}
