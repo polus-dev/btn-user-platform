@@ -66,7 +66,7 @@ import '@vkontakte/vkui/dist/vkui.css'
 import './style.css'
 
 import React, { useEffect } from 'react'
-import { TonhubConnector, TonhubLocalConnector } from 'ton-x'
+import { TonhubConnector, TonhubLocalConnector, TonhubLocalTransactionRequest } from 'ton-x'
 import {
     TonhubCreatedSession,
     TonhubSessionAwaited,
@@ -115,10 +115,20 @@ let connector:any
 
 function createTonRPC () {
     if (dexTypeGlobal === 1) { // mainnet
-        connector = new TonhubConnector({ network: 'mainnet' })
+        if (isExtension) {
+            connector = new TonhubLocalConnector('mainnet')
+        } else {
+            connector = new TonhubConnector({ network: 'mainnet' })
+        }
+
         return new ToncenterRPC('https://mainnet-rpc.biton.app/jsonRPC')
     } // testnet
-    connector = new TonhubConnector({ network: 'sandbox' })
+    if (isExtension) {
+        connector = new TonhubLocalConnector('sandbox')
+    } else {
+        connector = new TonhubConnector({ network: 'sandbox' })
+    }
+
     return new ToncenterRPC('https://sandbox.tonhubapi.com/jsonRPC')
 }
 
@@ -952,6 +962,20 @@ export const App: React.FC = () => {
         loadBalanceFromListJettons(listJettons2)
     }
 
+    async function loginIframeHub () {
+        if (isExtension) {
+            setAddress(connector.config.address)
+
+            getBalanceTon(connector.config.address)
+
+            loadWalletAddressFromListJettons(listJettons, connector.config.address)
+
+            setWalletHub(connector.config)
+
+            setLoadWallet(1)
+        }
+    }
+
     // авторизация через куки тонхаб
     async function loginCook () {
         const sess = cookies.session
@@ -977,6 +1001,10 @@ export const App: React.FC = () => {
             loadWalletAddressFromListJettons(listJ, sess.wallet.address)
 
             setLoadWallet(1)
+        }
+
+        if (isExtension) {
+            loginIframeHub()
         }
     }
 
@@ -1125,7 +1153,46 @@ export const App: React.FC = () => {
         valueTon: any = '100000000',
         boc1: any = null
     ): Promise<Object> {
-        if (WalletHub !== null && sessionHub !== null) {
+        if (isExtension && WalletHub !== null) {
+            const request: TonhubLocalTransactionRequest = {
+                to: addressJopa1, // Destination
+                value: valueTon, // Amount in nano-tons
+                text: '', // Optional comment. If no payload specified - sends actual content, if payload is provided this text is used as UI-only hint
+                payload: '....' // Optional serialized to base64 string payload cell
+            }
+
+            if (boc1 !== null) {
+                request.payload = boc1
+            }
+            const response: any = await connector
+                .requestTransaction(request)
+
+            if (response.type === 'success') {
+                // Handle successful transaction
+                console.log('response.response', response.response)
+                // const externalMessage = response.response // Signed exteto the network
+                setModal('wait')
+
+                setTimeout(() => {
+                    setModal(null)
+                    setSnackbar(<Snackbar
+                        onClose={() => setSnackbar(null)}
+                        before={
+                            <Avatar size={24} style={{ background: 'var(--vkui--color_background_positive)' }}>
+                                <Icon16CheckDoubleOutline fill="#fff" width={14} height={14} />
+                            </Avatar>
+                        }
+                    >
+                            Success
+                    </Snackbar>)
+                    getBalanceTon()
+                    getBalanceBiton()
+                }, 10 * 1000)
+                return { type: 'ok', data: response }
+            }
+            console.log(response)
+            return { type: 'error', data: response }
+        } if (WalletHub !== null && sessionHub !== null) {
             // setPopout(<ScreenSpinner />)
             setModal('confirm')
             // const windowTon:any = window

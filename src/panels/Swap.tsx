@@ -31,6 +31,7 @@ import '@vkontakte/vkui/dist/vkui.css'
 import React, { useEffect } from 'react'
 
 import { Address, BOC, Coins } from 'ton3-core'
+import { TonhubLocalConnector } from 'ton-x'
 import { ToncenterRPC } from '../logic/tonapi'
 import { TokenWallet } from '../logic/contracts'
 
@@ -66,6 +67,8 @@ interface IMyProps {
     toJetton: any,
     setToJetton: Function
 }
+
+const isExtension: boolean = TonhubLocalConnector.isAvailable()
 
 function truncate (fullStr:any, strLen:any) {
     if (fullStr.length <= strLen) return fullStr
@@ -343,7 +346,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                 ></PanelHeader> */}
                 <Group>
                     <Div>
-                        <SegmentedControl
+                        {!isExtension
+                        && <SegmentedControl
                             name="sex"
                             defaultValue="swap"
                             onChange={(value) => {
@@ -372,6 +376,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 }
                             ]}
                         />
+                        }
 
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
                             <Div style={{ paddingBottom: 32 }}>
