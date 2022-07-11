@@ -517,18 +517,43 @@ export const App: React.FC = () => {
                 }
             } else {
                 // попробовать другой метод
+                const addressO = new Address(addressUser)
+                const builder = new Builder().storeAddress(addressO)
+                const boc2 = BOC.toBase64Standard(builder.cell())
 
                 //         let jwallAddressBounceable2:any
 
                 //         const ownerAddressCell = Slice
                 //         ownerAddressCell.a
-                // const jwallAddressResp2 = await tonrpc.request('runGetMethod', {
-                //     address: addressJetton,
-                //     method: 'get_wallet_address',
-                //     stack: [ [ 'tvm.Slice', `0x${addressHexNoWC}` ] ]
-                // })
+                const jwallAddressResp2 = await tonrpc.request('runGetMethod', {
+                    address: addressJetton,
+                    method: 'get_wallet_address',
+                    stack: [ [ 'tvm.Slice', boc2 ] ]
+                })
 
-                console.error(jwallAddressResp.data)
+                if (jwallAddressResp2.data.ok === true) {
+                    if (jwallAddressResp2.data.result.exit_code === 0) {
+                        // const addr2 = `0:${jwallAddressResp2.data.result.stack[0][1].substring(2)}`
+                        console.log('addr2', jwallAddressResp2.data.result)
+
+                        console.log('bytes', jwallAddressResp2.data.result.stack[0][1].bytes)
+
+                        const addr3 = BOC.fromStandard(
+                            jwallAddressResp2.data.result.stack[0][1].bytes
+                        )
+
+                        console.log('addr3', addr3)
+
+                        // const walletAddress = Cell
+                        //     .fromBoc(Buffer.from(stack[0][1].bytes, 'base64'))[0]
+                        //     .beginParse()
+                        //     .readAddress()!;
+                    } else {
+                        console.error('jwallAddressResp2 #2', jwallAddressResp2.data)
+                    }
+                } else {
+                    console.error('jwallAddressResp2 #1', jwallAddressResp2.data)
+                }
             }
         } else {
             console.error(jwallAddressResp.data)
@@ -2436,7 +2461,7 @@ export const App: React.FC = () => {
                     maxWidth={isDesktop ? '800px' : '100%'}
                 >
                     <Panel>
-                        {hasHeader && <PanelHeader left={
+                        {hasHeader && !isExtension && <PanelHeader left={
                             <img src={logoPNG} className="logo" />
                         }>
                             <div className="logo-block">
