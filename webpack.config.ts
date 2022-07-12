@@ -13,7 +13,7 @@ const config: Configuration = {
     devServer: {
         static: { directory: path.join(__dirname, 'public') },
         compress: true,
-        https: true,
+        https: false,
         port: 8080
     },
     resolve: {
