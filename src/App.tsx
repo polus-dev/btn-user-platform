@@ -257,7 +257,7 @@ export const App: React.FC = () => {
 
     const platform = usePlatform()
 
-    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit', 'add_jetton', 'remove_jetton', 'farms', 'ico' ]
+    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit', 'add_jetton', 'remove_jetton', 'farms', 'ico', 'select' ]
 
     const [ modal, setModal ] = React.useState<any>(null)
     const [ popout, setPopout ] = React.useState<any>(null)
@@ -969,7 +969,7 @@ export const App: React.FC = () => {
     async function updateInfoJettons (list:any) {
         const listJettons2 = list
         for (let i = 1; i < listJettons2.length; i++) {
-            if (listJettons2[i].wallet !== '') {
+            if (listJettons2[i].address !== '') {
                 console.log('listJettons2[i]', listJettons2[i])
                 const info = await getDataJetton(listJettons2[i].address, 0, '', 1)
                 if (info) {
@@ -1076,6 +1076,8 @@ export const App: React.FC = () => {
 
             setLoadWallet(1)
         }
+
+        loadBalanceFromListJettons(listJettons)
 
         if (isExtension) {
             loginIframeHub()
@@ -1705,6 +1707,36 @@ export const App: React.FC = () => {
         return result
     }
 
+    function changeJetton (jetton:any, type:any) {
+        // getPriceSwap()
+
+        if (type === 0) { // from
+            if (Number(jetton) === Number(toJetton)) {
+                // если юзер выбрал 2 одинаковых жетона - меняем местами
+                setToJetton(Number(fromJetton))
+            } else if (Number(toJetton) === 0) {
+                // если юзер хочет поменять тон на жетон - поставить тон в другой выбор
+                setToJetton(0)
+            } else if (Number(fromJetton) === 0) {
+                setToJetton(0)
+            }
+            setFromJetton(Number(jetton))
+        } else { // to
+            if (Number(jetton) === Number(fromJetton)) {
+                // если юзер выбрал 2 одинаковых жетона - меняем местами
+                setFromJetton(Number(toJetton))
+            } else if (Number(toJetton) === 0) {
+                // если юзер хочет поменять тон на жетон - поставить тон в другой выбор
+                setFromJetton(0)
+            } else if (Number(fromJetton) === 0) {
+                setFromJetton(0)
+            }
+            setToJetton(Number(jetton))
+        }
+
+        calculateAmountNew(btnSwap, 0)
+    }
+
     const ModalRootFix:any = ModalRoot
     const modalRoot = (
         <ModalRootFix activeModal={modal}>
@@ -1746,6 +1778,32 @@ export const App: React.FC = () => {
                             Logout
                             </Button>
                         </ButtonGroup>
+                    </Div>
+                </Group>
+            </ModalPage>
+
+            {/* select jetton */}
+            <ModalPage
+                id={modals[13]}
+                onClose={() => setModal(null)}
+                header={<ModalPageHeader>Select</ModalPageHeader>}
+            >
+                <Group>
+                    <Div>
+                        <Title weight="3" level="2">Select jetton</Title>
+                        <br />
+                        {filterArr(listJettons).map(
+                            (jetton:any, key:number) => (
+                                <SimpleCell
+                                    key={key}
+                                    before={<Avatar size={48} src={jetton.img} />}
+                                    // badge={<Icon20DiamondOutline />}
+                                    description={`${balanceString(jetton.balance)} ${jetton.symbl}`}
+                                    onClick={ () => changeJetton(key, 0)}
+                                >
+                                    {jetton.name}
+                                </SimpleCell>)
+                        )}
                     </Div>
                 </Group>
             </ModalPage>

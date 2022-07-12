@@ -413,7 +413,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 placeholder="TON"
                                                 selectType="plain"
                                                 className='fix_input'
-                                                style={{ maxWidth: '38%' }}
+                                                style={{ maxWidth: '38%', cursor: 'pointer' }}
                                                 options={
                                                     filterArr(props.listJettons).map(
                                                         (jetton:any, key:number) => ({
@@ -424,6 +424,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                         })
                                                     )
                                                 }
+                                                disabled
+                                                onClick={() => props.setModal('select')}
                                                 renderOption={({ option, ...restProps }) => (
 
                                                     <CustomSelectOption
