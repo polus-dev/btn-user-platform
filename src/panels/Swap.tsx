@@ -65,7 +65,8 @@ interface IMyProps {
     fromJetton: any,
     setFromJetton: Function,
     toJetton: any,
-    setToJetton: Function
+    setToJetton: Function,
+    loginHub: Function
 }
 
 const isExtension: boolean = TonhubLocalConnector.isAvailable()
@@ -501,7 +502,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 placeholder="BTN"
                                                 selectType="plain"
                                                 className='fix_input'
-                                                style={{ maxWidth: '38%' }}
+                                                style={{ maxWidth: '38%', cursor: 'pointer' }}
                                                 options={
                                                     filterArr(props.listJettons).map(
                                                         (jetton:any, key:number) => (
@@ -527,6 +528,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                     />
 
                                                 )}
+                                                disabled
+                                                onClick={() => props.setModal('select_to')}
                                                 value={props.toJetton}
                                                 onChange={(e:any) => {
                                                     changeJetton(e.target.value, 1)
@@ -676,7 +679,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 : <Button
                                     size="l"
                                     stretched
-                                    onClick={() => props.setModal('login')}
+                                    onClick={() => {
+                                        props.loginHub()
+                                        props.setModal('login')
+                                    }}
                                     data-story="swap"
                                     before={<Icon28DoorArrowLeftOutline/>}
                                 >Connect wallet</Button>
