@@ -110,8 +110,16 @@ function truncate (fullStr:any, strLen:any) {
            + fullStr.substr(fullStr.length - backChars)
 }
 
-const dexTypeGlobal:number = 1 // 0 -  тестнет
+let dexTypeGlobal:number = 1 // 0 -  тестнет
 let connector:any
+
+function getNet () {
+    if (document.location.href.indexOf('sandbox') > -1) {
+        dexTypeGlobal = 0
+    }
+}
+
+getNet()
 
 function createTonRPC () {
     if (dexTypeGlobal === 1) { // mainnet
