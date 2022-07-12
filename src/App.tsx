@@ -10,6 +10,7 @@ import {
     Icon28ArticleOutline,
     Icon28CoinsOutline,
     Icon28DeleteOutline,
+    Icon28DoneOutline,
     Icon28DoorArrowLeftOutline,
     Icon28DoorArrowRightOutline,
     Icon28HomeOutline,
@@ -257,7 +258,23 @@ export const App: React.FC = () => {
 
     const platform = usePlatform()
 
-    const modals = [ 'confirm', 'send', 'recive', 'wallet', 'login', 'wait', 'confirmSwap', 'liquidity', 'conf_exit', 'add_jetton', 'remove_jetton', 'farms', 'ico', 'select' ]
+    const modals = [
+        'confirm',
+        'send',
+        'recive',
+        'wallet',
+        'login',
+        'wait',
+        'confirmSwap',
+        'liquidity',
+        'conf_exit',
+        'add_jetton',
+        'remove_jetton',
+        'farms',
+        'ico',
+        'select',
+        'select_to'
+    ]
 
     const [ modal, setModal ] = React.useState<any>(null)
     const [ popout, setPopout ] = React.useState<any>(null)
@@ -1735,6 +1752,7 @@ export const App: React.FC = () => {
         }
 
         calculateAmountNew(btnSwap, 0)
+        setModal(null)
     }
 
     const ModalRootFix:any = ModalRoot
@@ -1782,7 +1800,7 @@ export const App: React.FC = () => {
                 </Group>
             </ModalPage>
 
-            {/* select jetton */}
+            {/* select from jetton */}
             <ModalPage
                 id={modals[13]}
                 onClose={() => setModal(null)}
@@ -1790,7 +1808,7 @@ export const App: React.FC = () => {
             >
                 <Group>
                     <Div>
-                        <Title weight="3" level="2">Select jetton</Title>
+                        <Title weight="3" level="2">Select jetton from swap</Title>
                         <br />
                         {filterArr(listJettons).map(
                             (jetton:any, key:number) => (
@@ -1798,8 +1816,36 @@ export const App: React.FC = () => {
                                     key={key}
                                     before={<Avatar size={48} src={jetton.img} />}
                                     // badge={<Icon20DiamondOutline />}
+                                    after={key === fromJetton ? <Icon28DoneOutline /> : null}
                                     description={`${balanceString(jetton.balance)} ${jetton.symbl}`}
                                     onClick={ () => changeJetton(key, 0)}
+                                >
+                                    {jetton.name}
+                                </SimpleCell>)
+                        )}
+                    </Div>
+                </Group>
+            </ModalPage>
+
+            {/* select to jetton */}
+            <ModalPage
+                id={modals[14]}
+                onClose={() => setModal(null)}
+                header={<ModalPageHeader>Select</ModalPageHeader>}
+            >
+                <Group>
+                    <Div>
+                        <Title weight="3" level="2">Select jetton to swap</Title>
+                        <br />
+                        {filterArr(listJettons).map(
+                            (jetton:any, key:number) => (
+                                <SimpleCell
+                                    key={key}
+                                    before={<Avatar size={48} src={jetton.img} />}
+                                    // badge={<Icon20DiamondOutline />}
+                                    after={key === toJetton ? <Icon28DoneOutline /> : null}
+                                    description={`${balanceString(jetton.balance)} ${jetton.symbl}`}
+                                    onClick={ () => changeJetton(key, 1)}
                                 >
                                     {jetton.name}
                                 </SimpleCell>)
@@ -1848,7 +1894,7 @@ export const App: React.FC = () => {
                             <Spinner size="large" style={{ margin: '20px 0' }} />
                         </div>
                         <br />
-                        {isDesktop ? null
+                        {isDesktop || isExtension ? null
                             : <Button size='l' stretched href={dexTypeGlobal ? 'ton://connect' : 'ton-test://connect'}>View in TonHub</Button>
                         }
                     </Div>
@@ -2825,6 +2871,7 @@ export const App: React.FC = () => {
                                 setFromJetton={setFromJetton}
                                 toJetton={toJetton}
                                 setToJetton={setToJetton}
+                                loginHub={loginHub}
                             />
                         </Epic>
                     </SplitCol>
