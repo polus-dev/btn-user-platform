@@ -411,7 +411,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 size={34}
                                             />
                                             <CustomSelect
-                                                placeholder="TON"
+                                                placeholder={
+                                                    props.listJettons[props.fromJetton].symbl
+                                                }
                                                 selectType="plain"
                                                 className='fix_input'
                                                 style={{ maxWidth: '38%', cursor: 'pointer' }}
@@ -499,7 +501,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 size={34}
                                             />
                                             <CustomSelect
-                                                placeholder="BTN"
+                                                placeholder={
+                                                    props.listJettons[props.toJetton].symbl
+                                                }
                                                 selectType="plain"
                                                 className='fix_input'
                                                 style={{ maxWidth: '38%', cursor: 'pointer' }}

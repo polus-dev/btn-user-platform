@@ -2017,10 +2017,10 @@ export const App: React.FC = () => {
                         {swapConfirm !== null
                             ? <div>
                                 <SimpleCell multiline>
-                                    <InfoRow header={`Give amount ${swapConfirm.type === true ? 'Ton' : 'Biton'}`}>{Number(swapConfirm.amountU).toFixed(2)}</InfoRow>
+                                    <InfoRow header={`Give amount ${listJettons[fromJetton].symbl}`}>{Number(swapConfirm.amountU).toFixed(2)}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
-                                    <InfoRow header={`Accept amount ${swapConfirm.type === false ? 'Ton' : 'Biton'}`}>{Number(swapConfirm.amount).toFixed(2)}</InfoRow>
+                                    <InfoRow header={`Accept amount ${listJettons[toJetton].symbl}`}>{Number(swapConfirm.amount).toFixed(2)}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
                                     <InfoRow header={'Market price'}>{swapConfirm.price}</InfoRow>
