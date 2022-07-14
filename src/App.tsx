@@ -83,7 +83,7 @@ import { Address, BOC, Builder, Coins, Slice } from 'ton3-core'
 import { useCookies } from 'react-cookie'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { exit } from 'process'
-import { WalletPanel, SwapPanel, ExplorerPanel } from './panels'
+import { WalletPanel, SwapPanel, ExplorerPanel, FarmsPanel } from './panels'
 import { ToncenterRPC } from './logic/tonapi'
 import { TokenWallet } from './logic/contracts'
 import { Enot } from './enot'
@@ -2545,6 +2545,9 @@ export const App: React.FC = () => {
             if (activeStory === 'explorer') {
                 return '700px'
             }
+            if (activeStory === 'farms') {
+                return '700px'
+            }
             return '380px'
         }
         return '100%'
@@ -2844,6 +2847,38 @@ export const App: React.FC = () => {
                             />
                             <SwapPanel
                                 id={'swap'}
+                                tonrpc={tonrpc}
+                                setAddress={setAddress}
+                                setModal={setModal}
+                                setAddressJopa={setAddressJopa}
+                                ContrBTNAddress={ContrBTNAddress}
+                                ContrBTNSwapAddress={ContrBTNSwapAddress}
+                                addressJopa={addressJopa}
+                                address={address}
+                                login={login}
+                                loadWallet={loadWallet}
+                                balance={balance}
+                                balanceBTN={balanceBTN}
+                                sendBocTHub={sendBocTHub}
+                                setSnackbar={setSnackbar}
+                                setSwapConfirm={setSwapConfirm}
+                                swapConfirm={swapConfirm}
+                                setBtnSwap={setBtnSwap}
+                                btnSwap={btnSwap}
+                                torSwap={torSwap}
+                                setTorSwap={setTorSwap}
+                                isDesktop={isDesktop}
+                                setActiveStory={setActiveStory}
+                                listJettons={listJettons}
+                                fromJetton={fromJetton}
+                                setFromJetton={setFromJetton}
+                                toJetton={toJetton}
+                                setToJetton={setToJetton}
+                                loginHub={loginHub}
+                            />
+
+                            <FarmsPanel
+                                id={'farms'}
                                 tonrpc={tonrpc}
                                 setAddress={setAddress}
                                 setModal={setModal}

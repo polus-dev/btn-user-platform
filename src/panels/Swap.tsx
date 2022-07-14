@@ -356,8 +356,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                             defaultValue="swap"
                             onChange={(value) => {
                                 if (value === 'farms') {
-                                    props.setModal('farms')
+                                    // props.setModal('farms')
                                     setTypeDex('swap')
+                                    props.setActiveStory('farms')
                                 } else if (value === 'explorer') {
                                     props.setActiveStory('explorer')
                                 } else {
