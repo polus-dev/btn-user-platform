@@ -10,6 +10,10 @@ body {
     padding: 0!important;
 }
 
+body {
+    /* overflow-x: scroll; */
+}
+
 .vkuiModalPage__in {
     width: 516px!important;
 }
@@ -87,9 +91,58 @@ html,
     border-radius: 12px!important;
 }
 
+.menu1 {
+    z-index: 20!important;
+}
+
+.menu1 .FixedLayout__in {
+    display: flex;
+    justify-content: center;
+    background: var(--header_background);
+}
+
+.menu1 .PanelHeader__in {
+    width: 990px!important;
+}
+
+.vkuiModalRoot__mask {
+    backdrop-filter: blur(3px);
+}
+
+.vkuiModalPage--desktop .vkuiModalPage__in {
+    /* max-height: 800px; */
+}
+
+.vkuiModalPage__in {
+    /* background: #19191ad2; */
+}
+
+.vkuiSplitLayout__inner {
+    height: auto;
+}
+
+
+/* .fix_input {
+    max-width: 33%;
+} */
+
+.fix_input input {
+    font-size: 17px
+}
+
+.fix_input * {
+    border-color: transparent!important;
+    font-size: 17px!important
+}
+
 @media (min-width: 800px) {
-    .vkuiPanelHeader::before,
-    .vkuiPanelHeader .vkuiPanelHeader__in {
+    .menu1.vkuiPanelHeader::before,
+    .menu1.vkuiPanelHeader .vkuiPanelHeader__in {
         height: 104px!important;
     }
+}
+
+.vkuiAvatar__img[src*="data:image"] {
+    /* болт дурак */
+    background: #fff;
 }
