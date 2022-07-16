@@ -141,3 +141,8 @@ html,
         height: 104px!important;
     }
 }
+
+.vkuiAvatar__img[src*="data:image"] {
+    /* болт дурак */
+    background: #fff;
+}

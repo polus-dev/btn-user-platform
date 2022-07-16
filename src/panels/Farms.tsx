@@ -54,7 +54,9 @@ interface IMyProps {
     setFromJetton: Function,
     toJetton: any,
     setToJetton: Function,
-    loginHub: Function
+    loginHub: Function,
+    getPriceSwapNew: Function,
+    balanceLp: any
 }
 
 const Farms: React.FC<IMyProps> = (props: IMyProps) => {
@@ -125,17 +127,20 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                             <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
                                                 <span style={{ paddingRight: '12px' }}>
                                                     <b>
-                                                        {props.listJettons[2].balance} BTN-LP
+                                                        {props.balanceLp} VNR-LP
                                                     </b>
                                                 </span>
-                                                <IconButton onClick={() => props.setModal('liquidity')}>
+                                                <IconButton onClick={() => {
+                                                    props.setModal('liquidity')
+                                                    props.getPriceSwapNew()
+                                                }}>
                                                     <Icon28AddCircleOutline />
                                                 </IconButton>
                                             </div>
                                         }
                                     // description="Бот"
                                     >
-                                        <b>TON-BTN</b>
+                                        <b>TON-VNR</b>
                                     </SimpleCell>
                                 </Card>
                                 : null }
