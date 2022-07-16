@@ -2533,7 +2533,7 @@ export const App: React.FC = () => {
                                                 placeholder="TON"
                                                 selectType="plain"
                                                 className='fix_input'
-                                                style={{ maxWidth: '38%' }}
+                                                style={{ maxWidth: '32%' }}
                                                 disabled
                                                 options={
                                                     filterArr(listJettons).map(
@@ -2603,7 +2603,7 @@ export const App: React.FC = () => {
                                                 placeholder="VNR"
                                                 selectType="plain"
                                                 className='fix_input'
-                                                style={{ maxWidth: '38%' }}
+                                                style={{ maxWidth: '32%' }}
                                                 disabled
                                                 options={
                                                     filterArr(listJettons).map(
