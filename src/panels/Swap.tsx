@@ -67,7 +67,8 @@ interface IMyProps {
     toJetton: any,
     setToJetton: Function,
     loginHub: Function,
-    dexType: any
+    dexType: any,
+    loginCook: Function
 }
 
 const isExtension: boolean = TonhubLocalConnector.isAvailable()
@@ -393,7 +394,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 <small>Trade token in an instant</small>
                             </Div>
                             <Div>
-                                <IconButton onClick={getPriceSwap}>
+                                <IconButton onClick={() => {
+                                    props.loginCook()
+                                    getPriceSwap()
+                                }}>
                                     <Icon28RefreshOutline />
                                 </IconButton>
                             </Div>

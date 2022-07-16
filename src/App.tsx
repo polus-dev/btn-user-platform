@@ -3004,6 +3004,7 @@ export const App: React.FC = () => {
                                 setToJetton={setToJetton}
                                 loginHub={loginHub}
                                 dexType={dexType}
+                                loginCook={loginCook}
                             />
 
                             <FarmsPanel
