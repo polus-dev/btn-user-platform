@@ -322,6 +322,8 @@ export const App: React.FC = () => {
 
     const [ loadPage, setLoadPage ] = React.useState<any>(0) // Полная загрузка страницы
 
+    const [ liqObj, setLiqObj ] = React.useState<any>(null)
+
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
     }
@@ -1083,6 +1085,59 @@ export const App: React.FC = () => {
         setPopout(null)
     }
 
+    async function getBalanceSwap () {
+        const addressSwap2 = fromJetton === 0
+            ? listJettons[toJetton].addressSwap
+            : listJettons[fromJetton].addressSwap
+
+        const jwallAddressResp = await tonrpc.request('runGetMethod', {
+            address: addressSwap2,
+            method: 'get_btn_balance',
+            stack: [ ]
+        })
+
+        if (jwallAddressResp.data.ok === true) {
+            const balanceJetton = parseFloat(
+                (Number(jwallAddressResp.data.result.stack[0][1]) / 10 ** 9).toFixed(9)
+            )
+
+            console.log('balanceJettonSwap', balanceJetton)
+
+            const jwallAddressResp2 = await tonrpc.request('runGetMethod', {
+                address: addressSwap2,
+                method: 'get_service_collect_fee',
+                stack: [ ]
+            })
+
+            if (jwallAddressResp2.data.ok === true) {
+                // console.log('jwallAddressResp2', jwallAddressResp2.data.result)
+
+                const balanceFee = parseFloat(
+                    (Number(jwallAddressResp2.data.result.stack[0][1]) / 10 ** 9).toFixed(9)
+                )
+                console.log('balanceFee', balanceFee)
+
+                const BalanceTon = await tonrpc.request('getAddressBalance', { address: addressSwap2 })
+                // console.log(BalanceTon.data.result)
+
+                let balTon = parseFloat((BalanceTon.data.result / 10 ** 9).toFixed(9))
+                balTon -= balanceFee
+
+                console.log('balTon', balTon)
+
+                const obff = {
+                    balanceTon: balTon,
+                    balanceJetton
+                }
+                setLiqObj(obff)
+            } else {
+                console.error('get_btn_balance', jwallAddressResp.data)
+            }
+        } else {
+            console.error('get_btn_balance', jwallAddressResp.data)
+        }
+    }
+
     async function updateInfoJettons (list:any, address2:any = address) {
         const listJettons2 = list
         for (let i = 1; i < listJettons2.length; i++) {
@@ -1123,6 +1178,8 @@ export const App: React.FC = () => {
         if (address2) {
             getBalanceTon(address2, true, listJettons2)
             getLpData(address2)
+
+            getBalanceSwap()
         }
 
         setPopout(null)
@@ -3039,6 +3096,8 @@ export const App: React.FC = () => {
                                 loginHub={loginHub}
                                 getPriceSwapNew={getPriceSwapNew}
                                 balanceLp={balanceLp}
+                                liqObj={liqObj}
+                                removeLp={removeLp}
                             />
                         </Epic>
                     </SplitCol>
