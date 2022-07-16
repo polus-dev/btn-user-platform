@@ -1,4 +1,4 @@
-import { Icon20DiamondOutline, Icon24ReplyOutline, Icon24ShareOutline, Icon28AddCircleOutline, Icon28RefreshOutline } from '@vkontakte/icons'
+import { Icon20DiamondOutline, Icon24ReplyOutline, Icon24ShareOutline, Icon28AddCircleOutline, Icon28DoorArrowLeftOutline, Icon28RefreshOutline } from '@vkontakte/icons'
 import {
     Panel,
     PanelHeader,
@@ -15,7 +15,9 @@ import {
     CardGrid,
     Card,
     IconButton,
-    SegmentedControl
+    SegmentedControl,
+    MiniInfoCell,
+    UsersStack
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -56,7 +58,9 @@ interface IMyProps {
     setToJetton: Function,
     loginHub: Function,
     getPriceSwapNew: Function,
-    balanceLp: any
+    balanceLp: any,
+    liqObj: any,
+    removeLp: Function
 }
 
 const Farms: React.FC<IMyProps> = (props: IMyProps) => {
@@ -116,36 +120,80 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                             <small>Stake LP tokens to earn</small>
                         </Div>
 
-                        <CardGrid size="l">
-                            {props.listJettons.length > 2
+                        <CardGrid size={props.isDesktop ? 'm' : 'l'}>
+                            {props.listJettons.length > 2 && props.liqObj !== null
                                 ? <Card>
+                                    <Div>
+                                        <SimpleCell
+                                            disabled
+                                            before={
+                                                <UsersStack
+                                                    photos={[ props.listJettons[0].img, props.listJettons[1].img ]}
+                                                    size="m"
+                                                    style={{ marginRight: '10px' }}
+                                                >
+                                                </UsersStack>
+                                            }
+                                            after={null
+                                            }
+                                        // description="Бот"
+                                        >
+                                            <b>TON-VNR</b>
+                                        </SimpleCell>
+                                    </Div>
+
+                                    {/* <MiniInfoCell
+                                        after={'33%'} before={null}>
+                                        APR:
+                                    </MiniInfoCell> */}
                                     <SimpleCell
-                                        disabled
-                                        before={
-                                            <Div style={{ display: 'flex', justifyContent: 'start', alignItems: 'center', paddingLeft: 0 }}>
-                                                <Avatar size={48} src={props.listJettons[0].img} />
-                                                <Avatar size={48} src={props.listJettons[1].img} />
-                                            </Div>
-                                        }
+                                        before={<Icon28AddCircleOutline/>}
                                         after={
-                                            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                                                <span style={{ paddingRight: '12px' }}>
-                                                    <b>
-                                                        {balanceString(props.balanceLp)} VNR-LP
-                                                    </b>
-                                                </span>
-                                                <IconButton onClick={() => {
+                                            <b>{balanceString(props.liqObj.balanceTon)} TON</b>}
+                                    >
+                                    Ton liquidity:
+                                    </SimpleCell>
+
+                                    <SimpleCell
+                                        before={<Icon28AddCircleOutline/>}
+                                        after={
+                                            <b>
+                                                {balanceString(props.liqObj.balanceJetton)} VNR
+                                            </b>}
+                                    >
+                                    Venera liquidity:
+                                    </SimpleCell>
+
+                                    <SimpleCell
+                                        before={null}
+                                        after={<Button size='s' appearance='negative' onClick={() => props.removeLp()} >Harvest</Button>}
+                                    >
+                                        Earned: <b>{balanceString(props.balanceLp)} VNR-LP</b>
+                                    </SimpleCell>
+
+                                    <Div>
+                                        {props.loadWallet === 1
+                                            ? <Button
+                                                size={'l'}
+                                                stretched
+                                                before={<Icon28AddCircleOutline />}
+                                                onClick={() => {
                                                     props.setModal('liquidity')
                                                     props.getPriceSwapNew()
-                                                }}>
-                                                    <Icon28AddCircleOutline />
-                                                </IconButton>
-                                            </div>
+                                                }}
+                                            >Add</Button>
+                                            : <Button
+                                                size="l"
+                                                stretched
+                                                onClick={() => {
+                                                    props.loginHub()
+                                                    props.setModal('login')
+                                                }}
+                                                data-story="swap"
+                                                before={<Icon28DoorArrowLeftOutline/>}
+                                            >Connect wallet</Button>
                                         }
-                                    // description="Бот"
-                                    >
-                                        <b>TON-VNR</b>
-                                    </SimpleCell>
+                                    </Div>
                                 </Card>
                                 : null }
                         </CardGrid>
