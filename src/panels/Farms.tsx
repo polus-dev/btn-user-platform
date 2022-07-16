@@ -70,6 +70,10 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
         load()
     }, [])
 
+    function balanceString (balance2:any) {
+        return Number(Number(balance2).toFixed(2)).toLocaleString('ru')
+    }
+
     return (
         <View activePanel={props.id} id={props.id}>
             <Panel id={props.id}>
@@ -127,7 +131,7 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                             <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
                                                 <span style={{ paddingRight: '12px' }}>
                                                     <b>
-                                                        {props.balanceLp} VNR-LP
+                                                        {balanceString(props.balanceLp)} VNR-LP
                                                     </b>
                                                 </span>
                                                 <IconButton onClick={() => {
