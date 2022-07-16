@@ -126,7 +126,8 @@ const Explorer: React.FC<IMyProps> = (props: IMyProps) => {
                             defaultValue="explorer"
                             onChange={(value) => {
                                 if (value === 'farms') {
-                                    props.setModal('farms')
+                                    // props.setModal('farms')
+                                    props.setActiveStory('farms')
                                     // setTypeDex('swap')
                                 } else if (value === 'swap') {
                                     props.setActiveStory('swap')

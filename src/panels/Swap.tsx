@@ -66,7 +66,8 @@ interface IMyProps {
     setFromJetton: Function,
     toJetton: any,
     setToJetton: Function,
-    loginHub: Function
+    loginHub: Function,
+    dexType: any
 }
 
 const isExtension: boolean = TonhubLocalConnector.isAvailable()
@@ -113,7 +114,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
             : props.listJettons[props.fromJetton].addressSwap
         const jwallPriceResp = await tonrpc.request('runGetMethod', {
             address: address2,
-            method: 'get_price',
+            method: props.dexType === 1 ? 'get_linear_price' : 'get_price',
             stack: [ ]
         })
         if (jwallPriceResp.data.ok === true) {
@@ -126,9 +127,12 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     }
 
     async function connfirmSendTon () {
+        const typeSwap2 = props.fromJetton === 0
         const priceData = await tonrpc.request('runGetMethod', {
-            address: props.ContrBTNSwapAddress,
-            method: typeSwap ? 'get_price_biton' : 'get_price_ton',
+            address: (props.fromJetton === 0
+                ? props.listJettons[props.toJetton].addressSwap
+                : props.listJettons[props.fromJetton].addressSwap),
+            method: typeSwap2 ? 'get_price_biton' : 'get_price_ton',
             stack: [ [ 'num', `0x${(parseFloat(props.btnSwap) * (10 ** 9)).toString(16)}` ] ]
         })
         if (priceData.data.ok === true) {
@@ -139,10 +143,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                 fee1 = (Number(priceData.data.result.stack[2][1]) / 10 ** 9).toFixed(9)
             }
 
-            console.log('test price', priceData.data.result)
+            console.log('price1', amout1)
 
             const imact = parseFloat(props.btnSwap)
-            const imact2 = typeSwap ? parseFloat(priceSwap) : parseFloat(priceSwapTon)
+            const imact2 = typeSwap2 ? parseFloat(priceSwap) : parseFloat(priceSwapTon)
             const imact3 = parseFloat(price1)
             console.log(imact3, imact2)
             const imactRes = (imact3 / imact2 - 1) * 100
@@ -151,7 +155,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                 price: price1,
                 fee: fee1,
                 amountU: props.btnSwap,
-                type: typeSwap,
+                type: typeSwap2,
                 imact: imactRes.toFixed(4)
             }
             props.setSwapConfirm(obj1)
@@ -356,15 +360,16 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                             defaultValue="swap"
                             onChange={(value) => {
                                 if (value === 'farms') {
-                                    props.setModal('farms')
+                                    // props.setModal('farms')
                                     setTypeDex('swap')
+                                    props.setActiveStory('farms')
                                 } else if (value === 'explorer') {
                                     props.setActiveStory('explorer')
                                 } else {
                                     setTypeDex(value)
                                 }
                             }}
-                            value={typeDex}
+                            // value={typeDex}
                             options={[
                                 {
                                     label: 'Swap',
@@ -411,7 +416,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 size={34}
                                             />
                                             <CustomSelect
-                                                placeholder="TON"
+                                                placeholder={
+                                                    props.listJettons[props.fromJetton].symbl
+                                                }
                                                 selectType="plain"
                                                 className='fix_input'
                                                 style={{ maxWidth: '38%', cursor: 'pointer' }}
@@ -499,7 +506,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 size={34}
                                             />
                                             <CustomSelect
-                                                placeholder="BTN"
+                                                placeholder={
+                                                    props.listJettons[props.toJetton].symbl
+                                                }
                                                 selectType="plain"
                                                 className='fix_input'
                                                 style={{ maxWidth: '38%', cursor: 'pointer' }}
