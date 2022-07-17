@@ -122,7 +122,7 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                         </Div>
 
                         <CardGrid size={props.isDesktop ? 'm' : 'l'}>
-                            {props.listJettons.length > 2 && props.liqObj !== null && props.liqObjUser !== null
+                            {props.listJettons.length > 2 && props.liqObj !== null
                                 ? <Card>
                                     <Div>
                                         <SimpleCell
@@ -159,17 +159,19 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                     Pool liquidity
                                         </SimpleCell>
 
-                                        <SimpleCell
-                                            before={null}
-                                            style={{ marginBottom: '12px' }}
-                                            disabled
-                                            after={
-                                                <b style={{ textAlign: 'right' }}>
-                                                    {balanceString(props.liqObjUser.balanceTon)} TON <br/> {balanceString(props.liqObjUser.balanceJetton)} VNR
-                                                </b>}
-                                        >
+                                        {props.liqObjUser !== null
+                                            ? <SimpleCell
+                                                before={null}
+                                                style={{ marginBottom: '12px' }}
+                                                disabled
+                                                after={
+                                                    <b style={{ textAlign: 'right' }}>
+                                                        {balanceString(props.liqObjUser.balanceTon)} TON <br/> {balanceString(props.liqObjUser.balanceJetton)} VNR
+                                                    </b>}
+                                            >
                                     Your balance
-                                        </SimpleCell>
+                                            </SimpleCell>
+                                            : null}
 
                                         {props.address !== ''
                                             ? <SimpleCell
