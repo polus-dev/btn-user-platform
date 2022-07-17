@@ -262,8 +262,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                 setTonSwap(parseFloat(amountTo.toFixed(10)).toFixed(9))
                 props.setBtnSwap(amount)
             } else { // to
+                
                 let amountFrom = 0
-                if (props.fromJetton === 0) { // from ton to jetton
+                if (props.fromJetton === 1) { // from ton to jetton
                     amountFrom = parseFloat(priceSwapTon) * amountN
                 } else { // from jetton to ton
                     amountFrom = parseFloat(priceSwap) * amountN
@@ -271,6 +272,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
 
                 props.setBtnSwap(parseFloat(amountFrom.toFixed(10)).toFixed(9))
                 setTonSwap(amount)
+
+                // console.log('log', amountFrom)
             }
         }
     }
