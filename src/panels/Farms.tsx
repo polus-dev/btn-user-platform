@@ -123,9 +123,7 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                         </Div>
 
                         <CardGrid size={props.isDesktop ? 'm' : 'l'}>
-                            {props.listJettons.length > 2 && props.liqObj !== <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                                <Spinner size="large" style={{ margin: props.isDesktop ? '50px 0' : '20px 0' }} />
-                            </div>
+                            {props.listJettons.length > 2 && props.liqObj !== null
                                 ? <Card>
                                     <Div>
                                         <SimpleCell
@@ -217,7 +215,9 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                         }
                                     </Div>
                                 </Card>
-                                : null }
+                                : <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                                    <Spinner size="large" style={{ margin: props.isDesktop ? '50px 0' : '20px 0' }} />
+                                </div> }
                         </CardGrid>
 
                     </Div>
