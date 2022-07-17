@@ -1281,8 +1281,8 @@ export const App: React.FC = () => {
             setPopout(<ScreenSpinner />)
             const session1: TonhubCreatedSession = await connector.createNewSession({
                 name: 'Biton',
-                url: 'https://btn-user-platform-git-dev-biton.vercel.app/'
-                // url: window.location.href
+                // url: 'https://btn-user-platform-git-dev-biton.vercel.app/'
+                url: window.location.href
             })
 
             // Session ID, Seed and Auth Link
