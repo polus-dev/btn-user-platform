@@ -1174,13 +1174,14 @@ export const App: React.FC = () => {
         setListJettonsFromStor(listJettons2)
         setListJettons(listJettons2)
 
-        setLoadPage(1)
         if (address2) {
             getBalanceTon(address2, true, listJettons2)
             getLpData(address2)
-
-            getBalanceSwap()
         }
+
+        getBalanceSwap()
+
+        setLoadPage(1)
 
         setPopout(null)
     }
@@ -1280,8 +1281,8 @@ export const App: React.FC = () => {
             setPopout(<ScreenSpinner />)
             const session1: TonhubCreatedSession = await connector.createNewSession({
                 name: 'Biton',
-                url: 'https://btn-user-platform-git-dev-biton.vercel.app/'
-                // url: window.location.href
+                // url: 'https://btn-user-platform-git-dev-biton.vercel.app/'
+                url: window.location.href
             })
 
             // Session ID, Seed and Auth Link
@@ -1329,9 +1330,10 @@ export const App: React.FC = () => {
                     const listJ:any = loadListJettonsFromStor()
 
                     // loadBalanceFromListJettons(listJ)
+                    setPopout(<ScreenSpinner />)
                     loadWalletAddressFromListJettons(listJ, session.wallet.address)
 
-                    setPopout(null)
+                    // setPopout(null)
                 } else {
                     setUrlAuHub(null)
                     setPopout(null)
@@ -1344,7 +1346,7 @@ export const App: React.FC = () => {
                 setModal(null)
                 throw new Error('Impossible')
             }
-            setPopout(null)
+            // setPopout(null)
         }
     }
 
@@ -2718,7 +2720,7 @@ export const App: React.FC = () => {
                         <Button size='l' stretched onClick={addLiq}>Add</Button>
                         <br />
 
-                        <Button size='l' stretched onClick={removeLp} appearance={'negative'} disabled={balanceLp === 0}>Remove all LP</Button>
+                        {/* <Button size='l' stretched onClick={removeLp} appearance={'negative'} disabled={balanceLp === 0}>Remove all LP</Button> */}
                     </Div>
                 </Group>
             </ModalPage>
