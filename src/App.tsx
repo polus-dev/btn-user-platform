@@ -906,6 +906,16 @@ export const App: React.FC = () => {
         }
     }
 
+    function delBalanceUsersNoLogin (list:any) {
+        const listJettonsO = list
+        for (let i = 0; i < listJettonsO.length; i++) {
+            listJettonsO[i].balance = 0
+        }
+
+        setListJettonsFromStor(listJettonsO)
+        setListJettons(listJettonsO)
+    }
+
     // выход из кошелька тонхаб
     async function unlogin () {
         setBalance(0)
@@ -918,6 +928,10 @@ export const App: React.FC = () => {
         removeCookie('session')
 
         removeCookie('session_hub')
+
+        delBalanceUsersNoLogin(listJettons)
+
+        // setListJettonsFromStor(dexType === 1 ? listJMainNet : listJTestNet)
 
         // loginHub ()
     }
@@ -1298,6 +1312,8 @@ export const App: React.FC = () => {
             loadWalletAddressFromListJettons(listJ, sess.wallet.address)
 
             setLoadWallet(1)
+        } else {
+            delBalanceUsersNoLogin(listJ)
         }
 
         loadBalanceFromListJettons(listJ)
@@ -1328,7 +1344,7 @@ export const App: React.FC = () => {
             setPopout(null)
             setSessionHub(session1)
 
-            setCookie('session_hub', session1)
+            setCookie('session_hub', session1, { maxAge: 3600 * 24 * 365 })
 
             const session: TonhubSessionAwaited = await connector
                 .awaitSessionReady(sessionId, 5 * 60 * 1000) // 5 min timeout
@@ -1349,7 +1365,7 @@ export const App: React.FC = () => {
 
                     setListJettons(setListJettonsFromDexType(session.wallet.address))
 
-                    setCookie('session', session)
+                    setCookie('session', session, { maxAge: 3600 * 24 * 365 })
 
                     setAddress(session.wallet.address)
 
@@ -2233,21 +2249,23 @@ export const App: React.FC = () => {
                         {swapConfirm !== null
                             ? <div>
                                 <SimpleCell multiline>
-                                    <InfoRow header={`Give amount ${listJettons[fromJetton].symbl}`}>{Number(swapConfirm.amountU).toFixed(2)}</InfoRow>
+                                    <InfoRow header={`Give amount ${listJettons[fromJetton].symbl}`}>{balanceString(swapConfirm.amountU)}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
-                                    <InfoRow header={`Accept amount ${listJettons[toJetton].symbl}`}>{Number(swapConfirm.amount).toFixed(2)}</InfoRow>
+                                    <InfoRow header={`Accept amount ${listJettons[toJetton].symbl}`}>{balanceString(swapConfirm.amount)}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
                                     <InfoRow header={'Market price'}>{swapConfirm.price}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
-                                    <InfoRow header={'Fee'}>{Number(swapConfirm.fee).toFixed(2)}</InfoRow>
+                                    <InfoRow header={'Chain fee'}>{balanceString(0.31)}</InfoRow>
+                                </SimpleCell>
+                                <SimpleCell multiline>
+                                    <InfoRow header={'Fee'}>{balanceString(swapConfirm.fee)}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
                                     <InfoRow header={'Price Impact'} style={swapConfirm.imact > 10 ? { color: 'var(--destructive)' } : {}}>
-                                        {Number(swapConfirm.imact < 0 ? 0 : swapConfirm.imact)
-                                            .toFixed(2)} %
+                                        {balanceString(swapConfirm.imact < 0 ? 0 : swapConfirm.imact)} %
                                     </InfoRow>
                                 </SimpleCell>
                                 <br />
