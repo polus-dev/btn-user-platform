@@ -17,7 +17,8 @@ import {
     IconButton,
     SegmentedControl,
     MiniInfoCell,
-    UsersStack
+    UsersStack,
+    Spinner
 } from '@vkontakte/vkui'
 
 import '@vkontakte/vkui/dist/vkui.css'
@@ -122,7 +123,9 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                         </Div>
 
                         <CardGrid size={props.isDesktop ? 'm' : 'l'}>
-                            {props.listJettons.length > 2 && props.liqObj !== null
+                            {props.listJettons.length > 2 && props.liqObj !== <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                                <Spinner size="large" style={{ margin: props.isDesktop ? '50px 0' : '20px 0' }} />
+                            </div>
                                 ? <Card>
                                     <Div>
                                         <SimpleCell
