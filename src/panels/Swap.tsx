@@ -700,6 +700,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     before={<Icon28DoorArrowLeftOutline/>}
                                 >Connect wallet</Button>
                             }
+
+                            {props.dexType === 1 ? <small><br />BETA VERSION</small> : null}
                         </Div>
 
                         {isExtension
@@ -708,6 +710,8 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                 {/* <img src={logoPNG} className="logo" /> */}
                             </Div>
                             : null}
+
+                        
                         {/* <Div>
                             <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => props.setModal('liquidity')} mode="secondary">Add liquidity</Button>
                         </Div> */}
