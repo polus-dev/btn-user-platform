@@ -1174,13 +1174,14 @@ export const App: React.FC = () => {
         setListJettonsFromStor(listJettons2)
         setListJettons(listJettons2)
 
-        setLoadPage(1)
         if (address2) {
             getBalanceTon(address2, true, listJettons2)
             getLpData(address2)
-
-            getBalanceSwap()
         }
+
+        getBalanceSwap()
+
+        setLoadPage(1)
 
         setPopout(null)
     }
@@ -1329,9 +1330,10 @@ export const App: React.FC = () => {
                     const listJ:any = loadListJettonsFromStor()
 
                     // loadBalanceFromListJettons(listJ)
+                    setPopout(<ScreenSpinner />)
                     loadWalletAddressFromListJettons(listJ, session.wallet.address)
 
-                    setPopout(null)
+                    // setPopout(null)
                 } else {
                     setUrlAuHub(null)
                     setPopout(null)
@@ -1344,7 +1346,7 @@ export const App: React.FC = () => {
                 setModal(null)
                 throw new Error('Impossible')
             }
-            setPopout(null)
+            // setPopout(null)
         }
     }
 

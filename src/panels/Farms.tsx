@@ -1,4 +1,4 @@
-import { Icon20DiamondOutline, Icon24ReplyOutline, Icon24ShareOutline, Icon28AddCircleOutline, Icon28DoorArrowLeftOutline, Icon28RefreshOutline } from '@vkontakte/icons'
+import { Icon20DiamondOutline, Icon24ReplyOutline, Icon24ShareOutline, Icon28AddCircleOutline, Icon28ArticleOutline, Icon28DoorArrowLeftOutline, Icon28RefreshOutline } from '@vkontakte/icons'
 import {
     Panel,
     PanelHeader,
@@ -147,7 +147,8 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                         APR:
                                     </MiniInfoCell> */}
                                     <SimpleCell
-                                        before={<Icon28AddCircleOutline/>}
+                                        before={null}
+                                        disabled
                                         after={
                                             <b>{balanceString(props.liqObj.balanceTon)} TON</b>}
                                     >
@@ -155,7 +156,8 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                     </SimpleCell>
 
                                     <SimpleCell
-                                        before={<Icon28AddCircleOutline/>}
+                                        before={null}
+                                        disabled
                                         after={
                                             <b>
                                                 {balanceString(props.liqObj.balanceJetton)} VNR
@@ -164,12 +166,15 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                     Venera liquidity:
                                     </SimpleCell>
 
-                                    <SimpleCell
-                                        before={null}
-                                        after={<Button size='s' appearance='negative' onClick={() => props.removeLp()} >Harvest</Button>}
-                                    >
+                                    {props.address !== ''
+                                        ? <SimpleCell
+                                            before={null}
+                                            disabled
+                                            after={<Button size='s' appearance='negative' onClick={() => props.removeLp()} >Harvest</Button>}
+                                        >
                                         Earned: <b>{balanceString(props.balanceLp)} VNR-LP</b>
-                                    </SimpleCell>
+                                        </SimpleCell>
+                                        : null }
 
                                     <Div>
                                         {props.loadWallet === 1
