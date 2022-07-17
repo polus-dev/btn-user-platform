@@ -2720,7 +2720,7 @@ export const App: React.FC = () => {
                         <Button size='l' stretched onClick={addLiq}>Add</Button>
                         <br />
 
-                        <Button size='l' stretched onClick={removeLp} appearance={'negative'} disabled={balanceLp === 0}>Remove all LP</Button>
+                        {/* <Button size='l' stretched onClick={removeLp} appearance={'negative'} disabled={balanceLp === 0}>Remove all LP</Button> */}
                     </Div>
                 </Group>
             </ModalPage>
