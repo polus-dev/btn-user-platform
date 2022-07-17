@@ -60,7 +60,8 @@ interface IMyProps {
     getPriceSwapNew: Function,
     balanceLp: any,
     liqObj: any,
-    removeLp: Function
+    removeLp: Function,
+    liqObjUser: any
 }
 
 const Farms: React.FC<IMyProps> = (props: IMyProps) => {
@@ -121,7 +122,7 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                         </Div>
 
                         <CardGrid size={props.isDesktop ? 'm' : 'l'}>
-                            {props.listJettons.length > 2 && props.liqObj !== null
+                            {props.listJettons.length > 2 && props.liqObj !== null && props.liqObjUser !== null
                                 ? <Card>
                                     <Div>
                                         <SimpleCell
@@ -140,41 +141,52 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                         >
                                             <b>TON-VNR</b>
                                         </SimpleCell>
-                                    </Div>
 
-                                    {/* <MiniInfoCell
+                                        {/* <MiniInfoCell
                                         after={'33%'} before={null}>
                                         APR:
                                     </MiniInfoCell> */}
-                                    <SimpleCell
-                                        before={null}
-                                        disabled
-                                        after={
-                                            <b>{balanceString(props.liqObj.balanceTon)} TON</b>}
-                                    >
-                                    Ton liquidity:
-                                    </SimpleCell>
 
-                                    <SimpleCell
-                                        before={null}
-                                        disabled
-                                        after={
-                                            <b>
-                                                {balanceString(props.liqObj.balanceJetton)} VNR
-                                            </b>}
-                                    >
-                                    Venera liquidity:
-                                    </SimpleCell>
-
-                                    {props.address !== ''
-                                        ? <SimpleCell
+                                        <SimpleCell
                                             before={null}
+                                            style={{ marginBottom: '12px' }}
                                             disabled
-                                            after={<Button size='s' appearance='negative' onClick={() => props.removeLp()} >Harvest</Button>}
+                                            after={
+                                                <b style={{ textAlign: 'right' }}>
+                                                    {balanceString(props.liqObj.balanceTon)} TON <br/> {balanceString(props.liqObj.balanceJetton)} VNR
+                                                </b>}
                                         >
-                                        Earned: <b>{balanceString(props.balanceLp)} VNR-LP</b>
+                                    Pool liquidity
                                         </SimpleCell>
-                                        : null }
+
+                                        <SimpleCell
+                                            before={null}
+                                            style={{ marginBottom: '12px' }}
+                                            disabled
+                                            after={
+                                                <b style={{ textAlign: 'right' }}>
+                                                    {balanceString(props.liqObjUser.balanceTon)} TON <br/> {balanceString(props.liqObjUser.balanceJetton)} VNR
+                                                </b>}
+                                        >
+                                    Your balance
+                                        </SimpleCell>
+
+                                        {props.address !== ''
+                                            ? <SimpleCell
+                                                before={null}
+                                                disabled
+                                                after={<Button
+                                                    size='s'
+                                                    appearance='negative'
+                                                    mode='outline'
+                                                    className='small1'
+                                                    onClick={() => props.removeLp()}
+                                                >Harvest</Button>}
+                                            >
+                                        Your lp: <b>{balanceString(props.balanceLp)} VNR-LP</b>
+                                            </SimpleCell>
+                                            : null }
+                                    </Div>
 
                                     <Div>
                                         {props.loadWallet === 1

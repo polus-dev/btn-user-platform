@@ -324,6 +324,8 @@ export const App: React.FC = () => {
 
     const [ liqObj, setLiqObj ] = React.useState<any>(null)
 
+    const [ liqObjUser, setLiqObjUser ] = React.useState<any>(null)
+
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
     }
@@ -404,6 +406,38 @@ export const App: React.FC = () => {
             // setListJettons(listJettonsT)
 
             console.log('balanceLpRespInt', balanceBtnRespInt)
+
+            if (Number(balanceBtnRespInt) > 0) {
+                const balanceLpHex = (Number(balanceBtnRespInt) * (10 ** 9)).toString(16)
+
+                const addressSwap2 = fromJetton === 0
+                    ? listJettons[toJetton].addressSwap
+                    : listJettons[fromJetton].addressSwap
+
+                const jwallAddressResp4 = await tonrpc.request('runGetMethod', {
+                    address: addressSwap2,
+                    method: 'math::del_lp',
+                    stack: [ [ 'num', `0x${balanceLpHex}` ] ]
+                })
+
+                if (jwallAddressResp4.data.result.exit_code === 0) {
+                    const obj2 = {
+                        balanceTon: parseFloat((
+                            Number(jwallAddressResp4.data.result.stack[0][1]) / 10 ** 9
+                        ).toFixed(9)),
+                        balanceJetton: parseFloat((
+                            Number(jwallAddressResp4.data.result.stack[1][1]) / 10 ** 9
+                        ).toFixed(9))
+                    }
+
+                    console.log('================================================', obj2)
+
+                    setLiqObjUser(obj2)
+                }
+                // console.log('jwallAddressResp4 =====================', jwallAddressResp4)
+            } else {
+                console.log('balanceLp =====================', balanceLp)
+            }
         } else {
             console.error('balanceLpRespInt', jwallPriceResp.data)
         }
@@ -1129,6 +1163,7 @@ export const App: React.FC = () => {
                     balanceTon: balTon,
                     balanceJetton
                 }
+
                 setLiqObj(obff)
             } else {
                 console.error('get_btn_balance', jwallAddressResp.data)
@@ -2733,7 +2768,7 @@ export const App: React.FC = () => {
                 return '700px'
             }
             if (activeStory === 'farms') {
-                return '700px'
+                return '800px'
             }
             return '380px'
         }
@@ -3100,6 +3135,7 @@ export const App: React.FC = () => {
                                 balanceLp={balanceLp}
                                 liqObj={liqObj}
                                 removeLp={removeLp}
+                                liqObjUser={liqObjUser}
                             />
                         </Epic>
                     </SplitCol>
