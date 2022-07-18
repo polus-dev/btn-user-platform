@@ -670,7 +670,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     {`${priceSwapTon} ${props.listJettons[props.toJetton].symbl} per 1 ${props.listJettons[props.fromJetton].symbl}`}
                                 </small>
                                 : <small>
-                                    {`${priceSwap} ${props.listJettons[props.fromJetton].symbl} per 1 ${props.listJettons[props.toJetton].symbl}`}
+                                    {`${priceSwap} ${props.listJettons[props.toJetton].symbl} per 1 ${props.listJettons[props.fromJetton].symbl}`}
                                 </small>
                             }
 
@@ -716,7 +716,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     before={<Icon28DoorArrowLeftOutline/>}
                                 >Connect wallet</Button>
                             }
-                            <small style={{opacity: '0.6', paddingTop: '6px'}}>Minimum amount: 2 TON</small>
+                            <small style={{ opacity: '0.6', paddingTop: '6px' }}>Minimum amount: 2 TON</small>
 
                             {props.dexType === 1 ? <small ><br /><br />BETA VERSION</small> : null}
                         </Div>

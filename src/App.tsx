@@ -2688,6 +2688,7 @@ export const App: React.FC = () => {
                                                 }}
                                                 align="right"
                                                 className='fix_input'
+                                                type='number'
                                                 style={
                                                     { border: 'none' }
                                                 }
@@ -2758,6 +2759,7 @@ export const App: React.FC = () => {
                                                 }}
                                                 align="right"
                                                 className='fix_input'
+                                                type='number'
                                                 style={
                                                     { border: 'none' }
                                                 }
@@ -2770,7 +2772,12 @@ export const App: React.FC = () => {
                             : null}
                         <br />
 
-                        <Button size='l' stretched onClick={addLiq}>Add</Button>
+                        <Button
+                            size='l'
+                            stretched
+                            onClick={addLiq}
+                            disabled={Number(inputLiq1) < 5}
+                        >Add</Button>
                         <br />
 
                         {/* <Button size='l' stretched onClick={removeLp} appearance={'negative'} disabled={balanceLp === 0}>Remove all LP</Button> */}
@@ -3154,6 +3161,7 @@ export const App: React.FC = () => {
                                 liqObj={liqObj}
                                 removeLp={removeLp}
                                 liqObjUser={liqObjUser}
+                                loginCook={loginCook}
                             />
                         </Epic>
                     </SplitCol>
