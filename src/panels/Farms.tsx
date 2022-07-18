@@ -62,7 +62,8 @@ interface IMyProps {
     balanceLp: any,
     liqObj: any,
     removeLp: Function,
-    liqObjUser: any
+    liqObjUser: any,
+    loginCook: Function
 }
 
 const Farms: React.FC<IMyProps> = (props: IMyProps) => {
@@ -117,10 +118,20 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                 }
                             ]}
                         />
-                        <Div style={{ paddingBottom: 16 }}>
-                            <Title weight="3" level="1">Farms</Title>
-                            <small>Stake LP tokens to earn</small>
-                        </Div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
+                            <Div style={{ paddingBottom: 32 }}>
+                                <Title weight="3" level="1">Farms</Title>
+                                <small>Stake LP tokens to earn</small>
+                            </Div>
+                            <Div>
+                                <IconButton onClick={() => {
+                                    props.loginCook()
+                                }}>
+                                    <Icon28RefreshOutline />
+                                </IconButton>
+                            </Div>
+                        </div>
 
                         <CardGrid size={props.isDesktop ? 'm' : 'l'}>
                             {props.listJettons.length > 2 && props.liqObj !== null
