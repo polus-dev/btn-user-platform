@@ -92,6 +92,8 @@ import { Enot } from './enot'
 import BitonLPTokenPNG from './static/btn-lp.png'
 import logoPNG from './static/logo.png'
 
+import logoSVG from './static/logo.svg'
+
 const axios = require('axios').default
 
 const isExtension: boolean = TonhubLocalConnector.isAvailable()
@@ -2816,7 +2818,8 @@ export const App: React.FC = () => {
             <SplitLayout
                 style={{ justifyContent: 'center', paddingTop: getPaddingTop() }}
                 header={hasHeader && !isExtension && <PanelHeader separator={false} className={'menu1'} left={
-                    <img src={logoPNG} className="logo" style={{ cursor: 'pointer' }} />
+                    <img src={logoSVG} className="logo" style={{ cursor: 'pointer' }} />
+                    // <logoSVG className="logo" style={{ cursor: 'pointer' }} />
                 }
                 right={ !isExtension && (
                     isDesktop
