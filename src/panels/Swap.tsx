@@ -246,6 +246,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     }
 
     function calculateAmountNew (amount:any, type:any) {
+        const minAmountTon = 2
         if (amount === '') {
             props.setBtnSwap('')
             setTonSwap('')
@@ -257,12 +258,14 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                     amountTo = parseFloat(priceSwapTon) * amountN
                 } else { // from jetton to ton
                     amountTo = parseFloat(priceSwap) * amountN
+                    // if (amountTo < minAmountTon) {
+
+                    // }
                 }
 
                 setTonSwap(parseFloat(amountTo.toFixed(10)).toFixed(9))
                 props.setBtnSwap(amount)
             } else { // to
-                
                 let amountFrom = 0
                 if (props.fromJetton === 1) { // from ton to jetton
                     amountFrom = parseFloat(priceSwapTon) * amountN
@@ -464,6 +467,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
 
                                             <Input
                                                 placeholder="0.0"
+                                                type='number'
                                                 value={props.btnSwap}
                                                 onChange={(e) => {
                                                     calculateAmountNew(
@@ -556,6 +560,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             <Input
                                                 placeholder="0.0"
                                                 value={tonSwap}
+                                                type='number'
                                                 onChange={(e) => {
                                                     calculateAmountNew(
                                                         inputNumberSet(e.target.value),
@@ -665,7 +670,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     {`${priceSwapTon} ${props.listJettons[props.toJetton].symbl} per 1 ${props.listJettons[props.fromJetton].symbl}`}
                                 </small>
                                 : <small>
-                                    {`${priceSwap} ${props.listJettons[props.fromJetton].symbl} per 1 ${props.listJettons[props.toJetton].symbl}`}
+                                    {`${priceSwap} ${props.listJettons[props.toJetton].symbl} per 1 ${props.listJettons[props.fromJetton].symbl}`}
                                 </small>
                             }
 
@@ -690,7 +695,15 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     stretched
                                     before={<Icon28SyncOutline/>}
                                     onClick={swapGo}
-                                    disabled={priceSwap === '0' || props.loadWallet !== 1 || priceSwap === '' || props.btnSwap === '' || props.btnSwap === '0'}
+                                    disabled={
+                                        priceSwap === '0'
+                                         || props.loadWallet !== 1
+                                          || priceSwap === ''
+                                           || props.btnSwap === ''
+                                            || props.btnSwap === '0'
+                                            || (props.fromJetton === 0 && Number(props.btnSwap) < 2)
+                                            || (props.toJetton === 0 && Number(tonSwap) < 2)
+                                    }
                                 >Exchange</Button>
                                 : <Button
                                     size="l"
@@ -703,8 +716,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     before={<Icon28DoorArrowLeftOutline/>}
                                 >Connect wallet</Button>
                             }
+                            <small style={{ opacity: '0.6', paddingTop: '6px' }}>Minimum amount: 2 TON</small>
 
-                            {props.dexType === 1 ? <small><br />BETA VERSION</small> : null}
+                            {props.dexType === 1 ? <small ><br /><br />BETA VERSION</small> : null}
                         </Div>
 
                         {isExtension
@@ -714,7 +728,6 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                             </Div>
                             : null}
 
-                        
                         {/* <Div>
                             <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => props.setModal('liquidity')} mode="secondary">Add liquidity</Button>
                         </Div> */}
