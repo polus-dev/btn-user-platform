@@ -1838,7 +1838,9 @@ export const App: React.FC = () => {
             })
 
             const result: any = await sendBocTHub(
-                listJettons[1].wallet,
+                (fromJetton === 0
+                    ? listJettons[toJetton].addressSwap
+                    : listJettons[fromJetton].addressSwap),
                 new Coins(0.1).toNano(),
                 BOC.toBase64Standard(msg)
             )
