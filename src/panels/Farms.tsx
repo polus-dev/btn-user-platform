@@ -63,7 +63,8 @@ interface IMyProps {
     liqObj: any,
     removeLp: Function,
     liqObjUser: any,
-    loginCook: Function
+    loginCook: Function,
+    setLiqSelectJetton: Function
 }
 
 const Farms: React.FC<IMyProps> = (props: IMyProps) => {
@@ -79,6 +80,12 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
 
     function balanceString (balance2:any) {
         return Number(Number(balance2).toFixed(2)).toLocaleString('ru')
+    }
+
+    function filterArr (arr:any) {
+        const result = arr.filter((jetton:any) => jetton.lp !== null)
+        // console.log(result)
+        return result
     }
 
     return (
@@ -135,13 +142,13 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
 
                         <CardGrid size={props.isDesktop ? 'm' : 'l'}>
                             {props.listJettons.length > 2 && props.liqObj !== null
-                                ? <Card>
+                                ? filterArr(props.listJettons).map((jetton:any,key:any) => <Card key={key}>
                                     <Div>
                                         <SimpleCell
                                             disabled
                                             before={
                                                 <UsersStack
-                                                    photos={[ props.listJettons[0].img, props.listJettons[1].img ]}
+                                                    photos={[ props.listJettons[0].img, jetton.img ]}
                                                     size="m"
                                                     style={{ marginRight: '10px' }}
                                                 >
@@ -151,7 +158,7 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                             }
                                         // description="Бот"
                                         >
-                                            <b>TON-VNR</b>
+                                            <b>TON-{jetton.symbl}</b>
                                         </SimpleCell>
 
                                         {/* <MiniInfoCell
@@ -165,27 +172,27 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                             disabled
                                             after={
                                                 <b style={{ textAlign: 'right' }}>
-                                                    {balanceString(props.liqObj.balanceTon)} TON <br/> {balanceString(props.liqObj.balanceJetton)} VNR
+                                                    {balanceString(jetton.lp.balanceTon)} TON <br/> {balanceString(jetton.lp.balanceJetton)} {jetton.symbl}
                                                 </b>}
                                         >
                                     Pool liquidity
                                         </SimpleCell>
 
-                                        {props.liqObjUser !== null
+                                        {jetton.lp2
                                             ? <SimpleCell
                                                 before={null}
                                                 style={{ marginBottom: '12px' }}
                                                 disabled
                                                 after={
                                                     <b style={{ textAlign: 'right' }}>
-                                                        {balanceString(props.liqObjUser.balanceTon)} TON <br/> {balanceString(props.liqObjUser.balanceJetton)} VNR
+                                                        {balanceString(jetton.lp2.balanceTon)} TON <br/> {balanceString(jetton.lp2.balanceJetton)} {jetton.symbl}
                                                     </b>}
                                             >
                                     Your balance
                                             </SimpleCell>
                                             : null}
 
-                                        {props.address !== ''
+                                        {jetton.lp2
                                             ? <SimpleCell
                                                 before={null}
                                                 disabled
@@ -194,10 +201,10 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                                     appearance='negative'
                                                     mode='outline'
                                                     className='small1'
-                                                    onClick={() => props.removeLp()}
+                                                    onClick={() => props.removeLp(jetton.id)}
                                                 >Harvest</Button>}
                                             >
-                                        Your lp: <b>{balanceString(props.balanceLp)} VNR-LP</b>
+                                        Your lp: <b>{balanceString(jetton.lp2.balanceBtnRespInt)} {jetton.symbl}-LP</b>
                                             </SimpleCell>
                                             : null }
                                     </Div>
@@ -210,7 +217,8 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                                 before={<Icon28AddCircleOutline />}
                                                 onClick={() => {
                                                     props.setModal('liquidity')
-                                                    props.getPriceSwapNew()
+                                                    props.getPriceSwapNew(jetton.addressSwap)
+                                                    props.setLiqSelectJetton(jetton.id)
                                                 }}
                                             >Add</Button>
                                             : <Button
@@ -225,7 +233,7 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                             >Connect wallet</Button>
                                         }
                                     </Div>
-                                </Card>
+                                </Card>)
                                 : <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                                     <Spinner size="large" style={{ margin: props.isDesktop ? '50px 0' : '20px 0' }} />
                                 </div> }
