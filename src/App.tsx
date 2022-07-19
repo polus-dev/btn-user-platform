@@ -2162,7 +2162,7 @@ export const App: React.FC = () => {
                                     description={`${balanceString(jetton.balance)} ${jetton.symbl}`}
                                     onClick={ () => changeJetton(key, 0)}
                                 >
-                                    {jetton.name}
+                                    {jetton.symbl}
                                 </SimpleCell>)
                         )}
                     </Div>
@@ -2189,7 +2189,7 @@ export const App: React.FC = () => {
                                     description={`${balanceString(jetton.balance)} ${jetton.symbl}`}
                                     onClick={ () => changeJetton(key, 1)}
                                 >
-                                    {jetton.name}
+                                    {jetton.symbl}
                                 </SimpleCell>)
                         )}
                     </Div>
@@ -2415,7 +2415,7 @@ export const App: React.FC = () => {
                                     options={
                                         listJettons.map(
                                             (jetton:any, key:number) => ({
-                                                label: jetton.name,
+                                                label: jetton.symbl,
                                                 value: key,
                                                 avatar: jetton.img,
                                                 description: `${balanceString(jetton.balance)} ${jetton.symbl}`
@@ -2612,7 +2612,7 @@ export const App: React.FC = () => {
                                                 }
                                                 disabled
                                             >
-                                                {jetton.name}
+                                                {jetton.symbl}
                                             </SimpleCell>
                                         ) : null}
                                         <SimpleCell
