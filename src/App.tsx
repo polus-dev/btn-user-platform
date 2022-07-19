@@ -92,6 +92,8 @@ import { Enot } from './enot'
 import BitonLPTokenPNG from './static/btn-lp.png'
 import logoPNG from './static/logo.png'
 
+import logoSVG from './static/logo.svg'
+
 const axios = require('axios').default
 
 const isExtension: boolean = TonhubLocalConnector.isAvailable()
@@ -159,7 +161,9 @@ export const App: React.FC = () => {
             wallet: '',
             balance: 0,
             address: '',
-            addressSwap: '-'
+            addressSwap: '-',
+            type: 0,
+            lp: null
         }, {
             id: 2,
             name: 'BITON',
@@ -171,7 +175,9 @@ export const App: React.FC = () => {
             wallet: '',
             balance: 0,
             address: ContrBTNAddress,
-            addressSwap: ContrBTNSwapAddress
+            addressSwap: ContrBTNSwapAddress,
+            type: 0,
+            lp: null
         },
         {
             id: 3,
@@ -184,13 +190,15 @@ export const App: React.FC = () => {
             wallet: '',
             balance: 0,
             address: '',
-            addressSwap: ''
+            addressSwap: '',
+            type: 0,
+            lp: null
         }
     ]
 
     const listJMainNet:any = [
         {
-            id: 1,
+            id: 0,
             name: 'TON',
             symbl: 'TON',
             img: 'https://ton.org/_next/static/media/apple-touch-icon.d723311b.png',
@@ -200,7 +208,24 @@ export const App: React.FC = () => {
             wallet: '',
             balance: 0,
             address: '',
-            addressSwap: '-'
+            addressSwap: '-',
+            type: 0,
+            lp: null
+        },
+        {
+            id: 1,
+            name: 'JETTON',
+            symbl: 'JETTON',
+            img: '',
+            price: 0,
+            min: 0.1,
+            max: 1000,
+            wallet: '',
+            balance: 0,
+            address: 'EQAynCuR2eiU2L-9bZqXwWd7G-mlT0HFfi66oY1W6pV6hsDX',
+            addressSwap: 'EQBDWGru2u2cMtI95x2v3z9AZwIZonfA_Ztq4wtCihU2unNb',
+            type: 0,
+            lp: null
         },
         {
             id: 2,
@@ -212,8 +237,10 @@ export const App: React.FC = () => {
             max: 1000,
             wallet: '',
             balance: 0,
-            address: 'EQAynCuR2eiU2L-9bZqXwWd7G-mlT0HFfi66oY1W6pV6hsDX',
-            addressSwap: 'EQBDWGru2u2cMtI95x2v3z9AZwIZonfA_Ztq4wtCihU2unNb'
+            address: 'EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw',
+            addressSwap: 'EQAD8YIaIhVPmYjmgwEbQMpRL20W85OWxQSp0K2EuY7DY9ic',
+            type: 0,
+            lp: null
         },
         {
             id: 3,
@@ -225,21 +252,10 @@ export const App: React.FC = () => {
             max: 1000,
             wallet: '',
             balance: 0,
-            address: 'EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw',
-            addressSwap: ''
-        },
-        {
-            id: 4,
-            name: 'JETTON',
-            symbl: 'JETTON',
-            img: '',
-            price: 0,
-            min: 0.1,
-            max: 1000,
-            wallet: '',
-            balance: 0,
             address: 'EQAvDfWFG0oYX19jwNDNBBL1rKNT9XfaGP9HyTb5nb2Eml6y',
-            addressSwap: ''
+            addressSwap: '',
+            type: 0,
+            lp: null
         }
     ]
 
@@ -321,10 +337,13 @@ export const App: React.FC = () => {
     const [ inpBuy, setInpBuy ] = React.useState<any>('') // выбор жетона для перевода
 
     const [ loadPage, setLoadPage ] = React.useState<any>(0) // Полная загрузка страницы
+    const [ loadPage2, setLoadPage2 ] = React.useState<any>(0) // Полная загрузка страницы
 
     const [ liqObj, setLiqObj ] = React.useState<any>(null)
 
     const [ liqObjUser, setLiqObjUser ] = React.useState<any>(null)
+
+    const [ liqSelectJetton, setLiqSelectJetton ] = React.useState<any>(1)
 
     const onStoryChange = (e:any) => {
         setActiveStory(e.currentTarget.dataset.story)
@@ -352,7 +371,8 @@ export const App: React.FC = () => {
     }
 
     function setListJettonsFromStor (list:any) {
-        localStorage.setItem('jettons', JSON.stringify(list))
+        const listNoType = list
+        localStorage.setItem('jettons2', JSON.stringify(list))
     }
 
     function clearcashe () {
@@ -360,12 +380,24 @@ export const App: React.FC = () => {
     }
 
     function loadListJettonsFromStor () {
-        const localJettons = localStorage.getItem('jettons')
+        const localJettons = localStorage.getItem('jettons2')
+
         if (localJettons) {
             const localJettonsParce = JSON.parse(localJettons)
             console.log('localJettonsParce', localJettonsParce)
+
+            const newListJettons = []
+
+            for (let i = 0; i < localJettonsParce.length; i++) {
+                if (localJettonsParce[i].type !== undefined) {
+                    if (localJettonsParce[i].type === 1) {
+                        newListJettons.push(localJettonsParce[i])
+                    }
+                }
+            }
+            const fullListJetton = setListJettonsFromDexType().concat(newListJettons)
             // setListJettons(localJettonsParce)
-            return localJettonsParce
+            return fullListJetton
         }
         setListJettonsFromStor(setListJettonsFromDexType())
         return setListJettonsFromDexType()
@@ -382,12 +414,12 @@ export const App: React.FC = () => {
 
         const listJettonsT:Array<any> = list
         listJettonsT[0].balance = Number(balTon)
-        setListJettons(listJettonsT)
+        // setListJettons(listJettonsT)
 
-        return balTon
+        return listJettonsT
     }
 
-    async function getBalanceLp (addressUser:string) {
+    async function getBalanceLp (addressUser:string, addressSwap2:any) {
         const jwallPriceResp = await tonrpc.request('runGetMethod', {
             address: addressUser,
             method: 'get_wallet_data',
@@ -410,10 +442,6 @@ export const App: React.FC = () => {
             if (Number(balanceBtnRespInt) > 0) {
                 const balanceLpHex = (Number(balanceBtnRespInt) * (10 ** 9)).toString(16)
 
-                const addressSwap2 = fromJetton === 0
-                    ? listJettons[toJetton].addressSwap
-                    : listJettons[fromJetton].addressSwap
-
                 const jwallAddressResp4 = await tonrpc.request('runGetMethod', {
                     address: addressSwap2,
                     method: 'math::del_lp',
@@ -427,16 +455,20 @@ export const App: React.FC = () => {
                         ).toFixed(9)),
                         balanceJetton: parseFloat((
                             Number(jwallAddressResp4.data.result.stack[1][1]) / 10 ** 9
-                        ).toFixed(9))
+                        ).toFixed(9)),
+                        balanceBtnRespInt,
+                        addressUser
                     }
 
-                    console.log('================================================', obj2)
+                    // console.log('================================================', obj2)
 
                     setLiqObjUser(obj2)
+
+                    return obj2
                 }
                 // console.log('jwallAddressResp4 =====================', jwallAddressResp4)
             } else {
-                console.log('balanceLp =====================', balanceLp)
+                // console.log('balanceLp =====================', balanceLp)
             }
         } else {
             console.error('balanceLpRespInt', jwallPriceResp.data)
@@ -487,14 +519,16 @@ export const App: React.FC = () => {
                     wallet: jwallAddressBounceable,
                     balance: balanceJ,
                     address: addressJetton,
-                    addressSwap: ''
+                    addressSwap: '',
+                    type: 1,
+                    lp: null
                 }
             )
             setListJettons(listJettonsT)
 
             setListJettonsFromStor(listJettonsT)
 
-            getBalanceTon()
+            // getBalanceTon()
         }
     }
 
@@ -529,8 +563,6 @@ export const App: React.FC = () => {
                         let urlIpfs = ''
                         let str2 = (new TextDecoder('utf-8').decode(stringCell))
 
-                        console.log('str2', str2)
-
                         if (str2.indexOf('http') > -1) {
                             urlIpfs = str2
                         } else if (str2.indexOf('//') > -1) {
@@ -540,7 +572,9 @@ export const App: React.FC = () => {
 
                         const jsonJetton = await gteDataApi(urlIpfs)
 
-                        console.log('jsonJetton', jsonJetton.data)
+                        // console.log('jsonJetton', jsonJetton.data)
+
+                        console.log(`Jetton ipfs ${jsonJetton.data.name}`, str2)
 
                         if (jsonJetton.data) {
                             if (type === 0) {
@@ -633,7 +667,11 @@ export const App: React.FC = () => {
                     cheackF = true
                     console.error(jwallAddressResp.data)
                 }
+            } else {
+                console.error('getJettonWalletAddress', jwallAddressResp.data.result)
+                cheackF = true
             }
+
             if (cheackF) {
                 // попробовать другой метод
                 const addressO = new Address(addressUser)
@@ -793,7 +831,7 @@ export const App: React.FC = () => {
             const walletLp = new Address(`0:${jwallPriceResp.data.result.stack[0][1].slice(2)}`).toString('base64', { bounceable: false })
             setAdderessUserLp(walletLp)
             console.log('getLpWalletUser', walletLp)
-            getBalanceLp(walletLp)
+            // getBalanceLp(walletLp)
 
             // const listJettonsT:Array<any> = listJettons
             // listJettonsT[2].wallet = walletLp
@@ -802,10 +840,10 @@ export const App: React.FC = () => {
     }
 
     // получение адреса минтера лп
-    async function getLpData (addressUser:string) {
+    async function getLpData (addressSwap2:any, addressUser:string) {
         if (dexType === 0) {
             const jwallPriceResp = await tonrpc.request('runGetMethod', {
-                address: listJettons[1].addressSwap, // костыль
+                address: addressSwap2, // костыль
                 method: 'get_lp_params',
                 stack: [ ]
             })
@@ -828,7 +866,7 @@ export const App: React.FC = () => {
             }
         } else {
             const jwallPriceResp = await tonrpc.request('runGetMethod', {
-                address: listJettons[1].addressSwap, // костыль
+                address: addressSwap2, // костыль
                 method: 'get_lp_minter_address',
                 stack: [ ]
             })
@@ -837,7 +875,7 @@ export const App: React.FC = () => {
                 const addressMin = jwallPriceResp.data.result.stack[1][1]
                 const addressOver = new Address(`0:${addressMin.slice(2)}`).toString('base64', { bounceable: true })
 
-                console.log('WALLET FROM addressOver', addressOver)
+                // console.log('WALLET FROM addressOver', addressOver)
 
                 if (addressOver) {
                     // const addressO = new Address(addressOver)
@@ -852,12 +890,12 @@ export const App: React.FC = () => {
                         stack: [ [ 'num', `0x${addressUserTon}` ] ]
                         // stack: [ [ 'tvm.Slice', boc2 ] ]
                     }
-                    console.log(data)
+                    // console.log(data)
 
                     const jwallPriceResp3 = await tonrpc.request('runGetMethod', data)
 
                     if (jwallPriceResp3.data.ok === true) {
-                        console.log('jwallPriceResp3', jwallPriceResp3.data.result)
+                        // console.log('jwallPriceResp3', jwallPriceResp3.data.result)
                         const addressWal2 = jwallPriceResp3.data.result.stack[0][1]
 
                         console.log('addressWal', addressWal2)
@@ -866,7 +904,8 @@ export const App: React.FC = () => {
                         if (addressOver2) {
                             setAdderessUserLp(addressOver2)
                             console.log('addressOver2', addressOver2)
-                            getBalanceLp(addressOver2)
+                            const balance3 = await getBalanceLp(addressOver2, addressSwap2)
+                            return balance3
                         }
 
                     // const listJettonsT:Array<any> = listJettons
@@ -906,6 +945,16 @@ export const App: React.FC = () => {
         }
     }
 
+    function delBalanceUsersNoLogin (list:any) {
+        const listJettonsO = list
+        for (let i = 0; i < listJettonsO.length; i++) {
+            listJettonsO[i].balance = 0
+        }
+
+        setListJettonsFromStor(listJettonsO)
+        setListJettons(listJettonsO)
+    }
+
     // выход из кошелька тонхаб
     async function unlogin () {
         setBalance(0)
@@ -918,6 +967,10 @@ export const App: React.FC = () => {
         removeCookie('session')
 
         removeCookie('session_hub')
+
+        delBalanceUsersNoLogin(listJettons)
+
+        // setListJettonsFromStor(dexType === 1 ? listJMainNet : listJTestNet)
 
         // loginHub ()
     }
@@ -997,7 +1050,7 @@ export const App: React.FC = () => {
 
             // костыль переделать вызов функции в другом месте
 
-            getLpData(addressW)
+            // getLpData(addressW)
 
             console.log(jwallBalanceResp)
         } else {
@@ -1031,26 +1084,28 @@ export const App: React.FC = () => {
     }
 
     // получение цены свопа на лп токены (new)
-    async function getPriceSwapNew () {
-        const address2 = fromJetton === 0
-            ? listJettons[toJetton].addressSwap
-            : listJettons[fromJetton].addressSwap
-        const jwallPriceResp = await tonrpc.request('runGetMethod', {
-            address: address2,
-            method: dexType === 1 ? 'get_linear_price' : 'get_price',
-            stack: [ ]
-        })
-        if (jwallPriceResp.data.ok === true) {
-            setLiqprop(parseFloat(
-                (Number(jwallPriceResp.data.result.stack[0][1]) / 10 ** 9).toFixed(9)
-            ))
-            setLiqprop2(
-                parseFloat(
-                    (1 / (Number(jwallPriceResp.data.result.stack[0][1]) / 10 ** 9)).toFixed(9)
+    async function getPriceSwapNew (addresSwap2:any) {
+        if (addresSwap2) {
+            const address2 = addresSwap2
+            const jwallPriceResp = await tonrpc.request('runGetMethod', {
+                address: address2,
+                method: dexType === 1 ? 'get_linear_price' : 'get_price',
+                stack: [ ]
+            })
+            if (jwallPriceResp.data.ok === true) {
+                setLiqprop(parseFloat(
+                    (Number(jwallPriceResp.data.result.stack[0][1]) / 10 ** 9).toFixed(9)
+                ))
+                setLiqprop2(
+                    parseFloat(
+                        (1 / (Number(jwallPriceResp.data.result.stack[0][1]) / 10 ** 9)).toFixed(9)
+                    )
                 )
-            )
+            }
+            console.log('NEW PRICE SWAP', jwallPriceResp)
+        } else {
+            console.error('No addressSwap')
         }
-        console.log(jwallPriceResp)
     }
 
     async function login () {
@@ -1119,10 +1174,8 @@ export const App: React.FC = () => {
         setPopout(null)
     }
 
-    async function getBalanceSwap () {
-        const addressSwap2 = fromJetton === 0
-            ? listJettons[toJetton].addressSwap
-            : listJettons[fromJetton].addressSwap
+    async function getBalanceSwap (addressSwapJetton:any) {
+        const addressSwap2 = addressSwapJetton
 
         const jwallAddressResp = await tonrpc.request('runGetMethod', {
             address: addressSwap2,
@@ -1135,7 +1188,7 @@ export const App: React.FC = () => {
                 (Number(jwallAddressResp.data.result.stack[0][1]) / 10 ** 9).toFixed(9)
             )
 
-            console.log('balanceJettonSwap', balanceJetton)
+            // console.log('balanceJettonSwap', balanceJetton)
 
             const jwallAddressResp2 = await tonrpc.request('runGetMethod', {
                 address: addressSwap2,
@@ -1149,7 +1202,7 @@ export const App: React.FC = () => {
                 const balanceFee = parseFloat(
                     (Number(jwallAddressResp2.data.result.stack[0][1]) / 10 ** 9).toFixed(9)
                 )
-                console.log('balanceFee', balanceFee)
+                // console.log('balanceFee', balanceFee)
 
                 const BalanceTon = await tonrpc.request('getAddressBalance', { address: addressSwap2 })
                 // console.log(BalanceTon.data.result)
@@ -1157,7 +1210,7 @@ export const App: React.FC = () => {
                 let balTon = parseFloat((BalanceTon.data.result / 10 ** 9).toFixed(9))
                 balTon -= balanceFee
 
-                console.log('balTon', balTon)
+                // console.log('balTon', balTon)
 
                 const obff = {
                     balanceTon: balTon,
@@ -1165,60 +1218,32 @@ export const App: React.FC = () => {
                 }
 
                 setLiqObj(obff)
-            } else {
-                console.error('get_btn_balance', jwallAddressResp.data)
+                return obff
             }
+            console.error('get_btn_balance', jwallAddressResp.data)
         } else {
             console.error('get_btn_balance', jwallAddressResp.data)
         }
     }
 
-    async function updateInfoJettons (list:any, address2:any = address) {
+    async function updateInfoLpJettons (list:any, addressUser:any = address) {
         const listJettons2 = list
         for (let i = 1; i < listJettons2.length; i++) {
-            if (listJettons2[i].address !== '') {
+            if (listJettons2[i].addressSwap !== '') {
                 // console.log('listJettons2[i]', listJettons2[i])
-                const info = await getDataJetton(listJettons2[i].address, 0, '', 1)
-                if (info) {
-                    listJettons2[i].name = info.name
-                    listJettons2[i].symbl = info.symbol
-
-                    let img2 = ''
-                    if (info.image) {
-                        img2 = info.image
-                        if (img2.indexOf('http') > -1) {
-                            img2 += ''
-                        } else if (img2.indexOf('ipfs://') > -1) {
-                            img2 = img2.substring(7, img2.length)
-                            img2 = `https://${info.image.split('//')[1]}.ipfs.infura-ipfs.io/`
-                        } else {
-                            img2 = ''
-                        }
-                    } else if (info.image_data) { // болт дурак
-                        img2 = `data:image/svg+xml;base64,${info.image_data}`
-                        console.log('BOLT================', info)
-                    }
-                    listJettons2[i].img = img2
-                } else {
-                    console.error('info null', info)
+                const balancePoolSwap = await getBalanceSwap(listJettons2[i].addressSwap) // вернет объект
+                let balanceUserSwap = null
+                if (addressUser) {
+                    balanceUserSwap = await getLpData(listJettons2[i].addressSwap, addressUser)
                 }
-            } else {
-                console.error('wallet address jetton null')
+                listJettons2[i].lp = balancePoolSwap
+
+                listJettons2[i].lp2 = balanceUserSwap
+                // return listJettons2
             }
+            // console.error('lp jetton not null')
         }
-        setListJettonsFromStor(listJettons2)
-        setListJettons(listJettons2)
-
-        if (address2) {
-            getBalanceTon(address2, true, listJettons2)
-            getLpData(address2)
-        }
-
-        getBalanceSwap()
-
-        setLoadPage(1)
-
-        setPopout(null)
+        return listJettons2
     }
 
     // обновление баланса жентонов из списка
@@ -1233,14 +1258,15 @@ export const App: React.FC = () => {
                 console.error('wallet address jetton null')
             }
         }
-        updateInfoJettons(listJettons2, address2)
+        // updateInfoJettons(listJettons2, address2)
         // setListJettonsFromStor(listJettons2)
         // setListJettons(listJettons2)
+        return listJettons2
     }
 
     // обновление валетадресов жентонов из списка
-    async function loadWalletAddressFromListJettons (list:any, address2:any) {
-        if (address2) {
+    async function loadWalletAddressFromListJettons (list:any, address2:any = null) {
+        if (address2 || address2 !== '') {
             const listJettons2 = list
             console.log('listJettons2', listJettons2)
             for (let i = 1; i < listJettons2.length; i++) {
@@ -1248,12 +1274,90 @@ export const App: React.FC = () => {
                 const walletJetton = await getJettonWalletAddress(listJettons2[i].address, address2)
                 if (walletJetton) {
                     listJettons2[i].wallet = walletJetton
+                } else {
+                    console.log('wallet', listJettons2[i].address)
                 }
             }
             // setListJettonsFromStor(listJettons2)
             // setListJettons(listJettons2)
 
-            loadBalanceFromListJettons(listJettons2, address2)
+            // loadBalanceFromListJettons(listJettons2, address2)
+
+            return listJettons2
+        }
+        return list
+    }
+
+    // обновляет данные жетонов (последняя функция)
+    async function updateInfoJettons (list:any, address2:any = address) {
+        let listJettons2 = list
+
+        setLoadPage2(0)
+
+        // console.log(listJettons2)
+
+        if (list) {
+            console.log(listJettons2)
+            listJettons2 = await loadWalletAddressFromListJettons(listJettons2, address2)
+            console.log(listJettons2)
+
+            listJettons2 = await loadBalanceFromListJettons(listJettons2)
+
+            for (let i = 1; i < listJettons2.length; i++) {
+                if (listJettons2[i].address !== '') {
+                // console.log('listJettons2[i]', listJettons2[i])
+                    const info = await getDataJetton(listJettons2[i].address, 0, '', 1)
+                    if (info) {
+                        listJettons2[i].name = info.name
+                        listJettons2[i].symbl = info.symbol
+
+                        let img2 = ''
+                        if (info.image) {
+                            img2 = info.image
+                            if (img2.indexOf('http') > -1) {
+                                img2 += ''
+                            } else if (img2.indexOf('ipfs://') > -1) {
+                                img2 = img2.substring(7, img2.length)
+                                img2 = `https://${info.image.split('//')[1]}.ipfs.infura-ipfs.io/`
+                            } else {
+                                img2 = ''
+                            }
+                        } else if (info.image_data) { // болт дурак
+                            img2 = `data:image/svg+xml;base64,${info.image_data}`
+                            // console.log('BOLT================', info)
+                        }
+                        listJettons2[i].img = img2
+                    } else {
+                        console.error('info null', info)
+                    }
+                } else {
+                    console.error('wallet address jetton null')
+                }
+            }
+
+            if (address2) {
+                listJettons2 = await getBalanceTon(address2, true, listJettons2)
+            // getLpData(address2)
+            }
+
+            setLoadPage(1)
+
+            setPopout(null)
+
+            const fullListLP = await updateInfoLpJettons(listJettons2, address2)
+            console.log('=====================================fullListLP', fullListLP)
+            setListJettonsFromStor(fullListLP)
+            setListJettons(fullListLP)
+
+            setLoadPage2(1)
+
+            // getBalanceSwap()
+
+            // setLoadPage(1)
+
+            // setPopout(null)
+        } else {
+            console.error('null list')
         }
     }
 
@@ -1263,7 +1367,8 @@ export const App: React.FC = () => {
 
             // getBalanceTon(connector.config.address)
 
-            loadWalletAddressFromListJettons(listJettons, connector.config.address)
+            // loadWalletAddressFromListJettons(listJettons, connector.config.address)
+            updateInfoJettons(listJettons, connector.config.address)
 
             setWalletHub(connector.config)
 
@@ -1279,6 +1384,8 @@ export const App: React.FC = () => {
 
         setPopout(<ScreenSpinner />)
 
+        let addressUser = ''
+
         if (sess && sessNow) {
             setTypeWallet(1)
             setWalletHub(sess)
@@ -1289,21 +1396,27 @@ export const App: React.FC = () => {
 
             setAddress(sess.wallet.address)
 
+            addressUser = sess.wallet.address
+
             // getBalanceTon(sess.wallet.address)
 
             // getLpData(sess.wallet.address)
             // getBalanceBiton(sess.wallet.address)
 
             // loadBalanceFromListJettons(listJ)
-            loadWalletAddressFromListJettons(listJ, sess.wallet.address)
+            // loadWalletAddressFromListJettons(listJ, sess.wallet.address)
 
             setLoadWallet(1)
+        } else {
+            delBalanceUsersNoLogin(listJ)
         }
 
-        loadBalanceFromListJettons(listJ)
+        // loadBalanceFromListJettons(listJ)
 
         if (isExtension) {
             loginIframeHub()
+        } else {
+            updateInfoJettons(listJ, addressUser)
         }
     }
 
@@ -1317,7 +1430,7 @@ export const App: React.FC = () => {
             const session1: TonhubCreatedSession = await connector.createNewSession({
                 name: 'Biton',
                 // url: 'https://btn-user-platform-git-dev-biton.vercel.app/'
-                url: window.location.href
+                url: window.location.href === 'http://localhost:8080/' ? 'https://btn-user-platform-git-dev-biton.vercel.app/' : window.location.href
             })
 
             // Session ID, Seed and Auth Link
@@ -1328,7 +1441,7 @@ export const App: React.FC = () => {
             setPopout(null)
             setSessionHub(session1)
 
-            setCookie('session_hub', session1)
+            setCookie('session_hub', session1, { maxAge: 3600 * 24 * 365 })
 
             const session: TonhubSessionAwaited = await connector
                 .awaitSessionReady(sessionId, 5 * 60 * 1000) // 5 min timeout
@@ -1349,7 +1462,7 @@ export const App: React.FC = () => {
 
                     setListJettons(setListJettonsFromDexType(session.wallet.address))
 
-                    setCookie('session', session)
+                    setCookie('session', session, { maxAge: 3600 * 24 * 365 })
 
                     setAddress(session.wallet.address)
 
@@ -1358,7 +1471,7 @@ export const App: React.FC = () => {
                     // getBalanceTon(session.wallet.address)
                     // getBalanceBiton(session.wallet.address)
 
-                    getLpData(session.wallet.address)
+                    // getLpData(session.wallet.address)
 
                     setLoadWallet(1)
 
@@ -1366,7 +1479,9 @@ export const App: React.FC = () => {
 
                     // loadBalanceFromListJettons(listJ)
                     setPopout(<ScreenSpinner />)
-                    loadWalletAddressFromListJettons(listJ, session.wallet.address)
+                    // loadWalletAddressFromListJettons(listJ, session.wallet.address)
+
+                    updateInfoJettons(listJ, session.wallet.address)
 
                     // setPopout(null)
                 } else {
@@ -1727,7 +1842,9 @@ export const App: React.FC = () => {
             })
 
             const result: any = await sendBocTHub(
-                listJettons[1].wallet,
+                (fromJetton === 0
+                    ? listJettons[toJetton].wallet
+                    : listJettons[fromJetton].wallet),
                 new Coins(0.1).toNano(),
                 BOC.toBase64Standard(msg)
             )
@@ -1779,13 +1896,11 @@ export const App: React.FC = () => {
         }
     }
 
-    async function addLiq () {
+    async function addLiq (jetton:any) {
         const msg = TokenWallet.transferMsg({
             queryId: BigInt(Date.now()),
             amount: new Coins(inputLiq2),
-            destination: new Address((fromJetton === 0
-                ? listJettons[toJetton].addressSwap
-                : listJettons[fromJetton].addressSwap)),
+            destination: new Address(listJettons[jetton].addressSwap),
             responseDestination: new Address(address),
             forwardTonAmount: new Coins(inputLiq1),
             forwardPayload: new Builder()
@@ -1794,14 +1909,14 @@ export const App: React.FC = () => {
         })
         const boc = BOC.toBase64Standard(msg)
         const result:any = await sendBocTHub(
-            listJettons[1].wallet,
+            listJettons[jetton].wallet,
             new Coins(inputLiq1).add(0.2).toNano(),
             boc
         )
 
         if (result.type === 'error') {
             console.error('error addLiq', result)
-            console.error('addressJopa', listJettons[1].wallet)
+            console.error('addressJopa', listJettons[jetton].wallet)
             setSnackbar(<Snackbar
                 onClose={() => setSnackbar(null)}
                 before={
@@ -1818,18 +1933,20 @@ export const App: React.FC = () => {
         }
     }
 
-    async function removeLp () {
+    async function removeLp (jetton:any) {
         const msg = TokenWallet.transferMsg({
             queryId: BigInt(Date.now()),
             amount: new Coins(balanceLp),
-            destination: new Address((fromJetton === 0
-                ? listJettons[toJetton].addressSwap
-                : listJettons[fromJetton].addressSwap)),
+            destination: new Address(listJettons[jetton].addressSwap),
             responseDestination: new Address(address),
             forwardTonAmount: new Coins(0.1)
         })
         const boc = BOC.toBase64Standard(msg)
-        const result:any = await sendBocTHub(adderessUserLp, new Coins(0.15).toNano(), boc)
+        const result:any = await sendBocTHub(
+            listJettons[jetton].lp2.addressUser,
+            new Coins(0.15).toNano(),
+            boc
+        )
 
         if (result.type === 'error') {
             console.error(result)
@@ -1921,10 +2038,10 @@ export const App: React.FC = () => {
             const isN = Number.isNaN(numValue)
             if (isN === false) {
                 if (numValue > 0) {
-                    if (numValue < 10000) {
+                    if (numValue < 10_000_000_000) {
                         return value
                     }
-                    return '10000'
+                    return '10000000000'
                 }
                 return '0'
             }
@@ -1940,8 +2057,10 @@ export const App: React.FC = () => {
         return result
     }
 
-    function changeJetton (jetton:any, type:any) {
+    async function changeJetton (jetton:any, type:any) {
         // getPriceSwap()
+
+        let addressUp
 
         if (type === 0) { // from
             if (Number(jetton) === Number(toJetton)) {
@@ -1953,6 +2072,8 @@ export const App: React.FC = () => {
             } else if (Number(fromJetton) === 0) {
                 setToJetton(0)
             }
+            addressUp = Number(jetton) === 0 ? toJetton : jetton
+            addressUp = addressUp === 0 ? fromJetton : addressUp
             setFromJetton(Number(jetton))
         } else { // to
             if (Number(jetton) === Number(fromJetton)) {
@@ -1964,8 +2085,13 @@ export const App: React.FC = () => {
             } else if (Number(fromJetton) === 0) {
                 setFromJetton(0)
             }
+            addressUp = Number(jetton) === 0 ? fromJetton : jetton
+            addressUp = addressUp === 0 ? toJetton : addressUp
             setToJetton(Number(jetton))
         }
+
+        console.log('!!!!!addressUp', addressUp)
+        await getPriceSwapNew(listJettons[Number(addressUp)].addressSwap)
 
         calculateAmountNew(btnSwap, 0)
         setModal(null)
@@ -2233,21 +2359,23 @@ export const App: React.FC = () => {
                         {swapConfirm !== null
                             ? <div>
                                 <SimpleCell multiline>
-                                    <InfoRow header={`Give amount ${listJettons[fromJetton].symbl}`}>{Number(swapConfirm.amountU).toFixed(2)}</InfoRow>
+                                    <InfoRow header={`Give amount ${listJettons[fromJetton].symbl}`}>{balanceString(swapConfirm.amountU)}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
-                                    <InfoRow header={`Accept amount ${listJettons[toJetton].symbl}`}>{Number(swapConfirm.amount).toFixed(2)}</InfoRow>
+                                    <InfoRow header={`Accept amount ${listJettons[toJetton].symbl}`}>{balanceString(swapConfirm.amount)}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
                                     <InfoRow header={'Market price'}>{swapConfirm.price}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
-                                    <InfoRow header={'Fee'}>{Number(swapConfirm.fee).toFixed(2)}</InfoRow>
+                                    <InfoRow header={'Chain fee'}>{balanceString(0.31)}</InfoRow>
+                                </SimpleCell>
+                                <SimpleCell multiline>
+                                    <InfoRow header={'Fee'}>{balanceString(swapConfirm.fee)}</InfoRow>
                                 </SimpleCell>
                                 <SimpleCell multiline>
                                     <InfoRow header={'Price Impact'} style={swapConfirm.imact > 10 ? { color: 'var(--destructive)' } : {}}>
-                                        {Number(swapConfirm.imact < 0 ? 0 : swapConfirm.imact)
-                                            .toFixed(2)} %
+                                        {balanceString(swapConfirm.imact < 0 ? 0 : swapConfirm.imact)} %
                                     </InfoRow>
                                 </SimpleCell>
                                 <br />
@@ -2670,6 +2798,7 @@ export const App: React.FC = () => {
                                                 }}
                                                 align="right"
                                                 className='fix_input'
+                                                type='number'
                                                 style={
                                                     { border: 'none' }
                                                 }
@@ -2684,13 +2813,13 @@ export const App: React.FC = () => {
                                     <Div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <small>From</small>
-                                            <small>{`Balance: ${balanceString(listJettons[1].balance)}`}</small>
+                                            <small>{`Balance: ${balanceString(listJettons[liqSelectJetton].balance)}`}</small>
                                         </div>
 
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
 
                                             <Avatar
-                                                src={listJettons[1].img}
+                                                src={listJettons[liqSelectJetton].img}
                                                 size={34}
                                             />
                                             <CustomSelect
@@ -2723,7 +2852,7 @@ export const App: React.FC = () => {
                                                     />
 
                                                 )}
-                                                value={1}
+                                                value={liqSelectJetton}
                                                 onChange={(e:any) => {
                                                 }}
                                             >
@@ -2740,6 +2869,7 @@ export const App: React.FC = () => {
                                                 }}
                                                 align="right"
                                                 className='fix_input'
+                                                type='number'
                                                 style={
                                                     { border: 'none' }
                                                 }
@@ -2750,9 +2880,16 @@ export const App: React.FC = () => {
                                 </Card>
                             </CardGrid>
                             : null}
+
+                        <small style={{ opacity: '0.6', paddingTop: '6px' }}>Minimum amount: 5 TON<br /></small>
                         <br />
 
-                        <Button size='l' stretched onClick={addLiq}>Add</Button>
+                        <Button
+                            size='l'
+                            stretched
+                            onClick={() => addLiq(liqSelectJetton)}
+                            disabled={Number(inputLiq1) < 2}
+                        >Add</Button>
                         <br />
 
                         {/* <Button size='l' stretched onClick={removeLp} appearance={'negative'} disabled={balanceLp === 0}>Remove all LP</Button> */}
@@ -2791,7 +2928,8 @@ export const App: React.FC = () => {
             <SplitLayout
                 style={{ justifyContent: 'center', paddingTop: getPaddingTop() }}
                 header={hasHeader && !isExtension && <PanelHeader separator={false} className={'menu1'} left={
-                    <img src={logoPNG} className="logo" style={{ cursor: 'pointer' }} />
+                    <img src={logoSVG} className="logo" style={{ cursor: 'pointer' }} />
+                    // <logoSVG className="logo" style={{ cursor: 'pointer' }} />
                 }
                 right={ !isExtension && (
                     isDesktop
@@ -3099,6 +3237,9 @@ export const App: React.FC = () => {
                                 loginHub={loginHub}
                                 dexType={dexType}
                                 loginCook={loginCook}
+                                liqprop={liqprop}
+                                liqprop2={liqprop2}
+                                getPriceSwapNew={getPriceSwapNew}
                             />
 
                             <FarmsPanel
@@ -3136,11 +3277,14 @@ export const App: React.FC = () => {
                                 liqObj={liqObj}
                                 removeLp={removeLp}
                                 liqObjUser={liqObjUser}
+                                loginCook={loginCook}
+                                setLiqSelectJetton={setLiqSelectJetton}
+                                loadPage2={loadPage2}
                             />
                         </Epic>
                     </SplitCol>
                     : <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                        <Spinner size="large" style={{ margin: isDesktop ? '50px 0' : '20px 0' }} />
+                        {/* <Spinner size="large" style={{ margin: isDesktop ? '50px 0' : '20px 0' }} /> */}
                     </div>
                 }
                 {snackbar}

@@ -68,7 +68,10 @@ interface IMyProps {
     setToJetton: Function,
     loginHub: Function,
     dexType: any,
-    loginCook: Function
+    loginCook: Function,
+    liqprop: any,
+    liqprop2: any,
+    getPriceSwapNew: Function
 }
 
 const isExtension: boolean = TonhubLocalConnector.isAvailable()
@@ -147,7 +150,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
             console.log('price1', amout1)
 
             const imact = parseFloat(props.btnSwap)
-            const imact2 = typeSwap2 ? parseFloat(priceSwap) : parseFloat(priceSwapTon)
+            const imact2 = typeSwap2 ? parseFloat(props.liqprop) : parseFloat(props.liqprop2)
             const imact3 = parseFloat(price1)
             console.log(imact3, imact2)
             const imactRes = (imact3 / imact2 - 1) * 100
@@ -213,7 +216,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         const load = async () => {
             // setAddress('1')
             // login()
-            getPriceSwap()
+            props.getPriceSwapNew((props.fromJetton === 0
+                ? props.listJettons[props.toJetton].addressSwap
+                : props.listJettons[props.fromJetton].addressSwap))
             setTypeDex('swap')
         }
         load()
@@ -225,10 +230,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
             const isN = Number.isNaN(numValue)
             if (isN === false) {
                 if (numValue > 0) {
-                    if (numValue < 10000) {
+                    if (numValue < 10000000000) {
                         return value
                     }
-                    return '10000'
+                    return '10000000000'
                 }
                 return '0'
             }
@@ -246,6 +251,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
     }
 
     function calculateAmountNew (amount:any, type:any) {
+        const minAmountTon = 2
         if (amount === '') {
             props.setBtnSwap('')
             setTonSwap('')
@@ -254,20 +260,22 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
             if (type === 0) { // from
                 let amountTo = 0
                 if (props.fromJetton === 0) { // from ton to jetton
-                    amountTo = parseFloat(priceSwapTon) * amountN
+                    amountTo = parseFloat(props.liqprop2) * amountN
                 } else { // from jetton to ton
-                    amountTo = parseFloat(priceSwap) * amountN
+                    amountTo = parseFloat(props.liqprop) * amountN
+                    // if (amountTo < minAmountTon) {
+
+                    // }
                 }
 
                 setTonSwap(parseFloat(amountTo.toFixed(10)).toFixed(9))
                 props.setBtnSwap(amount)
             } else { // to
-                
                 let amountFrom = 0
                 if (props.fromJetton === 1) { // from ton to jetton
-                    amountFrom = parseFloat(priceSwapTon) * amountN
+                    amountFrom = parseFloat(props.liqprop2) * amountN
                 } else { // from jetton to ton
-                    amountFrom = parseFloat(priceSwap) * amountN
+                    amountFrom = parseFloat(props.liqprop) * amountN
                 }
 
                 props.setBtnSwap(parseFloat(amountFrom.toFixed(10)).toFixed(9))
@@ -284,8 +292,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
         props.setBtnSwap(Number(tonSwapCopy))
     }
 
-    function changeJetton (jetton:any, type:any) {
-        getPriceSwap()
+    async function changeJetton (jetton:any, type:any) {
+        await props.getPriceSwapNew((props.fromJetton === 0
+            ? props.listJettons[props.toJetton].addressSwap
+            : props.listJettons[props.fromJetton].addressSwap))
 
         if (type === 0) { // from
             if (Number(jetton) === Number(props.toJetton)) {
@@ -399,7 +409,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                             <Div>
                                 <IconButton onClick={() => {
                                     props.loginCook()
-                                    getPriceSwap()
+                                    props.getPriceSwapNew((props.fromJetton === 0
+                                        ? props.listJettons[props.toJetton].addressSwap
+                                        : props.listJettons[props.fromJetton].addressSwap))
                                 }}>
                                     <Icon28RefreshOutline />
                                 </IconButton>
@@ -428,7 +440,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 }
                                                 selectType="plain"
                                                 className='fix_input'
-                                                style={{ maxWidth: '38%', cursor: 'pointer' }}
+                                                style={{ maxWidth: '33%', cursor: 'pointer' }}
                                                 options={
                                                     filterArr(props.listJettons).map(
                                                         (jetton:any, key:number) => ({
@@ -456,14 +468,15 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
 
                                                 )}
                                                 value={props.fromJetton}
-                                                onChange={(e:any) => {
-                                                    changeJetton(e.target.value, 0)
-                                                }}
+                                                // onChange={(e:any) => {
+                                                //     changeJetton(e.target.value, 0)
+                                                // }}
                                             >
                                             </CustomSelect>
 
                                             <Input
                                                 placeholder="0.0"
+                                                type='number'
                                                 value={props.btnSwap}
                                                 onChange={(e) => {
                                                     calculateAmountNew(
@@ -518,7 +531,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 }
                                                 selectType="plain"
                                                 className='fix_input'
-                                                style={{ maxWidth: '38%', cursor: 'pointer' }}
+                                                style={{ maxWidth: '33%', cursor: 'pointer' }}
                                                 options={
                                                     filterArr(props.listJettons).map(
                                                         (jetton:any, key:number) => (
@@ -547,15 +560,16 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 disabled
                                                 onClick={() => props.setModal('select_to')}
                                                 value={props.toJetton}
-                                                onChange={(e:any) => {
-                                                    changeJetton(e.target.value, 1)
-                                                }}
+                                                // onChange={(e:any) => {
+                                                //     changeJetton(e.target.value, 1)
+                                                // }}
                                             >
                                             </CustomSelect>
 
                                             <Input
                                                 placeholder="0.0"
                                                 value={tonSwap}
+                                                type='number'
                                                 onChange={(e) => {
                                                     calculateAmountNew(
                                                         inputNumberSet(e.target.value),
@@ -662,10 +676,10 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                             <small>Price</small>
                             {Number(props.fromJetton) === 0
                                 ? <small>
-                                    {`${priceSwapTon} ${props.listJettons[props.toJetton].symbl} per 1 ${props.listJettons[props.fromJetton].symbl}`}
+                                    {`${props.liqprop2} ${props.listJettons[props.toJetton].symbl} per 1 ${props.listJettons[props.fromJetton].symbl}`}
                                 </small>
                                 : <small>
-                                    {`${priceSwap} ${props.listJettons[props.fromJetton].symbl} per 1 ${props.listJettons[props.toJetton].symbl}`}
+                                    {` 1 ${props.listJettons[props.fromJetton].symbl} per ${props.liqprop} ${props.listJettons[props.toJetton].symbl}`}
                                 </small>
                             }
 
@@ -690,8 +704,16 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     stretched
                                     before={<Icon28SyncOutline/>}
                                     onClick={swapGo}
-                                    disabled={priceSwap === '0' || props.loadWallet !== 1 || priceSwap === '' || props.btnSwap === '' || props.btnSwap === '0'}
-                                >Exchange</Button>
+                                    disabled={
+                                        props.loadWallet !== 1
+                                          || props.liqprop === ''
+                                          || props.liqprop === 0
+                                           || props.btnSwap === ''
+                                            || props.btnSwap === '0'
+                                            || (props.fromJetton === 0 && Number(props.btnSwap) < 2)
+                                            || (props.toJetton === 0 && Number(tonSwap) < 2)
+                                    }
+                                >Preview conversation</Button>
                                 : <Button
                                     size="l"
                                     stretched
@@ -703,8 +725,9 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     before={<Icon28DoorArrowLeftOutline/>}
                                 >Connect wallet</Button>
                             }
+                            <small style={{ opacity: '0.6', paddingTop: '6px' }}>Minimum amount: 2 TON</small>
 
-                            {props.dexType === 1 ? <small><br />BETA VERSION</small> : null}
+                            {props.dexType === 1 ? <small ><br /><br />BETA VERSION</small> : null}
                         </Div>
 
                         {isExtension
@@ -714,7 +737,6 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                             </Div>
                             : null}
 
-                        
                         {/* <Div>
                             <Button size={'l'} stretched before={<Icon28AddCircleOutline/>} onClick={() => props.setModal('liquidity')} mode="secondary">Add liquidity</Button>
                         </Div> */}
