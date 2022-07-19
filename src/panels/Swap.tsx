@@ -440,7 +440,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 }
                                                 selectType="plain"
                                                 className='fix_input'
-                                                style={{ maxWidth: '38%', cursor: 'pointer' }}
+                                                style={{ maxWidth: '33%', cursor: 'pointer' }}
                                                 options={
                                                     filterArr(props.listJettons).map(
                                                         (jetton:any, key:number) => ({
@@ -531,7 +531,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 }
                                                 selectType="plain"
                                                 className='fix_input'
-                                                style={{ maxWidth: '38%', cursor: 'pointer' }}
+                                                style={{ maxWidth: '33%', cursor: 'pointer' }}
                                                 options={
                                                     filterArr(props.listJettons).map(
                                                         (jetton:any, key:number) => (
@@ -713,7 +713,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                             || (props.fromJetton === 0 && Number(props.btnSwap) < 2)
                                             || (props.toJetton === 0 && Number(tonSwap) < 2)
                                     }
-                                >Exchange</Button>
+                                >Preview conversation</Button>
                                 : <Button
                                     size="l"
                                     stretched

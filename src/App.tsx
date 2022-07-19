@@ -412,8 +412,8 @@ export const App: React.FC = () => {
             setBalance(balTon)
         }
 
-        // const listJettonsT:Array<any> = list
-        // listJettonsT[0].balance = Number(balTon)
+        const listJettonsT:Array<any> = list
+        listJettonsT[0].balance = Number(balTon)
         // setListJettons(listJettonsT)
 
         return listJettonsT
