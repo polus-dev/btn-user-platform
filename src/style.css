@@ -142,7 +142,8 @@ html,
     }
 }
 
-.vkuiAvatar__img[src*="data:image"] {
+.vkuiAvatar__img[src*="data:image"],
+.UsersStack__photo image[src*="data:image"] {
     /* болт дурак */
     background: #fff;
 }
