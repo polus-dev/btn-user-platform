@@ -2010,10 +2010,10 @@ export const App: React.FC = () => {
             const isN = Number.isNaN(numValue)
             if (isN === false) {
                 if (numValue > 0) {
-                    if (numValue < 10000) {
+                    if (numValue < 10_000_000_000) {
                         return value
                     }
-                    return '10000'
+                    return '10000000000'
                 }
                 return '0'
             }
