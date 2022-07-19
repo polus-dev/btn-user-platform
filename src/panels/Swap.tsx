@@ -440,7 +440,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 }
                                                 selectType="plain"
                                                 className='fix_input'
-                                                style={{ maxWidth: '33%', cursor: 'pointer' }}
+                                                style={{ maxWidth: '35%', cursor: 'pointer' }}
                                                 options={
                                                     filterArr(props.listJettons).map(
                                                         (jetton:any, key:number) => ({
@@ -531,7 +531,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                                 }
                                                 selectType="plain"
                                                 className='fix_input'
-                                                style={{ maxWidth: '33%', cursor: 'pointer' }}
+                                                style={{ maxWidth: '35%', cursor: 'pointer' }}
                                                 options={
                                                     filterArr(props.listJettons).map(
                                                         (jetton:any, key:number) => (
