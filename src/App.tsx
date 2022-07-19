@@ -412,11 +412,11 @@ export const App: React.FC = () => {
             setBalance(balTon)
         }
 
-        const listJettonsT:Array<any> = list
-        listJettonsT[0].balance = Number(balTon)
-        setListJettons(listJettonsT)
+        // const listJettonsT:Array<any> = list
+        // listJettonsT[0].balance = Number(balTon)
+        // setListJettons(listJettonsT)
 
-        return balTon
+        return listJettonsT
     }
 
     async function getBalanceLp (addressUser:string, addressSwap2:any) {
@@ -528,7 +528,7 @@ export const App: React.FC = () => {
 
             setListJettonsFromStor(listJettonsT)
 
-            getBalanceTon()
+            // getBalanceTon()
         }
     }
 
@@ -1335,6 +1335,11 @@ export const App: React.FC = () => {
                 }
             }
 
+            if (address2) {
+                listJettons2 = await getBalanceTon(address2, true, listJettons2)
+            // getLpData(address2)
+            }
+
             setLoadPage(1)
 
             setPopout(null)
@@ -1343,11 +1348,6 @@ export const App: React.FC = () => {
             console.log('=====================================fullListLP', fullListLP)
             setListJettonsFromStor(fullListLP)
             setListJettons(fullListLP)
-
-            if (address2) {
-                getBalanceTon(address2, true, fullListLP)
-            // getLpData(address2)
-            }
 
             setLoadPage2(1)
 
