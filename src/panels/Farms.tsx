@@ -178,7 +178,7 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                     Pool liquidity
                                         </SimpleCell>
 
-                                        {jetton.lp2
+                                        {jetton.lp2 && props.loadWallet === 1
                                             ? <SimpleCell
                                                 before={null}
                                                 style={{ marginBottom: '12px' }}
@@ -192,7 +192,7 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                                             </SimpleCell>
                                             : null}
 
-                                        {jetton.lp2
+                                        {jetton.lp2 && props.loadWallet === 1
                                             ? <SimpleCell
                                                 before={null}
                                                 disabled
