@@ -679,7 +679,7 @@ const Swap: React.FC<IMyProps> = (props: IMyProps) => {
                                     {`${props.liqprop2} ${props.listJettons[props.toJetton].symbl} per 1 ${props.listJettons[props.fromJetton].symbl}`}
                                 </small>
                                 : <small>
-                                    {`${props.liqprop} ${props.listJettons[props.toJetton].symbl} per 1 ${props.listJettons[props.fromJetton].symbl}`}
+                                    {` 1 ${props.listJettons[props.fromJetton].symbl} per ${props.liqprop} ${props.listJettons[props.toJetton].symbl}`}
                                 </small>
                             }
 

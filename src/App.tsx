@@ -460,7 +460,7 @@ export const App: React.FC = () => {
                         addressUser
                     }
 
-                    console.log('================================================', obj2)
+                    // console.log('================================================', obj2)
 
                     setLiqObjUser(obj2)
 
@@ -468,7 +468,7 @@ export const App: React.FC = () => {
                 }
                 // console.log('jwallAddressResp4 =====================', jwallAddressResp4)
             } else {
-                console.log('balanceLp =====================', balanceLp)
+                // console.log('balanceLp =====================', balanceLp)
             }
         } else {
             console.error('balanceLpRespInt', jwallPriceResp.data)
@@ -563,8 +563,6 @@ export const App: React.FC = () => {
                         let urlIpfs = ''
                         let str2 = (new TextDecoder('utf-8').decode(stringCell))
 
-                        console.log('str2', str2)
-
                         if (str2.indexOf('http') > -1) {
                             urlIpfs = str2
                         } else if (str2.indexOf('//') > -1) {
@@ -574,7 +572,9 @@ export const App: React.FC = () => {
 
                         const jsonJetton = await gteDataApi(urlIpfs)
 
-                        console.log('jsonJetton', jsonJetton.data)
+                        // console.log('jsonJetton', jsonJetton.data)
+
+                        console.log(`Jetton ipfs ${jsonJetton.data.name}`, str2)
 
                         if (jsonJetton.data) {
                             if (type === 0) {
@@ -667,7 +667,11 @@ export const App: React.FC = () => {
                     cheackF = true
                     console.error(jwallAddressResp.data)
                 }
+            } else {
+                console.error('getJettonWalletAddress', jwallAddressResp.data.result)
+                cheackF = true
             }
+
             if (cheackF) {
                 // попробовать другой метод
                 const addressO = new Address(addressUser)
@@ -871,7 +875,7 @@ export const App: React.FC = () => {
                 const addressMin = jwallPriceResp.data.result.stack[1][1]
                 const addressOver = new Address(`0:${addressMin.slice(2)}`).toString('base64', { bounceable: true })
 
-                console.log('WALLET FROM addressOver', addressOver)
+                // console.log('WALLET FROM addressOver', addressOver)
 
                 if (addressOver) {
                     // const addressO = new Address(addressOver)
@@ -886,12 +890,12 @@ export const App: React.FC = () => {
                         stack: [ [ 'num', `0x${addressUserTon}` ] ]
                         // stack: [ [ 'tvm.Slice', boc2 ] ]
                     }
-                    console.log(data)
+                    // console.log(data)
 
                     const jwallPriceResp3 = await tonrpc.request('runGetMethod', data)
 
                     if (jwallPriceResp3.data.ok === true) {
-                        console.log('jwallPriceResp3', jwallPriceResp3.data.result)
+                        // console.log('jwallPriceResp3', jwallPriceResp3.data.result)
                         const addressWal2 = jwallPriceResp3.data.result.stack[0][1]
 
                         console.log('addressWal', addressWal2)
@@ -1184,7 +1188,7 @@ export const App: React.FC = () => {
                 (Number(jwallAddressResp.data.result.stack[0][1]) / 10 ** 9).toFixed(9)
             )
 
-            console.log('balanceJettonSwap', balanceJetton)
+            // console.log('balanceJettonSwap', balanceJetton)
 
             const jwallAddressResp2 = await tonrpc.request('runGetMethod', {
                 address: addressSwap2,
@@ -1198,7 +1202,7 @@ export const App: React.FC = () => {
                 const balanceFee = parseFloat(
                     (Number(jwallAddressResp2.data.result.stack[0][1]) / 10 ** 9).toFixed(9)
                 )
-                console.log('balanceFee', balanceFee)
+                // console.log('balanceFee', balanceFee)
 
                 const BalanceTon = await tonrpc.request('getAddressBalance', { address: addressSwap2 })
                 // console.log(BalanceTon.data.result)
@@ -1206,7 +1210,7 @@ export const App: React.FC = () => {
                 let balTon = parseFloat((BalanceTon.data.result / 10 ** 9).toFixed(9))
                 balTon -= balanceFee
 
-                console.log('balTon', balTon)
+                // console.log('balTon', balTon)
 
                 const obff = {
                     balanceTon: balTon,
@@ -1270,6 +1274,8 @@ export const App: React.FC = () => {
                 const walletJetton = await getJettonWalletAddress(listJettons2[i].address, address2)
                 if (walletJetton) {
                     listJettons2[i].wallet = walletJetton
+                } else {
+                    console.log('wallet', listJettons2[i].address)
                 }
             }
             // setListJettonsFromStor(listJettons2)
@@ -1318,7 +1324,7 @@ export const App: React.FC = () => {
                             }
                         } else if (info.image_data) { // болт дурак
                             img2 = `data:image/svg+xml;base64,${info.image_data}`
-                            console.log('BOLT================', info)
+                            // console.log('BOLT================', info)
                         }
                         listJettons2[i].img = img2
                     } else {
@@ -1354,8 +1360,6 @@ export const App: React.FC = () => {
             console.error('null list')
         }
     }
-
-
 
     async function loginIframeHub () {
         if (isExtension) {
@@ -1426,7 +1430,7 @@ export const App: React.FC = () => {
             const session1: TonhubCreatedSession = await connector.createNewSession({
                 name: 'Biton',
                 // url: 'https://btn-user-platform-git-dev-biton.vercel.app/'
-                url: window.location.href
+                url: window.location.href === 'http://localhost:8080/' ? 'https://btn-user-platform-git-dev-biton.vercel.app/' : window.location.href
             })
 
             // Session ID, Seed and Auth Link
@@ -1839,8 +1843,8 @@ export const App: React.FC = () => {
 
             const result: any = await sendBocTHub(
                 (fromJetton === 0
-                    ? listJettons[toJetton].addressSwap
-                    : listJettons[fromJetton].addressSwap),
+                    ? listJettons[toJetton].wallet
+                    : listJettons[fromJetton].wallet),
                 new Coins(0.1).toNano(),
                 BOC.toBase64Standard(msg)
             )
