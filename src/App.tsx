@@ -1229,7 +1229,7 @@ export const App: React.FC = () => {
                 const balancePoolSwap = await getBalanceSwap(listJettons2[i].addressSwap) // вернет объект
                 let balanceUserSwap = null
                 if (addressUser) {
-                    balanceUserSwap = await getLpData(listJettons2[i].addressSwap,addressUser)
+                    balanceUserSwap = await getLpData(listJettons2[i].addressSwap, addressUser)
                 }
                 listJettons2[i].lp = balancePoolSwap
 
@@ -1239,63 +1239,6 @@ export const App: React.FC = () => {
             // console.error('lp jetton not null')
         }
         return listJettons2
-    }
-
-    // обновляет данные жетонов (последняя функция)
-    async function updateInfoJettons (list:any, address2:any = address) {
-        let listJettons2 = list
-
-        listJettons2 = await loadWalletAddressFromListJettons(listJettons2, address2)
-
-        listJettons2 = await loadBalanceFromListJettons(listJettons2)
-
-        for (let i = 1; i < listJettons2.length; i++) {
-            if (listJettons2[i].address !== '') {
-                // console.log('listJettons2[i]', listJettons2[i])
-                const info = await getDataJetton(listJettons2[i].address, 0, '', 1)
-                if (info) {
-                    listJettons2[i].name = info.name
-                    listJettons2[i].symbl = info.symbol
-
-                    let img2 = ''
-                    if (info.image) {
-                        img2 = info.image
-                        if (img2.indexOf('http') > -1) {
-                            img2 += ''
-                        } else if (img2.indexOf('ipfs://') > -1) {
-                            img2 = img2.substring(7, img2.length)
-                            img2 = `https://${info.image.split('//')[1]}.ipfs.infura-ipfs.io/`
-                        } else {
-                            img2 = ''
-                        }
-                    } else if (info.image_data) { // болт дурак
-                        img2 = `data:image/svg+xml;base64,${info.image_data}`
-                        console.log('BOLT================', info)
-                    }
-                    listJettons2[i].img = img2
-                } else {
-                    console.error('info null', info)
-                }
-            } else {
-                console.error('wallet address jetton null')
-            }
-        }
-
-        const fullListLP = await updateInfoLpJettons(listJettons2, address2)
-        console.log('=====================================fullListLP', fullListLP)
-        setListJettonsFromStor(fullListLP)
-        setListJettons(fullListLP)
-
-        if (address2) {
-            getBalanceTon(address2, true, fullListLP)
-            // getLpData(address2)
-        }
-
-        // getBalanceSwap()
-
-        setLoadPage(1)
-
-        setPopout(null)
     }
 
     // обновление баланса жентонов из списка
@@ -1317,8 +1260,8 @@ export const App: React.FC = () => {
     }
 
     // обновление валетадресов жентонов из списка
-    async function loadWalletAddressFromListJettons (list:any, address2:any) {
-        if (address2) {
+    async function loadWalletAddressFromListJettons (list:any, address2:any = null) {
+        if (address2 || address2 !== '') {
             const listJettons2 = list
             console.log('listJettons2', listJettons2)
             for (let i = 1; i < listJettons2.length; i++) {
@@ -1335,7 +1278,75 @@ export const App: React.FC = () => {
 
             return listJettons2
         }
+        return list
     }
+
+    // обновляет данные жетонов (последняя функция)
+    async function updateInfoJettons (list:any, address2:any = address) {
+        let listJettons2 = list
+
+        // console.log(listJettons2)
+
+        if (list) {
+            console.log(listJettons2)
+            listJettons2 = await loadWalletAddressFromListJettons(listJettons2, address2)
+            console.log(listJettons2)
+
+            listJettons2 = await loadBalanceFromListJettons(listJettons2)
+
+            for (let i = 1; i < listJettons2.length; i++) {
+                if (listJettons2[i].address !== '') {
+                // console.log('listJettons2[i]', listJettons2[i])
+                    const info = await getDataJetton(listJettons2[i].address, 0, '', 1)
+                    if (info) {
+                        listJettons2[i].name = info.name
+                        listJettons2[i].symbl = info.symbol
+
+                        let img2 = ''
+                        if (info.image) {
+                            img2 = info.image
+                            if (img2.indexOf('http') > -1) {
+                                img2 += ''
+                            } else if (img2.indexOf('ipfs://') > -1) {
+                                img2 = img2.substring(7, img2.length)
+                                img2 = `https://${info.image.split('//')[1]}.ipfs.infura-ipfs.io/`
+                            } else {
+                                img2 = ''
+                            }
+                        } else if (info.image_data) { // болт дурак
+                            img2 = `data:image/svg+xml;base64,${info.image_data}`
+                            console.log('BOLT================', info)
+                        }
+                        listJettons2[i].img = img2
+                    } else {
+                        console.error('info null', info)
+                    }
+                } else {
+                    console.error('wallet address jetton null')
+                }
+            }
+
+            const fullListLP = await updateInfoLpJettons(listJettons2, address2)
+            console.log('=====================================fullListLP', fullListLP)
+            setListJettonsFromStor(fullListLP)
+            setListJettons(fullListLP)
+
+            if (address2) {
+                getBalanceTon(address2, true, fullListLP)
+            // getLpData(address2)
+            }
+
+            // getBalanceSwap()
+
+            setLoadPage(1)
+
+            setPopout(null)
+        } else {
+            console.error('null list')
+        }
+    }
+
+
 
     async function loginIframeHub () {
         if (isExtension) {
@@ -1392,7 +1403,7 @@ export const App: React.FC = () => {
         if (isExtension) {
             loginIframeHub()
         } else {
-            updateInfoJettons(listJettons, addressUser)
+            updateInfoJettons(listJ, addressUser)
         }
     }
 
@@ -1455,7 +1466,9 @@ export const App: React.FC = () => {
 
                     // loadBalanceFromListJettons(listJ)
                     setPopout(<ScreenSpinner />)
-                    loadWalletAddressFromListJettons(listJ, session.wallet.address)
+                    // loadWalletAddressFromListJettons(listJ, session.wallet.address)
+
+                    updateInfoJettons(listJ, session.wallet.address)
 
                     // setPopout(null)
                 } else {
@@ -2010,10 +2023,10 @@ export const App: React.FC = () => {
             const isN = Number.isNaN(numValue)
             if (isN === false) {
                 if (numValue > 0) {
-                    if (numValue < 10000) {
+                    if (numValue < 10_000_000_000) {
                         return value
                     }
-                    return '10000'
+                    return '10000000000'
                 }
                 return '0'
             }
