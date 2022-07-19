@@ -64,7 +64,8 @@ interface IMyProps {
     removeLp: Function,
     liqObjUser: any,
     loginCook: Function,
-    setLiqSelectJetton: Function
+    setLiqSelectJetton: Function,
+    loadPage2: any
 }
 
 const Farms: React.FC<IMyProps> = (props: IMyProps) => {
@@ -140,104 +141,109 @@ const Farms: React.FC<IMyProps> = (props: IMyProps) => {
                             </Div>
                         </div>
 
-                        <CardGrid size={props.isDesktop ? 'm' : 'l'}>
-                            {props.listJettons.length > 2 && props.liqObj !== null
-                                ? filterArr(props.listJettons).map((jetton:any,key:any) => <Card key={key}>
-                                    <Div>
-                                        <SimpleCell
-                                            disabled
-                                            before={
-                                                <UsersStack
-                                                    photos={[ props.listJettons[0].img, jetton.img ]}
-                                                    size="m"
-                                                    style={{ marginRight: '10px' }}
-                                                >
-                                                </UsersStack>
-                                            }
-                                            after={null
-                                            }
-                                        // description="Бот"
-                                        >
-                                            <b>TON-{jetton.symbl}</b>
-                                        </SimpleCell>
+                        {props.loadPage2 === 1
+                            ? <CardGrid size={props.isDesktop ? 'm' : 'l'}>
+                                {props.listJettons.length > 2
+                                    ? filterArr(props.listJettons).map((jetton:any, key:any) => <Card key={key}>
+                                        <Div>
+                                            <SimpleCell
+                                                disabled
+                                                before={
+                                                    <UsersStack
+                                                        photos={[ props.listJettons[0].img, jetton.img ]}
+                                                        size="m"
+                                                        style={{ marginRight: '10px' }}
+                                                    >
+                                                    </UsersStack>
+                                                }
+                                                after={null
+                                                }
+                                                // description="Бот"
+                                            >
+                                                <b>TON-{jetton.symbl}</b>
+                                            </SimpleCell>
 
-                                        {/* <MiniInfoCell
+                                            {/* <MiniInfoCell
                                         after={'33%'} before={null}>
                                         APR:
                                     </MiniInfoCell> */}
 
-                                        <SimpleCell
-                                            before={null}
-                                            style={{ marginBottom: '12px' }}
-                                            disabled
-                                            after={
-                                                <b style={{ textAlign: 'right' }}>
-                                                    {balanceString(jetton.lp.balanceTon)} TON <br/> {balanceString(jetton.lp.balanceJetton)} {jetton.symbl}
-                                                </b>}
-                                        >
-                                    Pool liquidity
-                                        </SimpleCell>
-
-                                        {jetton.lp2
-                                            ? <SimpleCell
+                                            <SimpleCell
                                                 before={null}
                                                 style={{ marginBottom: '12px' }}
                                                 disabled
                                                 after={
                                                     <b style={{ textAlign: 'right' }}>
-                                                        {balanceString(jetton.lp2.balanceTon)} TON <br/> {balanceString(jetton.lp2.balanceJetton)} {jetton.symbl}
+                                                        {balanceString(jetton.lp.balanceTon)} TON <br/> {balanceString(jetton.lp.balanceJetton)} {jetton.symbl}
                                                     </b>}
                                             >
+                                    Pool liquidity
+                                            </SimpleCell>
+
+                                            {jetton.lp2 && props.loadWallet === 1
+                                                ? <SimpleCell
+                                                    before={null}
+                                                    style={{ marginBottom: '12px' }}
+                                                    disabled
+                                                    after={
+                                                        <b style={{ textAlign: 'right' }}>
+                                                            {balanceString(jetton.lp2.balanceTon)} TON <br/> {balanceString(jetton.lp2.balanceJetton)} {jetton.symbl}
+                                                        </b>}
+                                                >
                                     Your balance
-                                            </SimpleCell>
-                                            : null}
+                                                </SimpleCell>
+                                                : null}
 
-                                        {jetton.lp2
-                                            ? <SimpleCell
-                                                before={null}
-                                                disabled
-                                                after={<Button
-                                                    size='s'
-                                                    appearance='negative'
-                                                    mode='outline'
-                                                    className='small1'
-                                                    onClick={() => props.removeLp(jetton.id)}
-                                                >Harvest</Button>}
-                                            >
+                                            {jetton.lp2 && props.loadWallet === 1
+                                                ? <SimpleCell
+                                                    before={null}
+                                                    disabled
+                                                    after={<Button
+                                                        size='s'
+                                                        appearance='negative'
+                                                        mode='outline'
+                                                        className='small1'
+                                                        onClick={() => props.removeLp(jetton.id)}
+                                                    >Harvest</Button>}
+                                                >
                                         Your lp: <b>{balanceString(jetton.lp2.balanceBtnRespInt)} {jetton.symbl}-LP</b>
-                                            </SimpleCell>
-                                            : null }
-                                    </Div>
+                                                </SimpleCell>
+                                                : null }
+                                        </Div>
 
-                                    <Div>
-                                        {props.loadWallet === 1
-                                            ? <Button
-                                                size={'l'}
-                                                stretched
-                                                before={<Icon28AddCircleOutline />}
-                                                onClick={() => {
-                                                    props.setModal('liquidity')
-                                                    props.getPriceSwapNew(jetton.addressSwap)
-                                                    props.setLiqSelectJetton(jetton.id)
-                                                }}
-                                            >Add</Button>
-                                            : <Button
-                                                size="l"
-                                                stretched
-                                                onClick={() => {
-                                                    props.loginHub()
-                                                    props.setModal('login')
-                                                }}
-                                                data-story="swap"
-                                                before={<Icon28DoorArrowLeftOutline/>}
-                                            >Connect wallet</Button>
-                                        }
-                                    </Div>
-                                </Card>)
-                                : <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                                    <Spinner size="large" style={{ margin: props.isDesktop ? '50px 0' : '20px 0' }} />
-                                </div> }
-                        </CardGrid>
+                                        <Div>
+                                            {props.loadWallet === 1
+                                                ? <Button
+                                                    size={'l'}
+                                                    stretched
+                                                    before={<Icon28AddCircleOutline />}
+                                                    onClick={() => {
+                                                        props.setModal('liquidity')
+                                                        props.getPriceSwapNew(jetton.addressSwap)
+                                                        props.setLiqSelectJetton(jetton.id)
+                                                    }}
+                                                >Add</Button>
+                                                : <Button
+                                                    size="l"
+                                                    stretched
+                                                    onClick={() => {
+                                                        props.loginHub()
+                                                        props.setModal('login')
+                                                    }}
+                                                    data-story="swap"
+                                                    before={<Icon28DoorArrowLeftOutline/>}
+                                                >Connect wallet</Button>
+                                            }
+                                        </Div>
+                                    </Card>)
+                                    : <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                                        <Spinner size="large" style={{ margin: props.isDesktop ? '50px 0' : '20px 0' }} />
+                                    </div> }
+                            </CardGrid>
+                            : <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                                <Spinner size="large" style={{ margin: props.isDesktop ? '50px 0' : '20px 0' }} />
+                            </div>
+                        }
 
                     </Div>
                 </Group>

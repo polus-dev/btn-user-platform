@@ -337,6 +337,7 @@ export const App: React.FC = () => {
     const [ inpBuy, setInpBuy ] = React.useState<any>('') // выбор жетона для перевода
 
     const [ loadPage, setLoadPage ] = React.useState<any>(0) // Полная загрузка страницы
+    const [ loadPage2, setLoadPage2 ] = React.useState<any>(0) // Полная загрузка страницы
 
     const [ liqObj, setLiqObj ] = React.useState<any>(null)
 
@@ -1285,6 +1286,8 @@ export const App: React.FC = () => {
     async function updateInfoJettons (list:any, address2:any = address) {
         let listJettons2 = list
 
+        setLoadPage2(0)
+
         // console.log(listJettons2)
 
         if (list) {
@@ -1326,6 +1329,10 @@ export const App: React.FC = () => {
                 }
             }
 
+            setLoadPage(1)
+
+            setPopout(null)
+
             const fullListLP = await updateInfoLpJettons(listJettons2, address2)
             console.log('=====================================fullListLP', fullListLP)
             setListJettonsFromStor(fullListLP)
@@ -1336,11 +1343,13 @@ export const App: React.FC = () => {
             // getLpData(address2)
             }
 
+            setLoadPage2(1)
+
             // getBalanceSwap()
 
-            setLoadPage(1)
+            // setLoadPage(1)
 
-            setPopout(null)
+            // setPopout(null)
         } else {
             console.error('null list')
         }
@@ -3264,6 +3273,7 @@ export const App: React.FC = () => {
                                 liqObjUser={liqObjUser}
                                 loginCook={loginCook}
                                 setLiqSelectJetton={setLiqSelectJetton}
+                                loadPage2={loadPage2}
                             />
                         </Epic>
                     </SplitCol>
