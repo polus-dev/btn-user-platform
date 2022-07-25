@@ -132,7 +132,7 @@ function createTonRPC () {
             connector = new TonhubConnector({ network: 'mainnet' })
         }
 
-        return new ToncenterRPC('https://mainnet-rpc.biton.app/jsonRPC')
+        return new ToncenterRPC('https://mainnet.tonhubapi.com/jsonRPC')
     } // testnet
     if (isExtension) {
         connector = new TonhubLocalConnector('sandbox')
