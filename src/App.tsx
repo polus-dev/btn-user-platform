@@ -440,7 +440,9 @@ export const App: React.FC = () => {
             console.log('balanceLpRespInt', balanceBtnRespInt)
 
             if (Number(balanceBtnRespInt) > 0) {
-                const balanceLpHex = (Number(balanceBtnRespInt) * (10 ** 9)).toString(16)
+                const balanceLpHex = Number(
+                    (Number(balanceBtnRespInt) * (10 ** 9)).toFixed(0)
+                ).toString(16)
 
                 const jwallAddressResp4 = await tonrpc.request('runGetMethod', {
                     address: addressSwap2,
